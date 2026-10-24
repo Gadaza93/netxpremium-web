@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Netxpremium | Software a la Medida, Sistemas POS & Desarrollo Web</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            obsidian: {
+              950: '#06070A',
+              900: '#0B0E14',
+              850: '#101520',
+              800: '#171E2D',
+              700: '#222C40',
+            },
+            electric: {
+              cyan: '#38BDF8',
+              indigo: '#6366F1',
+              violet: '#8B5CF6',
+              emerald: '#10B981',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #06070A;
+      color: #F1F5F9;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+
+    .glass-panel {
+      background: rgba(16, 21, 32, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .glass-card {
+      background: linear-gradient(180deg, rgba(23, 30, 45, 0.6) 0%, rgba(11, 14, 20, 0.7) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.15);
+    }
+
+    .glow-cyan {
+      box-shadow: 0 0 40px -10px rgba(56, 189, 248, 0.25);
+    }
+
+    .glow-indigo {
+      box-shadow: 0 0 50px -12px rgba(99, 102, 241, 0.3);
+    }
+
+    .ambient-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.15;
+    }
+  </style>
+</head>
+<body class="overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+
+  <div class="ambient-glow bg-indigo-600 top-[-100px] left-1/2 -translate-x-1/2"></div>
+  <div class="ambient-glow bg-sky-500 top-[900px] right-[-150px]"></div>
+
+  <nav class="sticky top-0 z-50 glass-panel border-b border-white/5 py-4 px-6 md:px-12">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-400 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
+          N
+        </div>
+        <div class="flex flex-col">
+          <span class="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
+            Netxpremium <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          </span>
+          <span class="text-[10px] text-slate-400 uppercase tracking-widest font-mono">Engineering & Systems</span>
+        </div>
+      </div>
+
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+        <a href="#soluciones" class="hover:text-white transition-colors">Soluciones</a>
+        <a href="#nexobar" class="hover:text-white transition-colors">Caso NexoBar POS</a>
+        <a href="#arquitectura" class="hover:text-white transition-colors">Arquitectura</a>
+        <a href="#cotizador" class="hover:text-white transition-colors">Cotizador</a>
+      </div>
+
+      <div class="hidden md:flex items-center gap-4">
+        <div class="flex items-center bg-obsidian-900 border border-white/10 rounded-lg p-1 text-xs font-mono">
+          <button id="btn-cop" onclick="setCurrency('COP')" class="px-2.5 py-1 rounded bg-indigo-600 text-white font-semibold transition-all">COP</button>
+          <button id="btn-usd" onclick="setCurrency('USD')" class="px-2.5 py-1 rounded text-slate-400 hover:text-white transition-all">USD</button>
+        </div>
+
+        <a href="#cotizador" class="px-4 py-2 rounded-lg bg-white text-obsidian-950 font-semibold text-xs tracking-wide hover:bg-slate-200 transition-all shadow-md flex items-center gap-2">
+          <span>Iniciar Proyecto</span>
+          <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+
+      <button onclick="toggleDrawer()" class="md:hidden text-slate-300 hover:text-white p-2">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
+    </div>
+  </nav>
+
+  <div id="mobile-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden transition-opacity duration-300">
+    <div class="w-4/5 max-w-xs h-full bg-obsidian-900 border-r border-white/10 p-6 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-6 border-b border-white/10">
+          <span class="font-bold text-white text-lg">Netxpremium</span>
+          <button onclick="toggleDrawer()" class="text-slate-400 hover:text-white">
+            <i data-lucide="x" class="w-6 h-6"></i>
+          </button>
+        </div>
+        <div class="flex flex-col gap-5 mt-6 text-slate-300 font-medium">
+          <a href="#soluciones" onclick="toggleDrawer()" class="hover:text-white">Soluciones</a>
+          <a href="#nexobar" onclick="toggleDrawer()" class="hover:text-white">Caso NexoBar POS</a>
+          <a href="#arquitectura" onclick="toggleDrawer()" class="hover:text-white">Arquitectura</a>
+          <a href="#cotizador" onclick="toggleDrawer()" class="hover:text-white">Cotizador</a>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-white/10 flex flex-col gap-4">
+        <div class="flex items-center justify-between bg-obsidian-850 p-2 rounded-lg text-xs font-mono">
+          <span class="text-slate-400">Moneda:</span>
+          <div class="flex gap-2">
+            <button onclick="setCurrency('COP'); toggleDrawer();" class="px-2 py-1 bg-indigo-600 rounded text-white">COP</button>
+            <button onclick="setCurrency('USD'); toggleDrawer();" class="px-2 py-1 bg-obsidian-700 rounded text-slate-300">USD</button>
+          </div>
+        </div>
+        <a href="https://wa.me/573000000000" target="_blank" class="w-full text-center py-2.5 rounded-lg bg-indigo-600 text-white font-medium text-xs">
+          Hablar por WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <section class="relative pt-24 pb-20 px-6 md:px-12 max-w-7xl mx-auto text-center md:text-left">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-7">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs font-mono mb-6">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          <span>Desarrollo de Software de Alto Nivel</span>
+        </div>
+        
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-6">
+          Sistemas a la medida y software comercial <span class="bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">que no fallan.</span>
+        </h1>
+
+        <p class="text-base sm:text-lg text-slate-400 font-normal leading-relaxed mb-8 max-w-2xl">
+          Creamos sistemas de gestión empresarial, puntos de venta (POS) y landing pages de ultra-alta velocidad. Respaldados por arquitectura moderna, offline-first y sincronización en tiempo real.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
+          <a href="#cotizador" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+            <span>Cotizar mi Proyecto</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+          <a href="#nexobar" class="w-full sm:w-auto px-7 py-3.5 rounded-xl glass-card hover:bg-white/5 text-slate-300 font-semibold text-sm transition-all flex items-center justify-center gap-2">
+            <i data-lucide="layers" class="w-4 h-4"></i>
+            <span>Ver Caso Insignia</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5 grid grid-cols-2 gap-4">
+        <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
+          <div class="w-10 h-10 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center mb-4">
+            <i data-lucide="wifi-off" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-bold font-mono text-white">0% Caídas</div>
+            <p class="text-xs text-slate-400 mt-1">Arquitectura Offline-First que sigue cobrando sin internet.</p>
+          </div>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
+          <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4">
+            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="text-2xl font-bold font-mono text-white">&lt; 100ms</div>
+            <p class="text-xs text-slate-400 mt-1">Sincronización instantánea entre cajas y celulares.</p>
+          </div>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl col-span-2 flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+              <i data-lucide="shield-check" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <div class="text-sm font-semibold text-white">Cero Licenciamiento Forzado</div>
+              <p class="text-xs text-slate-400">Software tuyo, optimizado y sin cargos ocultos.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="nexobar" class="py-20 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-mono mb-4">
+        CASO DE ÉXITO INSIGNIA
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">NexoBar POS — Sistema Híbrido Hostelería</h2>
+      <p class="text-slate-400 text-sm sm:text-base mt-3">Diseñado desde cero para resolver el dolor crítico de bares y restaurantes: cobro ultra rápido, control estricto de turnos de caja y sincronización móvil multi-dispositivo.</p>
+    </div>
+
+    <div class="glass-panel rounded-2xl p-4 md:p-8 border border-white/10 glow-indigo">
+      <div class="flex flex-wrap items-center justify-between pb-6 mb-6 border-b border-white/5 gap-4">
+        <div class="flex items-center gap-3">
+          <span class="text-lg font-bold text-white tracking-tight">NexoBar POS</span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> En línea / Sincronizado
+          </span>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 text-xs font-mono">
+          <a href="https://nexobar-pos.netlify.app/?demo=true" target="_blank" rel="noopener noreferrer" id="btn-live-demo" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-mono transition-all group">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>Probar Demo en Vivo</span>
+            <i data-lucide="external-link" class="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+          </a>
+          <div class="px-3 py-1.5 rounded-lg bg-obsidian-900 border border-white/5 text-slate-300">
+            Supabase Realtime
+          </div>
+          <div class="px-3 py-1.5 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-300">
+            Turno #04 — Activo
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de navegación del carrusel: Tabs, Flechas y Dots -->
+      <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 pb-5 mb-6 border-b border-white/5">
+        <div class="flex items-center gap-1 p-1 bg-obsidian-900/90 rounded-xl border border-white/5 overflow-x-auto text-xs font-mono">
+          <button onclick="goToSlide(0)" id="nexobar-tab-0" class="nexobar-tab px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 bg-indigo-600 text-white font-medium shadow-sm whitespace-nowrap">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Turnos & Zonas</span>
+          </button>
+          <button onclick="goToSlide(1)" id="nexobar-tab-1" class="nexobar-tab px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 text-slate-400 hover:text-white whitespace-nowrap">
+            <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+            <span>Comandas & Venta Rápida</span>
+          </button>
+          <button onclick="goToSlide(2)" id="nexobar-tab-2" class="nexobar-tab px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 text-slate-400 hover:text-white whitespace-nowrap">
+            <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+            <span>Cierre & Arqueo de Caja</span>
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between lg:justify-end gap-4">
+          <div class="flex items-center gap-2" id="nexobar-dots">
+            <button onclick="goToSlide(0)" class="nexobar-dot w-6 h-2 rounded-full bg-indigo-500 transition-all" aria-label="Slide 1"></button>
+            <button onclick="goToSlide(1)" class="nexobar-dot w-2 h-2 rounded-full bg-white/20 hover:bg-white/40 transition-all" aria-label="Slide 2"></button>
+            <button onclick="goToSlide(2)" class="nexobar-dot w-2 h-2 rounded-full bg-white/20 hover:bg-white/40 transition-all" aria-label="Slide 3"></button>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="prevSlide()" class="p-2 rounded-lg bg-obsidian-900 border border-white/10 hover:border-white/20 text-slate-300 hover:text-white transition-all shadow-sm" aria-label="Anterior">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <button onclick="nextSlide()" class="p-2 rounded-lg bg-obsidian-900 border border-white/10 hover:border-white/20 text-slate-300 hover:text-white transition-all shadow-sm" aria-label="Siguiente">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="nexobar-slides-container" class="relative min-h-[380px] md:min-h-[350px]">
+        <!-- SLIDE 1: Turnos & Zonas -->
+        <div id="slide-0" class="nexobar-slide transition-opacity duration-300 opacity-100 flex flex-col justify-between h-full space-y-6">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-white/5">
+              <span class="text-xs text-slate-400">Ventas del turno</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-white mt-1">$ 0</div>
+              <span class="text-[10px] text-slate-500">0 cuentas cerradas</span>
+            </div>
+            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-white/5">
+              <span class="text-xs text-slate-400">Mesas activas</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-sky-400 mt-1">2</div>
+              <span class="text-[10px] text-slate-500">Barra 1, Barra 2</span>
+            </div>
+            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-white/5">
+              <span class="text-xs text-slate-400">Pedidos abiertos</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-white mt-1">2</div>
+              <span class="text-[10px] text-slate-500">Comandas en proceso</span>
+            </div>
+            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-indigo-500/20 bg-indigo-950/10">
+              <span class="text-xs text-amber-400/90 font-medium">Caja esperada</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-amber-400 mt-1">$ 70.000</div>
+              <span class="text-[10px] text-slate-400">Base inicial en efectivo</span>
+            </div>
+          </div>
+
+          <div class="bg-obsidian-900/50 p-6 rounded-xl border border-white/5">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-sm font-semibold text-slate-200">Zonas y Mesas en Operación</span>
+              <span class="text-xs text-slate-400 font-mono">Control táctil instantáneo</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div class="p-4 rounded-xl bg-indigo-600/10 border border-indigo-500/30 flex flex-col justify-between h-24">
+                <div class="flex justify-between items-start">
+                  <span class="text-xs font-bold text-white">Barra 1</span>
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                </div>
+                <div class="text-[11px] text-slate-400">3 artículos en consumo</div>
+              </div>
+              <div class="p-4 rounded-xl bg-indigo-600/10 border border-indigo-500/30 flex flex-col justify-between h-24">
+                <div class="flex justify-between items-start">
+                  <span class="text-xs font-bold text-white">Barra 2</span>
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                </div>
+                <div class="text-[11px] text-slate-400">1 artículo en consumo</div>
+              </div>
+              <div class="p-4 rounded-xl bg-obsidian-850 border border-white/5 flex flex-col justify-between h-24 opacity-60">
+                <div class="flex justify-between items-start">
+                  <span class="text-xs font-medium text-slate-300">Mesa Salón 1</span>
+                  <span class="w-2 h-2 rounded-full bg-slate-600"></span>
+                </div>
+                <div class="text-[11px] text-slate-500">Disponible</div>
+              </div>
+              <div class="p-4 rounded-xl bg-obsidian-850 border border-white/5 flex flex-col justify-between h-24 opacity-60">
+                <div class="flex justify-between items-start">
+                  <span class="text-xs font-medium text-slate-300">Terraza VIP</span>
+                  <span class="w-2 h-2 rounded-full bg-slate-600"></span>
+                </div>
+                <div class="text-[11px] text-slate-500">Disponible</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 2: Comandas & Venta Rápida -->
+        <div id="slide-1" class="nexobar-slide transition-opacity duration-300 opacity-0 hidden flex flex-col justify-between h-full space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            <!-- Catálogo Táctil -->
+            <div class="lg:col-span-7 bg-obsidian-900/60 p-5 rounded-xl border border-white/5 flex flex-col justify-between">
+              <div class="flex items-center justify-between pb-3 mb-3 border-b border-white/5">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-semibold text-white">Catálogo de Venta Rápida</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">POS Táctil</span>
+                </div>
+                <span class="text-xs text-slate-400 font-mono">1-Tap para añadir</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div class="p-3.5 rounded-xl bg-obsidian-850 border border-white/5 hover:border-indigo-500/40 transition-all flex flex-col justify-between cursor-pointer group">
+                  <div class="flex items-start justify-between">
+                    <span class="text-xs font-bold text-white group-hover:text-indigo-300 transition-colors">Cerveza Corona</span>
+                    <i data-lucide="beer" class="w-4 h-4 text-amber-400"></i>
+                  </div>
+                  <div class="flex items-center justify-between mt-3 pt-2 border-t border-white/5 font-mono">
+                    <span class="text-xs font-bold text-white">$ 9.000</span>
+                    <span class="text-[10px] text-indigo-400 bg-indigo-950/60 px-1.5 py-0.5 rounded">+1 Agregar</span>
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-obsidian-850 border border-white/5 hover:border-indigo-500/40 transition-all flex flex-col justify-between cursor-pointer group">
+                  <div class="flex items-start justify-between">
+                    <span class="text-xs font-bold text-white group-hover:text-indigo-300 transition-colors">Ron Medellín 8A</span>
+                    <i data-lucide="flame" class="w-4 h-4 text-orange-400"></i>
+                  </div>
+                  <div class="flex items-center justify-between mt-3 pt-2 border-t border-white/5 font-mono">
+                    <span class="text-xs font-bold text-white">$ 95.000</span>
+                    <span class="text-[10px] text-indigo-400 bg-indigo-950/60 px-1.5 py-0.5 rounded">+1 Agregar</span>
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-obsidian-850 border border-white/5 hover:border-indigo-500/40 transition-all flex flex-col justify-between cursor-pointer group">
+                  <div class="flex items-start justify-between">
+                    <span class="text-xs font-bold text-white group-hover:text-indigo-300 transition-colors">Gin Tonic</span>
+                    <i data-lucide="wine" class="w-4 h-4 text-sky-400"></i>
+                  </div>
+                  <div class="flex items-center justify-between mt-3 pt-2 border-t border-white/5 font-mono">
+                    <span class="text-xs font-bold text-white">$ 28.000</span>
+                    <span class="text-[10px] text-indigo-400 bg-indigo-950/60 px-1.5 py-0.5 rounded">+1 Agregar</span>
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-obsidian-850 border border-white/5 hover:border-indigo-500/40 transition-all flex flex-col justify-between cursor-pointer group">
+                  <div class="flex items-start justify-between">
+                    <span class="text-xs font-bold text-white group-hover:text-indigo-300 transition-colors">Agua con Gas</span>
+                    <i data-lucide="droplet" class="w-4 h-4 text-cyan-400"></i>
+                  </div>
+                  <div class="flex items-center justify-between mt-3 pt-2 border-t border-white/5 font-mono">
+                    <span class="text-xs font-bold text-white">$ 5.000</span>
+                    <span class="text-[10px] text-indigo-400 bg-indigo-950/60 px-1.5 py-0.5 rounded">+1 Agregar</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Panel Lateral de Comanda Activa -->
+            <div class="lg:col-span-5 bg-obsidian-900/80 p-5 rounded-xl border border-indigo-500/30 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between pb-3 border-b border-white/5">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-white">Comanda Activa:</span>
+                    <span class="px-2 py-0.5 rounded bg-indigo-600/30 text-indigo-300 text-xs font-mono font-bold">Barra 1</span>
+                  </div>
+                  <span class="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Abierta
+                  </span>
+                </div>
+
+                <div class="space-y-2 mt-3 text-xs font-mono">
+                  <div class="flex justify-between items-center p-2 rounded-lg bg-obsidian-850 border border-white/5">
+                    <div class="flex items-center gap-2">
+                      <span class="text-indigo-400 font-bold">2x</span>
+                      <span class="text-slate-200">Cerveza Corona</span>
+                    </div>
+                    <span class="text-white font-bold">$ 18.000</span>
+                  </div>
+                  <div class="flex justify-between items-center p-2 rounded-lg bg-obsidian-850 border border-white/5">
+                    <div class="flex items-center gap-2">
+                      <span class="text-indigo-400 font-bold">1x</span>
+                      <span class="text-slate-200">Gin Tonic</span>
+                    </div>
+                    <span class="text-white font-bold">$ 28.000</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-4 border-t border-white/10 mt-4">
+                <div class="flex justify-between items-baseline mb-3 font-mono">
+                  <span class="text-xs text-slate-400">Total acumulado:</span>
+                  <span class="text-xl font-black text-white">$ 46.000</span>
+                </div>
+                <button class="w-full py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+                  <i data-lucide="printer" class="w-4 h-4"></i>
+                  <span>Enviar Comanda / Imprimir Ticket</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 3: Cierre & Arqueo de Caja -->
+        <div id="slide-2" class="nexobar-slide transition-opacity duration-300 opacity-0 hidden flex flex-col justify-between h-full space-y-6">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-white/5">
+              <span class="text-xs text-slate-400">Base Efectivo</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-white mt-1">$ 70.000</div>
+              <span class="text-[10px] text-slate-500">Apertura de turno</span>
+            </div>
+            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-white/5">
+              <span class="text-xs text-slate-400">Cobros Datáfono / QR</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-sky-400 mt-1">$ 180.000</div>
+              <span class="text-[10px] text-slate-500">Bancolombia, Datafono</span>
+            </div>
+            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-white/5">
+              <span class="text-xs text-slate-400">Efectivo en Gaveta</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-emerald-400 mt-1">$ 250.000</div>
+              <span class="text-[10px] text-slate-500">Base + Cobros efectivo</span>
+            </div>
+            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-indigo-500/20 bg-indigo-950/10">
+              <span class="text-xs text-indigo-300 font-medium">Total Facturado</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-white mt-1">$ 180.000</div>
+              <span class="text-[10px] text-slate-400">Ventas netas turno #04</span>
+            </div>
+          </div>
+
+          <div class="bg-obsidian-900/50 p-6 rounded-xl border border-emerald-500/20 bg-emerald-950/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="space-y-1.5 text-center sm:text-left">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                <i data-lucide="check-check" class="w-4 h-4"></i>
+                <span>Caja Cuadrada — Diferencia $ 0</span>
+              </div>
+              <p class="text-xs text-slate-400 max-w-xl">
+                Arqueo automático verificado en tiempo real con Supabase. Cero faltantes o descuadres detectados frente a las comandas registradas en las terminales.
+              </p>
+            </div>
+
+            <button class="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 whitespace-nowrap">
+              <i data-lucide="receipt" class="w-4 h-4"></i>
+              <span>Generar Cierre & Ticket ESC/POS</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie del carrusel: Acceso directo secundario a la demo -->
+      <div class="mt-8 pt-5 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+        <div class="flex items-center gap-2 font-mono">
+          <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
+          <span>¿Quieres probar la velocidad tú mismo?</span>
+        </div>
+        <a href="https://nexobar-pos.netlify.app/?demo=true" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-medium font-mono group transition-colors">
+          <span>Abrir terminal interactivo</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="soluciones" class="py-20 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-16">
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Capacidades de Desarrollo</h2>
+      <p class="text-slate-400 text-sm sm:text-base mt-3">Construimos lo que tu negocio necesita para operar más rápido y vender con ventaja.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="glass-card p-8 rounded-2xl flex flex-col justify-between md:col-span-2">
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-6">
+            <i data-lucide="cpu" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">Software a la Medida y Sistemas de Control</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Eliminamos las hojas de cálculo confusas y el software genérico lento. Desarrollamos herramientas internas personalizadas: control de stock, turnos de caja, reportes de margen neto y sincronización entre sucursales.
+          </p>
+        </div>
+        <div class="mt-6 flex flex-wrap gap-2 font-mono text-xs text-indigo-300">
+          <span class="px-2.5 py-1 rounded bg-indigo-950/40 border border-indigo-500/20">Control de Inventario</span>
+          <span class="px-2.5 py-1 rounded bg-indigo-950/40 border border-indigo-500/20">Turnos & Arqueos</span>
+          <span class="px-2.5 py-1 rounded bg-indigo-950/40 border border-indigo-500/20">Impresión Térmica</span>
+        </div>
+      </div>
+
+      <div class="glass-card p-8 rounded-2xl flex flex-col justify-between">
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center mb-6">
+            <i data-lucide="smartphone" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">Landing Pages de Alta Conversión</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Páginas web ultrarrápidas pensadas para convertir visitas en chats de WhatsApp o ventas inmediatas. Diseños elegantes adaptados a la vista de iPhone y Android.
+          </p>
+        </div>
+        <div class="mt-6 font-mono text-xs text-sky-300">
+          <span class="px-2.5 py-1 rounded bg-sky-950/40 border border-sky-500/20">100% Mobile Ready</span>
+        </div>
+      </div>
+
+      <div class="glass-card p-8 rounded-2xl flex flex-col justify-between">
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-6">
+            <i data-lucide="database" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">Bases de Datos & Cloud Realtime</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Integración completa con Supabase y PostgreSQL. Los cambios hechos en un dispositivo se ven reflejados al instante en los demás.
+          </p>
+        </div>
+        <div class="mt-6 font-mono text-xs text-emerald-300">
+          <span class="px-2.5 py-1 rounded bg-emerald-950/40 border border-emerald-500/20">PostgreSQL / Supabase</span>
+        </div>
+      </div>
+
+      <div class="glass-card p-8 rounded-2xl flex flex-col justify-between md:col-span-2">
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-6">
+            <i data-lucide="zap" class="w-6 h-6"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">Modo Offline-First (Sin Caídas)</h3>
+          <p class="text-sm text-slate-400 leading-relaxed">
+            Si la conexión a internet de tu local se interrumpe, el sistema no se frena. Guarda todas las comandas y ventas localmente en el dispositivo y las sube automáticamente a la nube apenas regresa la red.
+          </p>
+        </div>
+        <div class="mt-6 flex flex-wrap gap-2 font-mono text-xs text-purple-300">
+          <span class="px-2.5 py-1 rounded bg-purple-950/40 border border-purple-500/20">IndexedDB Local</span>
+          <span class="px-2.5 py-1 rounded bg-purple-950/40 border border-purple-500/20">Respaldo Automático</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN ARQUITECTURA: 3 PILARES DE INGENIERÍA -->
+  <section id="arquitectura" class="py-20 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-mono mb-4">
+        INGENIERÍA & INFRAESTRUCTURA REAL
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">Arquitectura según tu tipo de proyecto</h2>
+      <p class="text-slate-400 text-sm sm:text-base mt-3">Infraestructura probada en producción: sin dependencias innecesarias, con baja latencia y alta disponibilidad.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- 1. Web & Landing Pages -->
+      <div class="glass-card p-8 rounded-2xl flex flex-col justify-between border border-white/5">
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center mb-6">
+            <i data-lucide="globe" class="w-6 h-6"></i>
+          </div>
+          <span class="text-xs font-mono text-sky-400 uppercase tracking-wider">Carga & Conversión</span>
+          <h3 class="text-xl font-bold text-white mt-1 mb-4">Webs & Landing Pages</h3>
+          <p class="text-sm text-slate-400 leading-relaxed mb-6">
+            Construidas para cargar en menos de 1 segundo en cualquier celular, eliminando rebote de clientes potenciales y asegurando conversiones directas.
+          </p>
+
+          <ul class="space-y-3 text-xs text-slate-300 font-mono">
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-sky-400 shrink-0 mt-0.5"></i>
+              <span><strong>Edge CDN (Netlify):</strong> Entrega estática global con latencia mínima y SSL automático.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-sky-400 shrink-0 mt-0.5"></i>
+              <span><strong>Core Web Vitals:</strong> HTML5/CSS ligero con Tailwind, sin frameworks pesados bloqueantes.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-sky-400 shrink-0 mt-0.5"></i>
+              <span><strong>Enrutamiento directo:</strong> Integración limpia con WhatsApp Business y webhooks sin fugas.</span>
+            </li>
+          </ul>
+        </div>
+        <div class="mt-8 pt-4 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-400">
+          <span>Rendimiento Lighthouse</span>
+          <span class="text-emerald-400 font-bold">95+ / 100</span>
+        </div>
+      </div>
+
+      <!-- 2. POS & Comercios -->
+      <div class="glass-card p-8 rounded-2xl flex flex-col justify-between border border-indigo-500/30 relative">
+        <div class="absolute -top-3 right-6 px-3 py-0.5 rounded-full bg-indigo-600 text-white font-mono text-[10px] tracking-wider uppercase">
+          Especialidad
+        </div>
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-6">
+            <i data-lucide="store" class="w-6 h-6"></i>
+          </div>
+          <span class="text-xs font-mono text-indigo-400 uppercase tracking-wider">Híbrido Offline-First</span>
+          <h3 class="text-xl font-bold text-white mt-1 mb-4">Sistemas POS & Comercios</h3>
+          <p class="text-sm text-slate-400 leading-relaxed mb-6">
+            Garantía de operación ininterrumpida. Si el internet del local falla, el sistema sigue abriendo comandas y cobrando sin pausas.
+          </p>
+
+          <ul class="space-y-3 text-xs text-slate-300 font-mono">
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-indigo-400 shrink-0 mt-0.5"></i>
+              <span><strong>Motor IndexedDB:</strong> Persistencia transaccional directa en el navegador de cada terminal.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-indigo-400 shrink-0 mt-0.5"></i>
+              <span><strong>WebSockets Supabase:</strong> Sincronización instantánea en la nube al reconectar la red.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-indigo-400 shrink-0 mt-0.5"></i>
+              <span><strong>Hardware POS:</strong> Enlace nativo con impresoras térmicas ESC/POS y gavetas de dinero.</span>
+            </li>
+          </ul>
+        </div>
+        <div class="mt-8 pt-4 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-400">
+          <span>Tiempo sin conexión</span>
+          <span class="text-indigo-400 font-bold">100% Operativo</span>
+        </div>
+      </div>
+
+      <!-- 3. Software Empresarial -->
+      <div class="glass-card p-8 rounded-2xl flex flex-col justify-between border border-white/5">
+        <div>
+          <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center mb-6">
+            <i data-lucide="layers" class="w-6 h-6"></i>
+          </div>
+          <span class="text-xs font-mono text-purple-400 uppercase tracking-wider">Seguridad & Escala</span>
+          <h3 class="text-xl font-bold text-white mt-1 mb-4">Software a la Medida</h3>
+          <p class="text-sm text-slate-400 leading-relaxed mb-6">
+            Sistemas administrativos centralizados con aislamiento estricto de accesos, trazabilidad y control de inventario multisede.
+          </p>
+
+          <ul class="space-y-3 text-xs text-slate-300 font-mono">
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-purple-400 shrink-0 mt-0.5"></i>
+              <span><strong>PostgreSQL + RLS:</strong> Seguridad de nivel bancario con políticas a nivel de fila por usuario.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-purple-400 shrink-0 mt-0.5"></i>
+              <span><strong>Esquema Multi-Sucursal:</strong> Control de stock cruzado, transferencias y arqueos auditables.</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-purple-400 shrink-0 mt-0.5"></i>
+              <span><strong>Módulos Analíticos:</strong> Generación estructurada de balances de caja y reportes en Excel/PDF.</span>
+            </li>
+          </ul>
+        </div>
+        <div class="mt-8 pt-4 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-400">
+          <span>Modelo de Control</span>
+          <span class="text-purple-400 font-bold">RBAC + Auditoría</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="cotizador" class="py-20 px-6 md:px-12 max-w-5xl mx-auto">
+    <div class="glass-panel p-8 md:p-12 rounded-3xl border border-white/10 glow-indigo">
+      <div class="max-w-2xl mb-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-mono mb-3">
+          ESTIMADOR EN VIVO
+        </div>
+        <h2 class="text-3xl font-extrabold text-white tracking-tight">Cotiza el alcance de tu solución</h2>
+        <p class="text-slate-400 text-sm mt-2">Selecciona las funciones que requiere tu negocio para calcular un estimado de inversión inicial.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <div>
+            <label class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-2">Tipo de Proyecto Base</label>
+            <select id="project-type" onchange="onProjectTypeChange()" class="w-full bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+              <option value="landing">Landing Page Comercial de Alta Velocidad</option>
+              <option value="pos" selected>Sistema POS / Gestión para Negocio Comercial</option>
+              <option value="custom">Software Empresarial a la Medida</option>
+            </select>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <label id="slider-label" class="text-xs font-mono text-slate-400 uppercase tracking-wider">Dispositivos / Cajas a Conectar</label>
+              <span id="devices-count" class="text-xs font-mono text-indigo-400 font-bold">2 Terminales</span>
+            </div>
+            <input id="devices-slider" type="range" min="1" max="6" value="2" oninput="calculateBudget()" class="w-full h-2 bg-obsidian-900 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-3">Módulos Especiales</label>
+            <div id="dynamic-modules-container" class="space-y-2.5"></div>
+          </div>
+        </div>
+
+        <div class="bg-obsidian-900/90 rounded-2xl p-6 border border-white/10 flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-mono text-slate-400 uppercase">Inversión Estimada Sugerida</span>
+            <div class="mt-3 flex items-baseline gap-2">
+              <span id="currency-symbol" class="text-xl font-mono text-indigo-400">$</span>
+              <span id="price-display" class="text-4xl md:text-5xl font-black font-mono tracking-tight text-white">1.800.000</span>
+              <span id="currency-label" class="text-xs font-mono text-slate-400">COP</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-3 leading-relaxed">
+              Incluye diseño exclusivo, desarrollo completo, instalación y capacitación directa para tu equipo.
+            </p>
+          </div>
+
+          <div class="pt-6 border-t border-white/10 mt-6">
+            <button onclick="sendToWhatsApp()" class="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
+              <i data-lucide="message-square" class="w-5 h-5"></i>
+              <span>Enviar esta Cotización por WhatsApp</span>
+            </button>
+            <span class="block text-center text-[10px] text-slate-500 mt-2 font-mono">Respuesta promedio en menos de 2 horas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="border-t border-white/5 py-12 px-6 md:px-12 text-center text-xs text-slate-500 font-mono">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="font-bold text-slate-300">Netxpremium</span>
+        <span>— Sistemas de Alto Rendimiento</span>
+      </div>
+      <div>
+        © 2026 Netxpremium. Todos los derechos reservados.
+      </div>
+    </div>
+  </footer>
+
+  <a href="https://wa.me/573000000000" target="_blank" class="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 transition-transform hover:scale-110">
+    <i data-lucide="message-circle" class="w-6 h-6"></i>
+  </a>
+
+  <script>
+    let currentCurrency = 'COP';
+    const exchangeRate = 4000;
+
+    // Lógica del Carrusel NexoBar POS
+    let currentSlideIndex = 0;
+    const totalSlides = 3;
+
+    function goToSlide(index) {
+      currentSlideIndex = (index + totalSlides) % totalSlides;
+
+      for (let i = 0; i < totalSlides; i++) {
+        const slide = document.getElementById(`slide-${i}`);
+        if (!slide) continue;
+
+        if (i === currentSlideIndex) {
+          slide.classList.remove('hidden');
+          void slide.offsetWidth;
+          slide.classList.remove('opacity-0');
+          slide.classList.add('opacity-100');
+        } else {
+          slide.classList.remove('opacity-100');
+          slide.classList.add('opacity-0');
+          slide.classList.add('hidden');
+        }
+      }
+
+      for (let i = 0; i < totalSlides; i++) {
+        const tab = document.getElementById(`nexobar-tab-${i}`);
+        if (!tab) continue;
+        if (i === currentSlideIndex) {
+          tab.className = 'nexobar-tab px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 bg-indigo-600 text-white font-medium shadow-sm whitespace-nowrap';
+        } else {
+          tab.className = 'nexobar-tab px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 text-slate-400 hover:text-white whitespace-nowrap';
+        }
+      }
+
+      const dots = document.querySelectorAll('.nexobar-dot');
+      dots.forEach((dot, i) => {
+        if (i === currentSlideIndex) {
+          dot.className = 'nexobar-dot w-6 h-2 rounded-full bg-indigo-500 transition-all';
+        } else {
+          dot.className = 'nexobar-dot w-2 h-2 rounded-full bg-white/20 hover:bg-white/40 transition-all';
+        }
+      });
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function nextSlide() {
+      goToSlide(currentSlideIndex + 1);
+    }
+
+    function prevSlide() {
+      goToSlide(currentSlideIndex - 1);
+    }
+
+    const projectData = {
+      landing: {
+        sliderLabel: "Secciones de la Web",
+        unitName: (count) => `${count} Sección${count > 1 ? 'es' : ''}`,
+        modules: [
+          { id: "mod-landing-whatsapp", name: "Enlace y Formulario directo a WhatsApp", price: 100000, checked: true },
+          { id: "mod-landing-catalog", name: "Catálogo interactivo de productos/servicios", price: 250000, checked: false },
+          { id: "mod-landing-seo", name: "Optimización SEO y Carga Ultrarrápida", price: 150000, checked: true },
+          { id: "mod-landing-analytics", name: "Integración Meta Pixel y Google Analytics", price: 120000, checked: false }
+        ]
+      },
+      pos: {
+        sliderLabel: "Dispositivos / Cajas a Conectar",
+        unitName: (count) => `${count} Terminal${count > 1 ? 'es' : ''}`,
+        modules: [
+          { id: "mod-pos-offline", name: "Arquitectura Offline-First con IndexedDB", price: 200000, checked: true },
+          { id: "mod-pos-realtime", name: "Sincronización en tiempo real con Supabase", price: 200000, checked: true },
+          { id: "mod-pos-thermal", name: "Impresión térmica de comandas y facturas ESC/POS", price: 150000, checked: false },
+          { id: "mod-pos-excel", name: "Importador masivo de catálogo desde Excel", price: 100000, checked: false }
+        ]
+      },
+      custom: {
+        sliderLabel: "Roles / Módulos de Usuario",
+        unitName: (count) => `${count} Rol${count > 1 ? 'es' : ''} / Módulo${count > 1 ? 's' : ''}`,
+        modules: [
+          { id: "mod-custom-rbac", name: "Control de accesos y roles (RBAC)", price: 300000, checked: true },
+          { id: "mod-custom-audit", name: "Auditoría y trazabilidad de movimientos", price: 250000, checked: true },
+          { id: "mod-custom-reports", name: "Reportes analíticos con exportación PDF/Excel", price: 200000, checked: false },
+          { id: "mod-custom-multibranch", name: "Soporte multi-sucursal y stock cruzado", price: 350000, checked: false }
+        ]
+      }
+    };
+
+    function toggleDrawer() {
+      const drawer = document.getElementById('mobile-drawer');
+      drawer.classList.toggle('hidden');
+    }
+
+    function setCurrency(curr) {
+      currentCurrency = curr;
+      const btnCop = document.getElementById('btn-cop');
+      const btnUsd = document.getElementById('btn-usd');
+
+      if (curr === 'COP') {
+        btnCop.className = 'px-2.5 py-1 rounded bg-indigo-600 text-white font-semibold transition-all';
+        btnUsd.className = 'px-2.5 py-1 rounded text-slate-400 hover:text-white transition-all';
+      } else {
+        btnUsd.className = 'px-2.5 py-1 rounded bg-indigo-600 text-white font-semibold transition-all';
+        btnCop.className = 'px-2.5 py-1 rounded text-slate-400 hover:text-white transition-all';
+      }
+
+      calculateBudget();
+    }
+
+    function renderModules() {
+      const container = document.getElementById('dynamic-modules-container');
+      const type = document.getElementById('project-type').value;
+      const config = projectData[type];
+
+      if (!container || !config) return;
+
+      container.innerHTML = config.modules.map(mod => `
+        <label class="flex items-center gap-3 p-3 rounded-xl bg-obsidian-900 border border-white/5 cursor-pointer hover:border-white/10 transition-all">
+          <input type="checkbox" id="${mod.id}" data-name="${mod.name}" data-price="${mod.price}" ${mod.checked ? 'checked' : ''} onchange="calculateBudget()" class="w-4 h-4 rounded accent-indigo-600">
+          <span class="text-xs text-slate-300">${mod.name}</span>
+        </label>
+      `).join('');
+    }
+
+    function onProjectTypeChange() {
+      const type = document.getElementById('project-type').value;
+      const config = projectData[type];
+      const sliderLabel = document.getElementById('slider-label');
+
+      if (config && sliderLabel) {
+        sliderLabel.innerText = config.sliderLabel;
+      }
+
+      renderModules();
+      calculateBudget();
+    }
+
+    function calculateBudget() {
+      const type = document.getElementById('project-type').value;
+      const devices = parseInt(document.getElementById('devices-slider').value, 10);
+      const config = projectData[type];
+
+      const devicesCountEl = document.getElementById('devices-count');
+      if (devicesCountEl && config && config.unitName) {
+        devicesCountEl.innerText = config.unitName(devices);
+      } else if (devicesCountEl) {
+        devicesCountEl.innerText = `${devices} Terminal${devices > 1 ? 'es' : ''}`;
+      }
+
+      let basePriceCOP = 0;
+      if (type === 'landing') basePriceCOP = 800000;
+      if (type === 'pos') basePriceCOP = 1400000;
+      if (type === 'custom') basePriceCOP = 2200000;
+
+      basePriceCOP += (devices - 1) * 150000;
+
+      const checkedCheckboxes = document.querySelectorAll('#dynamic-modules-container input[type="checkbox"]:checked');
+      checkedCheckboxes.forEach(cb => {
+        basePriceCOP += parseInt(cb.dataset.price, 10) || 0;
+      });
+
+      const priceDisplay = document.getElementById('price-display');
+      const currencyLabel = document.getElementById('currency-label');
+      const currencySymbol = document.getElementById('currency-symbol');
+
+      if (currentCurrency === 'COP') {
+        currencySymbol.innerText = '$';
+        currencyLabel.innerText = 'COP';
+        priceDisplay.innerText = basePriceCOP.toLocaleString('es-CO');
+      } else {
+        currencySymbol.innerText = '$';
+        currencyLabel.innerText = 'USD';
+        const usdPrice = Math.round(basePriceCOP / exchangeRate);
+        priceDisplay.innerText = usdPrice.toLocaleString('en-US');
+      }
+    }
+
+    function sendToWhatsApp() {
+      const type = document.getElementById('project-type').options[document.getElementById('project-type').selectedIndex].text;
+      const sliderLabel = document.getElementById('slider-label')?.innerText || 'Dispositivos';
+      const devicesCount = document.getElementById('devices-count')?.innerText || document.getElementById('devices-slider').value;
+      const price = document.getElementById('price-display').innerText;
+      const curr = currentCurrency;
+
+      const selectedModules = [];
+      document.querySelectorAll('#dynamic-modules-container input[type="checkbox"]:checked').forEach(cb => {
+        const name = cb.dataset.name || cb.closest('label')?.querySelector('span')?.innerText?.trim();
+        if (name) selectedModules.push(name);
+      });
+
+      let modulesText = '';
+      if (selectedModules.length > 0) {
+        modulesText = `\n• Módulos incluidos:\n  - ${selectedModules.join('\n  - ')}`;
+      } else {
+        modulesText = '\n• Módulos incluidos: Ninguno';
+      }
+
+      const message = `Hola Netxpremium! 👋 Me interesa cotizar una solución:\n\n• Proyecto: ${type}\n• ${sliderLabel}: ${devicesCount}${modulesText}\n• Presupuesto estimado: $${price} ${curr}\n\n¿Podemos coordinar una llamada para revisar detalles?`;
+      
+      const whatsappUrl = `https://wa.me/573000000000?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      onProjectTypeChange();
+      goToSlide(0);
+    });
+  </script>
+</body>
+</html>
