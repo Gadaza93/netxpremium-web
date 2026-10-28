@@ -86,6 +86,41 @@
       opacity: 0.15;
     }
 
+    /* Foco visible por teclado en todo el sitio (cian sobre fondo oscuro, contraste > 3:1) */
+    :focus-visible {
+      outline: 2px solid #38BDF8;
+      outline-offset: 2px;
+    }
+
+    .legal-consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #94A3B8;
+      cursor: pointer;
+    }
+
+    .legal-consent input {
+      width: 16px;
+      height: 16px;
+      margin-top: 1px;
+      flex-shrink: 0;
+      accent-color: #4F46E5;
+      cursor: pointer;
+    }
+
+    .legal-consent a {
+      color: #A5B4FC;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .legal-consent a:hover {
+      color: #FFFFFF;
+    }
+
     /* Evita el salto de layout al bloquear el scroll con el modal abierto */
     html {
       scrollbar-gutter: stable;
@@ -850,11 +885,11 @@
         <p class="text-slate-400 text-sm mt-2">Selecciona las funciones que requiere tu negocio para calcular un estimado de inversión inicial.</p>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <form id="quote-form" onsubmit="event.preventDefault(); sendToWhatsApp();" class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="space-y-6">
           <div>
-            <label class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-2">Tipo de Proyecto Base</label>
-            <select id="project-type" onchange="onProjectTypeChange()" class="w-full bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500">
+            <label for="project-type" class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-2">Tipo de Proyecto Base</label>
+            <select id="project-type" onchange="onProjectTypeChange()" class="w-full bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500">
               <option value="landing">Landing Page Comercial de Alta Velocidad</option>
               <option value="pos" selected>Sistema POS / Gestión para Negocio Comercial</option>
               <option value="custom">Software Empresarial a la Medida</option>
@@ -863,16 +898,16 @@
 
           <div>
             <div class="flex justify-between items-center mb-2">
-              <label id="slider-label" class="text-xs font-mono text-slate-400 uppercase tracking-wider">Dispositivos / Cajas a Conectar</label>
+              <label id="slider-label" for="devices-slider" class="text-xs font-mono text-slate-400 uppercase tracking-wider">Dispositivos / Cajas a Conectar</label>
               <span id="devices-count" class="text-xs font-mono text-indigo-400 font-bold">2 Terminales</span>
             </div>
-            <input id="devices-slider" type="range" min="1" max="6" value="2" oninput="calculateBudget()" class="w-full h-2 bg-obsidian-900 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+            <input id="devices-slider" type="range" min="1" max="6" value="2" oninput="calculateBudget()" aria-describedby="devices-count" class="w-full h-2 bg-obsidian-900 rounded-lg appearance-none cursor-pointer accent-indigo-500">
           </div>
 
-          <div>
-            <label class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-3">Módulos Especiales</label>
+          <fieldset class="min-w-0">
+            <legend class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-3">Módulos Especiales</legend>
             <div id="dynamic-modules-container" class="space-y-2.5"></div>
-          </div>
+          </fieldset>
         </div>
 
         <div class="bg-obsidian-900/90 rounded-2xl p-6 border border-white/10 flex flex-col justify-between">
@@ -889,26 +924,47 @@
           </div>
 
           <div class="pt-6 border-t border-white/10 mt-6">
-            <button onclick="sendToWhatsApp()" class="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
+            <label class="legal-consent mb-4">
+              <input type="checkbox" id="consentCheck" required>
+              <span>He leído y acepto los <a href="terminos.html" target="_blank" rel="noopener">Términos</a> y la <a href="privacidad.html" target="_blank" rel="noopener">Política de Privacidad</a>.</span>
+            </label>
+            <button type="submit" class="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
               <i data-lucide="message-square" class="w-5 h-5"></i>
               <span>Enviar esta Cotización por WhatsApp</span>
             </button>
             <span class="block text-center text-[10px] text-slate-500 mt-2 font-mono">Respuesta promedio en menos de 2 horas</span>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   </section>
 
-  <footer class="border-t border-white/5 py-12 px-6 md:px-12 text-center text-xs text-slate-500 font-mono">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-2">
-        <span class="font-bold text-slate-300">Netxpremium</span>
-        <span>— Sistemas de Alto Rendimiento</span>
-      </div>
+  <footer class="border-t border-white/5 py-12 px-6 md:px-12 text-sm text-slate-400">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
       <div>
-        © 2026 Netxpremium. Todos los derechos reservados.
+        <p class="font-bold text-white">NetxPremium</p>
+        <p class="text-xs text-slate-400 mt-1">Soluciones de Software y Punto de Venta</p>
       </div>
+
+      <address class="not-italic flex flex-col gap-2 text-xs items-center md:items-start">
+        <span class="inline-flex items-center gap-2">
+          <i data-lucide="map-pin" class="w-4 h-4 text-slate-500" aria-hidden="true"></i>
+          Ibagué, Tolima, Colombia
+        </span>
+        <a href="mailto:soporte@netxpremium.com" class="inline-flex items-center gap-2 hover:text-white transition-colors">
+          <i data-lucide="mail" class="w-4 h-4 text-slate-500" aria-hidden="true"></i>
+          soporte@netxpremium.com
+        </a>
+      </address>
+
+      <nav aria-label="Enlaces legales" class="flex flex-col gap-2 text-xs items-center md:items-start">
+        <a href="terminos.html" class="hover:text-white transition-colors">Términos y Condiciones</a>
+        <a href="privacidad.html" class="hover:text-white transition-colors">Política de Privacidad</a>
+      </nav>
+    </div>
+
+    <div class="max-w-7xl mx-auto mt-10 pt-6 border-t border-white/5 text-center text-xs text-slate-500 font-mono">
+      © 2026 NexoBar by NetxPremium. Todos los derechos reservados.
     </div>
   </footer>
 
@@ -1074,7 +1130,7 @@
       if (!container || !config) return;
 
       container.innerHTML = config.modules.map(mod => `
-        <label class="flex items-center gap-3 p-3 rounded-xl bg-obsidian-900 border border-white/5 cursor-pointer hover:border-white/10 transition-all">
+        <label for="${mod.id}" class="flex items-center gap-3 p-3 rounded-xl bg-obsidian-900 border border-white/5 cursor-pointer hover:border-white/10 transition-all">
           <input type="checkbox" id="${mod.id}" data-name="${mod.name}" data-price="${mod.price}" ${mod.checked ? 'checked' : ''} onchange="calculateBudget()" class="w-4 h-4 rounded accent-indigo-600">
           <span class="text-xs text-slate-300">${mod.name}</span>
         </label>
