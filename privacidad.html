@@ -418,9 +418,8 @@
         <h2 id="terceros">6. Encargados, terceros y transferencia internacional</h2>
         <p>Para prestar el servicio, NetxPremium se apoya en proveedores de infraestructura en la nube que actúan como encargados del tratamiento:</p>
         <ul>
-          <li><strong>Supabase:</strong> base de datos PostgreSQL, autenticación y sincronización en tiempo real de la información de NexoBar POS.</li>
-          <li><strong>Cloudflare:</strong> red de entrega de contenidos (CDN), cifrado de las conexiones y protección de la red frente a ataques.</li>
-          <li><strong>Netlify y Hostinger:</strong> alojamiento del sitio web y de la aplicación.</li>
+          <li><strong>Supabase:</strong> base de datos PostgreSQL y backend del servicio (autenticación y sincronización en tiempo real). Los datos de los usuarios se almacenan de forma segura en los servidores de Supabase.</li>
+          <li><strong>Cloudflare:</strong> alojamiento del sitio web y de la aplicación, DNS, red de entrega de contenidos (CDN), cifrado de las conexiones y protección de la red frente a ataques.</li>
           <li><strong>Pasarelas de pago certificadas:</strong> procesamiento de los pagos de las suscripciones. NetxPremium no almacena datos de tarjetas.</li>
         </ul>
         <p>
@@ -453,6 +452,9 @@
       <section aria-labelledby="seguridad">
         <h2 id="seguridad">8. Seguridad y no comercialización de datos</h2>
         <h3>Medidas de seguridad</h3>
+        <p>
+          Los datos de los usuarios se almacenan en los servidores de Supabase, con cifrado en tránsito y en reposo, y el tráfico del sitio y de la aplicación pasa por la red protegida de Cloudflare.
+        </p>
         <p>
           Aplicamos medidas como cifrado de las comunicaciones (HTTPS/TLS), políticas de seguridad a nivel de fila (RLS) en la base de datos, control de accesos por roles y copias de respaldo.
           Ningún sistema es infalible, pero trabajamos para prevenir el acceso no autorizado, la pérdida o la adulteración de la información.
