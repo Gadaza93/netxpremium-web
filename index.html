@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Netxpremium | Software a la Medida, Sistemas POS & Desarrollo Web</title>
-  
+  <meta name="description" content="Netxpremium - Ingeniería de software, desarrollo web de alto rendimiento y creadores de NexoBar POS.">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -57,7 +58,7 @@
     .glass-card {
       background: linear-gradient(180deg, rgba(23, 30, 45, 0.6) 0%, rgba(11, 14, 20, 0.7) 100%);
       border: 1px solid rgba(255, 255, 255, 0.07);
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .glass-card:hover {
@@ -84,6 +85,46 @@
       z-index: 0;
       opacity: 0.15;
     }
+
+    /* Evita el salto de layout al bloquear el scroll con el modal abierto */
+    html {
+      scrollbar-gutter: stable;
+    }
+
+    /* App Switcher: solo se animan opacity y transform (compositor / GPU) */
+    .app-switcher {
+      background-color: rgba(6, 7, 10, 0.85);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      will-change: opacity, transform;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      transition: opacity 0.2s ease-out, visibility 0s linear 0.2s;
+    }
+
+    .app-switcher.is-open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transition: opacity 0.2s ease-out, visibility 0s linear 0s;
+    }
+
+    .app-switcher-panel {
+      background: #0E131D;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 24px 60px -20px rgba(99, 102, 241, 0.35);
+      opacity: 0;
+      will-change: opacity, transform;
+      transform: translate3d(0, 12px, 0) scale(0.98);
+      backface-visibility: hidden;
+      transition: opacity 0.2s ease-out, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .app-switcher.is-open .app-switcher-panel {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
   </style>
 </head>
 <body class="overflow-x-hidden selection:bg-indigo-500 selection:text-white">
@@ -93,7 +134,7 @@
 
   <nav class="sticky top-0 z-50 glass-panel border-b border-white/5 py-4 px-6 md:px-12">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-3">
+      <a href="#" class="flex items-center gap-3" aria-label="Netxpremium — Volver al inicio">
         <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-400 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
           N
         </div>
@@ -103,7 +144,7 @@
           </span>
           <span class="text-[10px] text-slate-400 uppercase tracking-widest font-mono">Engineering & Systems</span>
         </div>
-      </div>
+      </a>
 
       <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
         <a href="#soluciones" class="hover:text-white transition-colors">Soluciones</a>
@@ -118,13 +159,18 @@
           <button id="btn-usd" onclick="setCurrency('USD')" class="px-2.5 py-1 rounded text-slate-400 hover:text-white transition-all">USD</button>
         </div>
 
+        <button type="button" onclick="openAppSwitcher()" aria-haspopup="dialog" aria-controls="app-switcher" class="border border-white/10 text-slate-300 hover:text-white hover:border-indigo-500/50 hover:bg-white/5 transition-all px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i>
+          <span>Ingresar</span>
+        </button>
+
         <a href="#cotizador" class="px-4 py-2 rounded-lg bg-white text-obsidian-950 font-semibold text-xs tracking-wide hover:bg-slate-200 transition-all shadow-md flex items-center gap-2">
           <span>Iniciar Proyecto</span>
           <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
         </a>
       </div>
 
-      <button onclick="toggleDrawer()" class="md:hidden text-slate-300 hover:text-white p-2">
+      <button onclick="toggleDrawer()" aria-label="Abrir menú" class="md:hidden text-slate-300 hover:text-white p-2">
         <i data-lucide="menu" class="w-6 h-6"></i>
       </button>
     </div>
@@ -135,7 +181,7 @@
       <div>
         <div class="flex items-center justify-between pb-6 border-b border-white/10">
           <span class="font-bold text-white text-lg">Netxpremium</span>
-          <button onclick="toggleDrawer()" class="text-slate-400 hover:text-white">
+          <button onclick="toggleDrawer()" aria-label="Cerrar menú" class="text-slate-400 hover:text-white">
             <i data-lucide="x" class="w-6 h-6"></i>
           </button>
         </div>
@@ -147,15 +193,104 @@
         </div>
       </div>
       <div class="pt-6 border-t border-white/10 flex flex-col gap-4">
+        <button type="button" onclick="toggleDrawer(); openAppSwitcher();" aria-haspopup="dialog" aria-controls="app-switcher" class="w-full py-2.5 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:border-indigo-500/50 hover:bg-white/5 transition-all font-medium text-xs flex items-center justify-center gap-2">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i>
+          <span>Ingresar a las Apps</span>
+        </button>
         <div class="flex items-center justify-between bg-obsidian-850 p-2 rounded-lg text-xs font-mono">
           <span class="text-slate-400">Moneda:</span>
           <div class="flex gap-2">
-            <button onclick="setCurrency('COP'); toggleDrawer();" class="px-2 py-1 bg-indigo-600 rounded text-white">COP</button>
-            <button onclick="setCurrency('USD'); toggleDrawer();" class="px-2 py-1 bg-obsidian-700 rounded text-slate-300">USD</button>
+            <button id="btn-cop-mobile" onclick="setCurrency('COP'); toggleDrawer();" class="px-2 py-1 bg-indigo-600 rounded text-white">COP</button>
+            <button id="btn-usd-mobile" onclick="setCurrency('USD'); toggleDrawer();" class="px-2 py-1 bg-obsidian-700 rounded text-slate-300">USD</button>
           </div>
         </div>
-        <a href="https://wa.me/573000000000" target="_blank" class="w-full text-center py-2.5 rounded-lg bg-indigo-600 text-white font-medium text-xs">
+        <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="w-full text-center py-2.5 rounded-lg bg-indigo-600 text-white font-medium text-xs">
           Hablar por WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Selector de Aplicaciones (App Switcher) -->
+  <div id="app-switcher" class="app-switcher fixed inset-0 z-[60] flex items-center justify-center p-4" aria-hidden="true" onclick="if (event.target === this) closeAppSwitcher()">
+    <div role="dialog" aria-modal="true" aria-labelledby="app-switcher-title" class="app-switcher-panel w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 md:p-8">
+      <div class="flex items-start justify-between gap-4 mb-8">
+        <div>
+          <span class="text-[10px] text-indigo-400 uppercase tracking-widest font-mono">Ecosistema Netxpremium</span>
+          <h2 id="app-switcher-title" class="text-xl md:text-2xl font-extrabold tracking-tight text-white mt-1">Selecciona la aplicación a la que deseas ingresar</h2>
+          <p class="text-sm text-slate-400 mt-1">Accede a tus sistemas o conoce nuestros servicios de desarrollo.</p>
+        </div>
+        <button id="app-switcher-close" type="button" onclick="closeAppSwitcher()" aria-label="Cerrar selector de aplicaciones" class="shrink-0 p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- NexoBar POS -->
+        <a href="https://nexobar.netxpremium.com" target="_blank" rel="noopener noreferrer" class="glass-card p-6 rounded-2xl flex flex-col justify-between group">
+          <div>
+            <div class="flex items-start justify-between mb-5">
+              <div class="w-11 h-11 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                <i data-lucide="wine" class="w-5 h-5"></i>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Disponible
+              </span>
+            </div>
+            <h3 class="text-lg font-bold text-white">NexoBar</h3>
+            <span class="text-xs font-mono text-indigo-300">POS Gastrobares & Discotecas</span>
+            <p class="text-xs text-slate-400 leading-relaxed mt-3">Control de mesas, comandas en tiempo real, turnos de caja y finanzas de tu negocio.</p>
+          </div>
+          <span class="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-white">
+            Ingresar
+            <i data-lucide="arrow-up-right" class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+          </span>
+        </a>
+
+        <!-- NexoBarber -->
+        <div class="glass-card p-6 rounded-2xl flex flex-col justify-between cursor-default opacity-70" aria-disabled="true">
+          <div>
+            <div class="flex items-start justify-between mb-5">
+              <div class="w-11 h-11 rounded-xl bg-slate-500/10 text-slate-400 flex items-center justify-center">
+                <i data-lucide="scissors" class="w-5 h-5"></i>
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-slate-500/10 text-slate-400 border border-slate-500/20">En desarrollo</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">NexoBarber</h3>
+            <span class="text-xs font-mono text-slate-400">Gestión para Barberías</span>
+            <p class="text-xs text-slate-400 leading-relaxed mt-3">Agenda de turnos, control de comisiones por barbero y caja diaria.</p>
+          </div>
+          <span class="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+            <i data-lucide="clock" class="w-4 h-4"></i>
+            Próximamente
+          </span>
+        </div>
+
+        <!-- Desarrollo Web & SaaS -->
+        <a href="#cotizador" onclick="closeAppSwitcher()" class="glass-card p-6 rounded-2xl flex flex-col justify-between group">
+          <div>
+            <div class="flex items-start justify-between mb-5">
+              <div class="w-11 h-11 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center">
+                <i data-lucide="code-2" class="w-5 h-5"></i>
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-sky-500/10 text-sky-400 border border-sky-500/20">Servicios</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">Desarrollo Web & SaaS</h3>
+            <span class="text-xs font-mono text-sky-300">Software & Web a la Medida</span>
+            <p class="text-xs text-slate-400 leading-relaxed mt-3">Landing pages, sistemas POS y software empresarial hechos para tu operación.</p>
+          </div>
+          <span class="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-white">
+            Cotizar proyecto
+            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+          </span>
+        </a>
+      </div>
+
+      <div class="mt-8 pt-5 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+        <span class="font-mono">¿Problemas para ingresar?</span>
+        <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-medium font-mono transition-colors">
+          <i data-lucide="headphones" class="w-4 h-4"></i>
+          <span>Soporte técnico: +57 305 248 4278</span>
         </a>
       </div>
     </div>
@@ -225,7 +360,7 @@
     </div>
   </section>
 
-  <section id="nexobar" class="py-20 px-6 md:px-12 max-w-7xl mx-auto">
+  <section id="nexobar" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-7xl mx-auto">
     <div class="text-center max-w-3xl mx-auto mb-16">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-mono mb-4">
         CASO DE ÉXITO INSIGNIA
@@ -518,7 +653,7 @@
     </div>
   </section>
 
-  <section id="soluciones" class="py-20 px-6 md:px-12 max-w-7xl mx-auto">
+  <section id="soluciones" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-7xl mx-auto">
     <div class="text-center max-w-2xl mx-auto mb-16">
       <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Capacidades de Desarrollo</h2>
       <p class="text-slate-400 text-sm sm:text-base mt-3">Construimos lo que tu negocio necesita para operar más rápido y vender con ventaja.</p>
@@ -591,7 +726,7 @@
   </section>
 
   <!-- SECCIÓN ARQUITECTURA: 3 PILARES DE INGENIERÍA -->
-  <section id="arquitectura" class="py-20 px-6 md:px-12 max-w-7xl mx-auto">
+  <section id="arquitectura" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-7xl mx-auto">
     <div class="text-center max-w-3xl mx-auto mb-16">
       <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-mono mb-4">
         INGENIERÍA & INFRAESTRUCTURA REAL
@@ -705,7 +840,7 @@
     </div>
   </section>
 
-  <section id="cotizador" class="py-20 px-6 md:px-12 max-w-5xl mx-auto">
+  <section id="cotizador" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-5xl mx-auto">
     <div class="glass-panel p-8 md:p-12 rounded-3xl border border-white/10 glow-indigo">
       <div class="max-w-2xl mb-10">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-mono mb-3">
@@ -777,7 +912,7 @@
     </div>
   </footer>
 
-  <a href="https://wa.me/573000000000" target="_blank" class="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 transition-transform hover:scale-110">
+  <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 transition-transform hover:scale-110">
     <i data-lucide="message-circle" class="w-6 h-6"></i>
   </a>
 
@@ -878,18 +1013,55 @@
       drawer.classList.toggle('hidden');
     }
 
+    // Selector de Aplicaciones (App Switcher)
+    let appSwitcherTrigger = null;
+
+    function openAppSwitcher() {
+      const modal = document.getElementById('app-switcher');
+      appSwitcherTrigger = document.activeElement;
+
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+
+      document.getElementById('app-switcher-close').focus({ preventScroll: true });
+    }
+
+    function closeAppSwitcher() {
+      const modal = document.getElementById('app-switcher');
+      if (!modal.classList.contains('is-open')) return;
+
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+
+      if (appSwitcherTrigger && document.body.contains(appSwitcherTrigger)) {
+        appSwitcherTrigger.focus({ preventScroll: true });
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeAppSwitcher();
+    });
+
     function setCurrency(curr) {
       currentCurrency = curr;
       const btnCop = document.getElementById('btn-cop');
       const btnUsd = document.getElementById('btn-usd');
 
-      if (curr === 'COP') {
-        btnCop.className = 'px-2.5 py-1 rounded bg-indigo-600 text-white font-semibold transition-all';
-        btnUsd.className = 'px-2.5 py-1 rounded text-slate-400 hover:text-white transition-all';
-      } else {
-        btnUsd.className = 'px-2.5 py-1 rounded bg-indigo-600 text-white font-semibold transition-all';
-        btnCop.className = 'px-2.5 py-1 rounded text-slate-400 hover:text-white transition-all';
-      }
+      const btnCopMobile = document.getElementById('btn-cop-mobile');
+      const btnUsdMobile = document.getElementById('btn-usd-mobile');
+
+      const activeClass = 'px-2.5 py-1 rounded bg-indigo-600 text-white font-semibold transition-all';
+      const inactiveClass = 'px-2.5 py-1 rounded text-slate-400 hover:text-white transition-all';
+      const activeMobileClass = 'px-2 py-1 bg-indigo-600 rounded text-white';
+      const inactiveMobileClass = 'px-2 py-1 bg-obsidian-700 rounded text-slate-300';
+
+      const isCop = curr === 'COP';
+      btnCop.className = isCop ? activeClass : inactiveClass;
+      btnUsd.className = isCop ? inactiveClass : activeClass;
+      btnCopMobile.className = isCop ? activeMobileClass : inactiveMobileClass;
+      btnUsdMobile.className = isCop ? inactiveMobileClass : activeMobileClass;
 
       calculateBudget();
     }
@@ -984,8 +1156,8 @@
 
       const message = `Hola Netxpremium! 👋 Me interesa cotizar una solución:\n\n• Proyecto: ${type}\n• ${sliderLabel}: ${devicesCount}${modulesText}\n• Presupuesto estimado: $${price} ${curr}\n\n¿Podemos coordinar una llamada para revisar detalles?`;
       
-      const whatsappUrl = `https://wa.me/573000000000?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
+      const whatsappUrl = `https://wa.me/573052484278?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     }
 
     document.addEventListener('DOMContentLoaded', () => {

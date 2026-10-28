@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Netxpremium Avatar</title>
+  <style>
+    :root {
+      --obsidian-950: #06070A;
+      --obsidian-900: #0B0E14;
+      --indigo: #6366F1;
+      --slate-400: #94A3B8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      padding: 16px;
+      background: var(--obsidian-900);
+      color: var(--slate-400);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    .avatar {
+      width: min(512px, 100%);
+      aspect-ratio: 1;
+      transition: border-radius 0.3s ease;
+      overflow: hidden;
+      box-shadow: 0 30px 80px -30px rgba(79, 70, 229, 0.45);
+    }
+
+    .avatar.is-round { border-radius: 50%; }
+
+    .avatar svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+    }
+
+    .actions button {
+      font: inherit;
+      color: var(--slate-400);
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .actions button:hover {
+      color: #fff;
+      border-color: var(--indigo);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="avatar" class="avatar">
+    <svg id="avatar-svg" xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+      <defs>
+        <!-- Fondo: obsidian con un foco índigo muy tenue arriba -->
+        <radialGradient id="bg" cx="50%" cy="38%" r="70%">
+          <stop offset="0%" stop-color="#151A33"/>
+          <stop offset="55%" stop-color="#0B0E14"/>
+          <stop offset="100%" stop-color="#06070A"/>
+        </radialGradient>
+
+        <!-- Isotipo: índigo → cyan eléctrico -->
+        <linearGradient id="mark" x1="166" y1="356" x2="346" y2="156" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#4F46E5"/>
+          <stop offset="45%" stop-color="#6366F1"/>
+          <stop offset="100%" stop-color="#38BDF8"/>
+        </linearGradient>
+
+        <!-- Brillo superior sobre el isotipo -->
+        <linearGradient id="sheen" x1="0" y1="156" x2="0" y2="356" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.22"/>
+          <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0"/>
+        </linearGradient>
+
+        <!-- Anillo exterior índigo/violeta -->
+        <linearGradient id="ring" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#8B5CF6"/>
+          <stop offset="50%" stop-color="#4F46E5"/>
+          <stop offset="100%" stop-color="#38BDF8"/>
+        </linearGradient>
+
+        <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="14"/>
+        </filter>
+
+        <filter id="ring-glow" x="-10%" y="-10%" width="120%" height="120%">
+          <feGaussianBlur stdDeviation="6"/>
+        </filter>
+      </defs>
+
+      <!-- Fondo cuadrado completo: WhatsApp recorta en círculo, las esquinas no deben quedar en blanco -->
+      <rect width="512" height="512" fill="url(#bg)"/>
+
+      <!-- Anillo con iluminación tenue, dentro del círculo visible -->
+      <circle cx="256" cy="256" r="226" fill="none" stroke="url(#ring)" stroke-width="6" opacity="0.55" filter="url(#ring-glow)"/>
+      <circle cx="256" cy="256" r="226" fill="none" stroke="url(#ring)" stroke-width="1.5" opacity="0.7"/>
+
+      <!-- Halo detrás del isotipo -->
+      <path d="M166 356V156H210L302 290V156H346V356H302L210 222V356Z" fill="url(#mark)" opacity="0.55" filter="url(#glow)"/>
+
+      <!-- Isotipo "N" geométrica -->
+      <path d="M166 356V156H210L302 290V156H346V356H302L210 222V356Z" fill="url(#mark)" stroke="url(#mark)" stroke-width="8" stroke-linejoin="round"/>
+      <path d="M166 356V156H210L302 290V156H346V356H302L210 222V356Z" fill="url(#sheen)"/>
+
+      <!-- Punto de estado, eco del indicador "en línea" de la web -->
+      <circle cx="378" cy="146" r="22" fill="#38BDF8" opacity="0.35" filter="url(#ring-glow)"/>
+      <circle cx="378" cy="146" r="13" fill="#38BDF8"/>
+    </svg>
+  </div>
+
+  <div class="actions">
+    <button id="btn-round" type="button">Vista circular</button>
+    <button id="btn-download" type="button">Descargar como PNG</button>
+  </div>
+
+  <script>
+    const SIZE = 512;
+
+    document.getElementById('btn-round').addEventListener('click', (e) => {
+      const isRound = document.getElementById('avatar').classList.toggle('is-round');
+      e.currentTarget.textContent = isRound ? 'Vista cuadrada' : 'Vista circular';
+    });
+
+    document.getElementById('btn-download').addEventListener('click', () => {
+      const svg = document.getElementById('avatar-svg');
+      const markup = new XMLSerializer().serializeToString(svg);
+      const img = new Image();
+
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = SIZE;
+        canvas.height = SIZE;
+        canvas.getContext('2d').drawImage(img, 0, 0, SIZE, SIZE);
+
+        canvas.toBlob((blob) => {
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = 'netxpremium-avatar.png';
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+        }, 'image/png');
+      };
+
+      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(markup);
+    });
+  </script>
+</body>
+</html>
