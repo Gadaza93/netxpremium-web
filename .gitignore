@@ -1,2 +1,4 @@
 # Caché local del CLI de Supabase
 supabase/.temp/
+# Secretos locales de Supabase
+supabase/.env
