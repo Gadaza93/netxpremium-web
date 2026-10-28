@@ -53,9 +53,96 @@
     }
     .skip-link:focus { top: 12px; }
 
-    header.site {
-      border-bottom: 1px solid var(--border);
-      padding: 16px;
+    /* Navbar: réplica del index (logo, enlaces y CTA) */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: rgba(16, 21, 32, 0.92);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 16px 24px;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px 32px;
+    }
+
+    .brand-text { display: flex; flex-direction: column; line-height: 1.35; }
+
+    .brand-name {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .brand-dot { width: 6px; height: 6px; border-radius: 50%; background: #34D399; }
+
+    .brand-tag {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 32px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .nav-links a { color: #CBD5E1; text-decoration: none; }
+    .nav-links a:hover { color: #fff; }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: #fff;
+      color: #06070A;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.025em;
+      text-decoration: none;
+    }
+
+    .nav-cta:hover { background: #E2E8F0; color: #06070A; }
+
+    .nav svg, .foot svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 767px) {
+      .nav { position: static; }
+      .nav-cta { display: none; }
+      .nav-links { order: 3; width: 100%; flex-wrap: nowrap; gap: 20px; overflow-x: auto; white-space: nowrap; padding-bottom: 2px; }
+    }
+
+    @media (min-width: 768px) {
+      .nav { padding: 16px 48px; }
     }
 
     .wrap {
@@ -105,7 +192,7 @@
       letter-spacing: -0.01em;
       margin: 48px 0 12px;
       padding-top: 8px;
-      scroll-margin-top: 16px;
+      scroll-margin-top: 112px;
     }
 
     h3 { font-size: 16px; margin: 24px 0 8px; }
@@ -143,32 +230,81 @@
     td { color: #CBD5E1; }
     .table-scroll { overflow-x: auto; }
 
-    footer.site {
-      border-top: 1px solid var(--border);
-      padding: 32px 16px;
-      font-size: 13px;
+    /* Footer: réplica del index */
+    .foot {
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 48px 24px;
       color: var(--muted);
     }
-    footer.site .wrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px 24px;
-      justify-content: space-between;
+
+    .foot-grid {
+      display: grid;
+      gap: 32px;
+      text-align: center;
     }
-    footer.site nav { display: flex; gap: 16px; flex-wrap: wrap; }
+
+    .foot p { margin: 0; color: inherit; }
+    .foot-name { font-size: 14px; font-weight: 700; color: #fff !important; }
+    .foot-tag { font-size: 12px; margin-top: 4px !important; }
+
+    .foot-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-style: normal;
+    }
+
+    .foot a { color: var(--muted); text-decoration: none; }
+    .foot a:hover, .foot a[aria-current="page"] { color: #fff; }
+
+    .foot-item { display: inline-flex; align-items: center; gap: 8px; }
+    .foot-item svg { color: #64748B; }
+
+    .foot-copy {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      text-align: center;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      color: #64748B;
+    }
+
+    @media (min-width: 768px) {
+      .foot { padding: 48px; }
+      .foot-grid { grid-template-columns: repeat(3, 1fr); text-align: left; }
+      .foot-col { align-items: flex-start; }
+    }
   </style>
 </head>
 <body>
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
 
-  <header class="site">
-    <div class="wrap">
-      <a class="brand" href="index.html" aria-label="NetxPremium — Volver al inicio">
+  <nav class="nav" aria-label="Navegación principal">
+    <div class="container">
+      <a class="brand" href="index.html" aria-label="Netxpremium — Volver al inicio">
         <span class="brand-mark" aria-hidden="true">N</span>
-        <span>NetxPremium</span>
+        <span class="brand-text">
+          <span class="brand-name">Netxpremium <span class="brand-dot" aria-hidden="true"></span></span>
+          <span class="brand-tag">Engineering &amp; Systems</span>
+        </span>
+      </a>
+
+      <div class="nav-links">
+        <a href="index.html#soluciones">Soluciones</a>
+        <a href="index.html#nexobar">Caso NexoBar POS</a>
+        <a href="index.html#arquitectura">Arquitectura</a>
+        <a href="index.html#cotizador">Cotizador</a>
+      </div>
+
+      <a class="nav-cta" href="index.html#cotizador">
+        <span>Iniciar Proyecto</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
       </a>
     </div>
-  </header>
+  </nav>
 
   <main id="contenido">
     <article class="wrap">
@@ -189,9 +325,10 @@
           <li><a href="#licencia">Licencia de uso</a></li>
           <li><a href="#propiedad">Propiedad intelectual</a></li>
           <li><a href="#cuentas">Cuentas y responsabilidades del Cliente</a></li>
-          <li><a href="#disponibilidad">Disponibilidad y modo offline</a></li>
-          <li><a href="#responsabilidad">Limitación de responsabilidad</a></li>
+          <li><a href="#disponibilidad">Nivel de servicio (SLA) y modo offline</a></li>
+          <li><a href="#responsabilidad">Exoneración y limitación de responsabilidad</a></li>
           <li><a href="#suscripciones">Suscripciones, renovación y pagos</a></li>
+          <li><a href="#pagos">Pasarelas de pago</a></li>
           <li><a href="#suspension">Suspensión y cancelación</a></li>
           <li><a href="#retracto">Derecho de retracto y reembolsos</a></li>
           <li><a href="#ley">Ley aplicable y contacto</a></li>
@@ -209,13 +346,15 @@
       <section aria-labelledby="licencia">
         <h2 id="licencia">2. Licencia de uso</h2>
         <p>
-          Mientras su suscripción esté vigente y al día, NetxPremium le otorga una licencia de uso <strong>no exclusiva, intransferible, revocable y limitada</strong>
+          NetxPremium le otorga una licencia de uso <strong>temporal, no exclusiva, intransferible, revocable y limitada</strong>
           para usar NexoBar POS en su establecimiento, dentro del número de dispositivos y usuarios del plan contratado.
+          La licencia solo existe mientras su suscripción esté vigente y al día, y termina automáticamente con la cancelación o suspensión del servicio.
         </p>
         <p>El Cliente no podrá:</p>
         <ul>
-          <li>Copiar, modificar, descompilar, aplicar ingeniería inversa o intentar obtener el código fuente del software.</li>
-          <li>Sublicenciar, revender, alquilar o ceder el software o el acceso a terceros.</li>
+          <li>Copiar, modificar, descompilar, desensamblar, aplicar <strong>ingeniería inversa</strong> o intentar obtener el código fuente del software.</li>
+          <li><strong>Revender</strong>, sublicenciar, alquilar o ceder el software o el acceso a terceros.</li>
+          <li><strong>Distribuir</strong>, publicar o poner a disposición de terceros el código, total o parcialmente, por cualquier medio.</li>
           <li>Eludir las medidas de seguridad, de licenciamiento o de control de acceso.</li>
           <li>Usar el servicio para fines ilícitos o contrarios a la normativa colombiana.</li>
         </ul>
@@ -245,27 +384,35 @@
       </section>
 
       <section aria-labelledby="disponibilidad">
-        <h2 id="disponibilidad">5. Disponibilidad y modo offline</h2>
+        <h2 id="disponibilidad">5. Nivel de servicio (SLA) y modo offline</h2>
         <p>
           NexoBar POS cuenta con arquitectura <em>offline-first</em>: guarda las operaciones localmente en el dispositivo y permite seguir vendiendo cuando no hay internet.
-          Sin embargo, <strong>la sincronización con la nube y entre dispositivos depende de la conexión a internet provista por el Cliente</strong>; mientras no haya conexión,
-          la información no se reflejará en los demás equipos ni quedará respaldada en la nube.
+          Sin embargo, <strong>la sincronización con la nube y entre dispositivos depende de</strong>:
         </p>
+        <ul>
+          <li>La <strong>conexión a internet provista por el Cliente</strong>. Mientras no haya conexión, la información no se reflejará en los demás equipos ni quedará respaldada en la nube.</li>
+          <li>La <strong>infraestructura de proveedores terceros</strong> de alojamiento, base de datos y red, como Netlify, Hostinger, Supabase y Cloudflare, cuya disponibilidad no controla NetxPremium.</li>
+        </ul>
         <p>
-          NetxPremium procura la mayor disponibilidad posible del servicio en la nube, pero puede realizar mantenimientos programados, que se informarán con anticipación cuando sea posible.
+          NetxPremium hará esfuerzos comercialmente razonables para mantener el servicio en la nube disponible de forma continua y atender incidentes con prontitud.
+          Salvo acuerdo escrito en un contrato particular, no se garantiza un porcentaje específico de disponibilidad. Los mantenimientos programados se informarán con anticipación cuando sea posible.
         </p>
       </section>
 
       <section aria-labelledby="responsabilidad">
-        <h2 id="responsabilidad">6. Limitación de responsabilidad</h2>
+        <h2 id="responsabilidad">6. Exoneración y limitación de responsabilidad</h2>
         <p>NetxPremium no será responsable por pérdidas de información, interrupciones o daños derivados de:</p>
         <ul>
           <li>Fallas, daños o mal funcionamiento del <strong>hardware local del establecimiento</strong> (computadores, tabletas, celulares, impresoras térmicas, gavetas o redes internas).</li>
           <li><strong>Cortes de energía</strong> o fallas del servicio de internet del Cliente.</li>
+          <li><strong>Caídas masivas de internet</strong> o interrupciones de los <strong>servidores de alojamiento</strong> y proveedores de infraestructura de terceros.</li>
           <li>Borrado del almacenamiento del navegador o restablecimiento de dispositivos antes de que los datos se hayan sincronizado.</li>
           <li>Uso indebido del software o acceso no autorizado por descuido en la custodia de credenciales.</li>
           <li>Casos de fuerza mayor o caso fortuito.</li>
         </ul>
+        <p>
+          En los eventos anteriores, NetxPremium no responderá por <strong>lucro cesante</strong>, ventas no realizadas, pérdida de clientes ni otros daños indirectos sufridos por el Cliente.
+        </p>
         <p>
           En ningún caso la responsabilidad total de NetxPremium excederá el valor pagado por el Cliente durante los tres (3) meses anteriores al hecho que la origina,
           sin perjuicio de los derechos irrenunciables que la ley reconoce al consumidor.
@@ -282,8 +429,24 @@
         </ul>
       </section>
 
+      <section aria-labelledby="pagos">
+        <h2 id="pagos">8. Pasarelas de pago</h2>
+        <p>
+          Los pagos se procesan a través de <strong>pasarelas de pago de terceros certificadas</strong> bajo el estándar de seguridad PCI DSS.
+          Los datos de la tarjeta o de la cuenta bancaria se ingresan directamente en la plataforma de la pasarela.
+        </p>
+        <p>
+          <strong>NetxPremium no recibe ni almacena números de tarjetas de crédito o débito</strong>, códigos de seguridad (CVV) ni claves bancarias.
+          Solo conserva la confirmación de la transacción, su valor y la fecha, para fines de facturación.
+        </p>
+        <p>
+          La aprobación, rechazo o reversión de cada transacción se rige también por los términos de la pasarela y de la entidad financiera del Cliente.
+          Si su pago se hizo con un instrumento electrónico, puede solicitar la reversión del pago en los casos previstos en el artículo 51 de la Ley 1480 de 2011.
+        </p>
+      </section>
+
       <section aria-labelledby="suspension">
-        <h2 id="suspension">8. Suspensión y cancelación</h2>
+        <h2 id="suspension">9. Suspensión y cancelación</h2>
         <h3>Suspensión</h3>
         <p>
           Si un pago no se realiza en la fecha de renovación, el Cliente contará con cinco (5) días calendario de gracia. Vencido ese plazo, el acceso podrá suspenderse
@@ -302,10 +465,16 @@
       </section>
 
       <section aria-labelledby="retracto">
-        <h2 id="retracto">9. Derecho de retracto y reembolsos</h2>
+        <h2 id="retracto">10. Derecho de retracto y reembolsos</h2>
         <p>
           Conforme al artículo 47 de la Ley 1480 de 2011 (Estatuto del Consumidor), el Cliente que contrate una suscripción digital por medios no tradicionales o a distancia
-          podrá ejercer el <strong>derecho de retracto dentro de los cinco (5) días hábiles siguientes a la contratación</strong>.
+          podrá ejercer el <strong>derecho de retracto dentro de los cinco (5) días hábiles siguientes a la compra</strong>.
+        </p>
+        <h3>Cómo aplica a un servicio digital</h3>
+        <p>
+          Como NexoBar POS es un servicio en línea, no hay un producto físico que devolver. El retracto consiste en la terminación de la suscripción:
+          el plazo de cinco (5) días hábiles se cuenta desde la fecha de pago, y NetxPremium lo reconoce aunque la cuenta ya haya sido activada y usada durante ese periodo.
+          Al aplicarse el retracto, el acceso se desactiva y el Cliente puede solicitar la exportación de la información que haya registrado.
         </p>
         <h3>Cómo solicitarlo</h3>
         <ol>
@@ -318,12 +487,12 @@
           o el que se acuerde con el Cliente.
         </p>
         <p>
-          Fuera del término de retracto, los pagos de periodos ya iniciados no son reembolsables, sin perjuicio de la cancelación descrita en la sección 8 y de los demás derechos que la ley otorga al consumidor.
+          Fuera del término de retracto, los pagos de periodos ya iniciados no son reembolsables, sin perjuicio de la cancelación descrita en la sección 9 y de los demás derechos que la ley otorga al consumidor.
         </p>
       </section>
 
       <section aria-labelledby="ley">
-        <h2 id="ley">10. Ley aplicable y contacto</h2>
+        <h2 id="ley">11. Ley aplicable y contacto</h2>
         <p>
           Estos Términos se rigen por las leyes de la República de Colombia. Cualquier controversia se intentará resolver primero de forma directa; de no lograrse,
           será competencia de las autoridades de Ibagué, Tolima, sin perjuicio de las acciones de protección al consumidor ante la Superintendencia de Industria y Comercio.
@@ -339,13 +508,32 @@
     </article>
   </main>
 
-  <footer class="site">
-    <div class="wrap">
-      <span>© 2026 NexoBar by NetxPremium. Todos los derechos reservados.</span>
-      <nav aria-label="Enlaces legales">
+  <footer class="foot">
+    <div class="container foot-grid">
+      <div>
+        <p class="foot-name">NetxPremium</p>
+        <p class="foot-tag">Soluciones de Software y Punto de Venta</p>
+      </div>
+
+      <address class="foot-col">
+        <span class="foot-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+          Ibagué, Tolima, Colombia
+        </span>
+        <a class="foot-item" href="mailto:soporte@netxpremium.com">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          soporte@netxpremium.com
+        </a>
+      </address>
+
+      <nav class="foot-col" aria-label="Enlaces legales">
         <a href="terminos.html" aria-current="page">Términos y Condiciones</a>
         <a href="privacidad.html">Política de Privacidad</a>
       </nav>
+    </div>
+
+    <div class="container foot-copy">
+      © 2026 NetxPremium. Todos los derechos reservados.
     </div>
   </footer>
 </body>

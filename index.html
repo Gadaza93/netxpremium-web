@@ -926,7 +926,7 @@
           <div class="pt-6 border-t border-white/10 mt-6">
             <label class="legal-consent mb-4">
               <input type="checkbox" id="consentCheck" required>
-              <span>He leído y acepto los <a href="terminos.html" target="_blank" rel="noopener">Términos</a> y la <a href="privacidad.html" target="_blank" rel="noopener">Política de Privacidad</a>.</span>
+              <span>Autorizo el tratamiento de mis datos personales y acepto la <a href="privacidad.html" target="_blank" rel="noopener">Política de Privacidad</a>.</span>
             </label>
             <button type="submit" class="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
               <i data-lucide="message-square" class="w-5 h-5"></i>
@@ -964,9 +964,20 @@
     </div>
 
     <div class="max-w-7xl mx-auto mt-10 pt-6 border-t border-white/5 text-center text-xs text-slate-500 font-mono">
-      © 2026 NexoBar by NetxPremium. Todos los derechos reservados.
+      © 2026 NetxPremium. Todos los derechos reservados.
     </div>
   </footer>
+
+  <!-- Aviso de cookies y almacenamiento local -->
+  <div id="cookie-banner" role="region" aria-label="Aviso de cookies" class="hidden fixed bottom-4 left-4 right-20 md:right-auto md:max-w-md z-[45] rounded-2xl border border-white/10 bg-obsidian-850 p-4 shadow-2xl shadow-black/50">
+    <p class="text-xs text-slate-300 leading-relaxed">
+      Utilizamos cookies y almacenamiento local estrictamente necesarios para mejorar tu experiencia. Al continuar navegando, aceptas nuestra
+      <a href="privacidad.html#almacenamiento" class="text-indigo-300 underline underline-offset-2 hover:text-white">Política de Cookies y Privacidad</a>.
+    </p>
+    <button type="button" onclick="acceptCookies()" class="mt-3 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-colors">
+      Aceptar
+    </button>
+  </div>
 
   <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 transition-transform hover:scale-110">
     <i data-lucide="message-circle" class="w-6 h-6"></i>
@@ -1216,8 +1227,31 @@
       window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
     }
 
+    // Aviso de cookies: la aceptación se recuerda en localStorage (sin cookies de terceros)
+    const COOKIE_CONSENT_KEY = 'netx-cookie-consent';
+
+    function initCookieBanner() {
+      let accepted = false;
+      try {
+        accepted = localStorage.getItem(COOKIE_CONSENT_KEY) === 'accepted';
+      } catch (e) {}
+
+      if (!accepted) {
+        document.getElementById('cookie-banner').classList.remove('hidden');
+      }
+    }
+
+    function acceptCookies() {
+      try {
+        localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted');
+      } catch (e) {}
+
+      document.getElementById('cookie-banner').classList.add('hidden');
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
+      initCookieBanner();
       onProjectTypeChange();
       goToSlide(0);
     });

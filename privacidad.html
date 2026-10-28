@@ -53,9 +53,96 @@
     }
     .skip-link:focus { top: 12px; }
 
-    header.site {
-      border-bottom: 1px solid var(--border);
-      padding: 16px;
+    /* Navbar: réplica del index (logo, enlaces y CTA) */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: rgba(16, 21, 32, 0.92);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 16px 24px;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px 32px;
+    }
+
+    .brand-text { display: flex; flex-direction: column; line-height: 1.35; }
+
+    .brand-name {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .brand-dot { width: 6px; height: 6px; border-radius: 50%; background: #34D399; }
+
+    .brand-tag {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 32px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .nav-links a { color: #CBD5E1; text-decoration: none; }
+    .nav-links a:hover { color: #fff; }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: #fff;
+      color: #06070A;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.025em;
+      text-decoration: none;
+    }
+
+    .nav-cta:hover { background: #E2E8F0; color: #06070A; }
+
+    .nav svg, .foot svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 767px) {
+      .nav { position: static; }
+      .nav-cta { display: none; }
+      .nav-links { order: 3; width: 100%; flex-wrap: nowrap; gap: 20px; overflow-x: auto; white-space: nowrap; padding-bottom: 2px; }
+    }
+
+    @media (min-width: 768px) {
+      .nav { padding: 16px 48px; }
     }
 
     .wrap {
@@ -105,7 +192,7 @@
       letter-spacing: -0.01em;
       margin: 48px 0 12px;
       padding-top: 8px;
-      scroll-margin-top: 16px;
+      scroll-margin-top: 112px;
     }
 
     h3 { font-size: 16px; margin: 24px 0 8px; }
@@ -143,32 +230,81 @@
     td { color: #CBD5E1; }
     .table-scroll { overflow-x: auto; }
 
-    footer.site {
-      border-top: 1px solid var(--border);
-      padding: 32px 16px;
-      font-size: 13px;
+    /* Footer: réplica del index */
+    .foot {
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 48px 24px;
       color: var(--muted);
     }
-    footer.site .wrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px 24px;
-      justify-content: space-between;
+
+    .foot-grid {
+      display: grid;
+      gap: 32px;
+      text-align: center;
     }
-    footer.site nav { display: flex; gap: 16px; flex-wrap: wrap; }
+
+    .foot p { margin: 0; color: inherit; }
+    .foot-name { font-size: 14px; font-weight: 700; color: #fff !important; }
+    .foot-tag { font-size: 12px; margin-top: 4px !important; }
+
+    .foot-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-style: normal;
+    }
+
+    .foot a { color: var(--muted); text-decoration: none; }
+    .foot a:hover, .foot a[aria-current="page"] { color: #fff; }
+
+    .foot-item { display: inline-flex; align-items: center; gap: 8px; }
+    .foot-item svg { color: #64748B; }
+
+    .foot-copy {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      text-align: center;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      color: #64748B;
+    }
+
+    @media (min-width: 768px) {
+      .foot { padding: 48px; }
+      .foot-grid { grid-template-columns: repeat(3, 1fr); text-align: left; }
+      .foot-col { align-items: flex-start; }
+    }
   </style>
 </head>
 <body>
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
 
-  <header class="site">
-    <div class="wrap">
-      <a class="brand" href="index.html" aria-label="NetxPremium — Volver al inicio">
+  <nav class="nav" aria-label="Navegación principal">
+    <div class="container">
+      <a class="brand" href="index.html" aria-label="Netxpremium — Volver al inicio">
         <span class="brand-mark" aria-hidden="true">N</span>
-        <span>NetxPremium</span>
+        <span class="brand-text">
+          <span class="brand-name">Netxpremium <span class="brand-dot" aria-hidden="true"></span></span>
+          <span class="brand-tag">Engineering &amp; Systems</span>
+        </span>
+      </a>
+
+      <div class="nav-links">
+        <a href="index.html#soluciones">Soluciones</a>
+        <a href="index.html#nexobar">Caso NexoBar POS</a>
+        <a href="index.html#arquitectura">Arquitectura</a>
+        <a href="index.html#cotizador">Cotizador</a>
+      </div>
+
+      <a class="nav-cta" href="index.html#cotizador">
+        <span>Iniciar Proyecto</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
       </a>
     </div>
-  </header>
+  </nav>
 
   <main id="contenido">
     <article class="wrap">
@@ -190,8 +326,8 @@
           <li><a href="#derechos">Derechos del titular (ARCO)</a></li>
           <li><a href="#procedimiento">Procedimiento para consultas y reclamos</a></li>
           <li><a href="#terceros">Encargados, terceros y transferencia internacional</a></li>
-          <li><a href="#almacenamiento">Almacenamiento local, cookies y storage</a></li>
-          <li><a href="#seguridad">Seguridad de la información</a></li>
+          <li><a href="#almacenamiento">Política de cookies y almacenamiento local</a></li>
+          <li><a href="#seguridad">Seguridad y no comercialización de datos</a></li>
           <li><a href="#vigencia">Vigencia y cambios</a></li>
         </ol>
       </nav>
@@ -228,13 +364,17 @@
         <h2 id="finalidades">3. Finalidades del tratamiento</h2>
         <p>Los datos personales se tratan exclusivamente para:</p>
         <ul>
+          <li><strong>Gestión de demos y cotizaciones:</strong> responder solicitudes enviadas desde el sitio web, agendar demostraciones y hacer seguimiento comercial a esas solicitudes.</li>
           <li><strong>Gestión de cuentas de usuario:</strong> crear, autenticar y administrar las cuentas y permisos de acceso a NexoBar POS.</li>
+          <li><strong>Facturación electrónica:</strong> expedir facturas electrónicas conforme a la normativa de la DIAN, gestionar cobros y renovaciones, y cumplir obligaciones contables y tributarias.</li>
           <li><strong>Soporte técnico:</strong> atender solicitudes, diagnosticar fallas y comunicar novedades del servicio.</li>
-          <li><strong>Facturación:</strong> emitir facturas, gestionar cobros, renovaciones y cumplir obligaciones contables y tributarias.</li>
           <li><strong>Sincronización del servicio POS:</strong> respaldar en la nube y sincronizar entre dispositivos la información operativa del establecimiento.</li>
-          <li>Responder solicitudes de cotización enviadas desde el sitio web.</li>
+          <li><strong>Envío de información comercial:</strong> comunicar novedades, nuevos productos, promociones y eventos de NetxPremium por correo electrónico, WhatsApp u otros medios.</li>
         </ul>
-        <p>NetxPremium no vende, alquila ni cede datos personales a terceros con fines comerciales o publicitarios.</p>
+        <p>
+          Puede dejar de recibir información comercial en cualquier momento escribiendo a <a href="mailto:soporte@netxpremium.com">soporte@netxpremium.com</a> o respondiendo al mensaje recibido.
+          Esto no afecta el tratamiento necesario para prestarle el servicio contratado.
+        </p>
       </section>
 
       <section aria-labelledby="derechos">
@@ -280,6 +420,8 @@
         <ul>
           <li><strong>Supabase:</strong> base de datos PostgreSQL, autenticación y sincronización en tiempo real de la información de NexoBar POS.</li>
           <li><strong>Cloudflare:</strong> red de entrega de contenidos (CDN), cifrado de las conexiones y protección de la red frente a ataques.</li>
+          <li><strong>Netlify y Hostinger:</strong> alojamiento del sitio web y de la aplicación.</li>
+          <li><strong>Pasarelas de pago certificadas:</strong> procesamiento de los pagos de las suscripciones. NetxPremium no almacena datos de tarjetas.</li>
         </ul>
         <p>
           Estos proveedores pueden almacenar o procesar información en servidores ubicados fuera de Colombia. Al aceptar esta política, usted autoriza dicha transmisión internacional,
@@ -289,7 +431,14 @@
       </section>
 
       <section aria-labelledby="almacenamiento">
-        <h2 id="almacenamiento">7. Almacenamiento local, cookies y storage</h2>
+        <h2 id="almacenamiento">7. Política de cookies y almacenamiento local</h2>
+        <h3>Sitio web</h3>
+        <p>
+          El sitio netxpremium.com no usa cookies de analítica ni de publicidad. Solo guarda en el almacenamiento local de su navegador (localStorage)
+          que usted aceptó el aviso de cookies.
+          Los servicios que entregan las fuentes, los íconos y el contenido del sitio (Google Fonts, CDN y proveedores de alojamiento) pueden registrar datos técnicos como la dirección IP para entregar los archivos.
+        </p>
+        <h3>Aplicación NexoBar POS</h3>
         <p>NexoBar POS sigue una arquitectura <em>offline-first</em>. Para funcionar sin conexión a internet usa almacenamiento local en el navegador del dispositivo:</p>
         <ul>
           <li><strong>IndexedDB:</strong> guarda temporalmente ventas, comandas, turnos e inventario mientras no hay conexión, para sincronizarlos con la nube cuando la red regresa.</li>
@@ -302,10 +451,16 @@
       </section>
 
       <section aria-labelledby="seguridad">
-        <h2 id="seguridad">8. Seguridad de la información</h2>
+        <h2 id="seguridad">8. Seguridad y no comercialización de datos</h2>
+        <h3>Medidas de seguridad</h3>
         <p>
           Aplicamos medidas como cifrado de las comunicaciones (HTTPS/TLS), políticas de seguridad a nivel de fila (RLS) en la base de datos, control de accesos por roles y copias de respaldo.
           Ningún sistema es infalible, pero trabajamos para prevenir el acceso no autorizado, la pérdida o la adulteración de la información.
+        </p>
+        <h3>No comercialización</h3>
+        <p>
+          <strong>NetxPremium no vende, alquila, intercambia ni cede sus bases de datos a terceros</strong> con fines comerciales o publicitarios.
+          Los datos solo se comparten con los encargados descritos en la sección 6, para las finalidades de esta política.
         </p>
       </section>
 
@@ -320,13 +475,32 @@
     </article>
   </main>
 
-  <footer class="site">
-    <div class="wrap">
-      <span>© 2026 NexoBar by NetxPremium. Todos los derechos reservados.</span>
-      <nav aria-label="Enlaces legales">
+  <footer class="foot">
+    <div class="container foot-grid">
+      <div>
+        <p class="foot-name">NetxPremium</p>
+        <p class="foot-tag">Soluciones de Software y Punto de Venta</p>
+      </div>
+
+      <address class="foot-col">
+        <span class="foot-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+          Ibagué, Tolima, Colombia
+        </span>
+        <a class="foot-item" href="mailto:soporte@netxpremium.com">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          soporte@netxpremium.com
+        </a>
+      </address>
+
+      <nav class="foot-col" aria-label="Enlaces legales">
         <a href="terminos.html">Términos y Condiciones</a>
         <a href="privacidad.html" aria-current="page">Política de Privacidad</a>
       </nav>
+    </div>
+
+    <div class="container foot-copy">
+      © 2026 NetxPremium. Todos los derechos reservados.
     </div>
   </footer>
 </body>
