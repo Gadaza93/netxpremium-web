@@ -262,7 +262,7 @@
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <!-- NexoBar POS -->
-        <a href="https://nexobar.netxpremium.com" target="_blank" rel="noopener noreferrer" class="glass-card p-6 rounded-2xl flex flex-col justify-between group">
+        <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
           <div>
             <div class="flex items-start justify-between mb-5">
               <div class="w-11 h-11 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
@@ -276,11 +276,17 @@
             <span class="text-xs font-mono text-indigo-300">POS Gastrobares & Discotecas</span>
             <p class="text-xs text-slate-400 leading-relaxed mt-3">Control de mesas, comandas en tiempo real, turnos de caja y finanzas de tu negocio.</p>
           </div>
-          <span class="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-white">
-            Ingresar
-            <i data-lucide="arrow-up-right" class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
-          </span>
-        </a>
+          <div class="mt-6 grid grid-cols-2 gap-2">
+            <a href="https://nexobar.netxpremium.com" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-white/10 text-xs font-semibold text-white hover:border-indigo-500/50 hover:bg-white/5 transition-all">
+              Ingresar
+              <i data-lucide="arrow-up-right" class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+            </a>
+            <button type="button" onclick="openCompra()" aria-haspopup="dialog" aria-controls="nexobar-compra" class="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition-all">
+              <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+              Comprar
+            </button>
+          </div>
+        </div>
 
         <!-- NexoBarber -->
         <div class="glass-card p-6 rounded-2xl flex flex-col justify-between cursor-default opacity-70" aria-disabled="true">
@@ -328,6 +334,87 @@
           <span>Soporte técnico: +57 305 248 4278</span>
         </a>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Compra de NexoBar POS (pago con Wompi) -->
+  <div id="nexobar-compra" class="app-switcher fixed inset-0 z-[60] flex items-center justify-center p-4" aria-hidden="true" onclick="if (event.target === this) closeCompra()">
+    <div role="dialog" aria-modal="true" aria-labelledby="compra-title" class="app-switcher-panel w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 md:p-8">
+      <div class="flex items-start justify-between gap-4 mb-6">
+        <div>
+          <span class="text-[10px] text-indigo-400 uppercase tracking-widest font-mono">NexoBar POS</span>
+          <h2 id="compra-title" class="text-xl md:text-2xl font-extrabold tracking-tight text-white mt-1">Adquiere NexoBar para tu bar</h2>
+          <p class="text-sm text-slate-400 mt-1">Elige tu plan, completa los datos de tu comercio y paga en línea. Cuando el pago se confirme crearemos tu comercio y te enviaremos las credenciales de acceso.</p>
+        </div>
+        <button id="compra-close" type="button" onclick="closeCompra()" aria-label="Cerrar formulario de compra" class="shrink-0 p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="compra-form" onsubmit="submitCompra(event)" class="space-y-6">
+        <fieldset class="min-w-0">
+          <legend class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-3">1. Elige tu plan</legend>
+          <div id="compra-planes" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <p class="sm:col-span-2 text-xs text-slate-500 font-mono">Cargando planes…</p>
+          </div>
+        </fieldset>
+
+        <fieldset class="min-w-0">
+          <legend class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-3">2. Datos del comercio</legend>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="compra-comercio" class="block text-xs text-slate-400 mb-1.5">Nombre del bar o comercio</label>
+              <input id="compra-comercio" name="comercio" type="text" required maxlength="120" autocomplete="organization" class="w-full bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500">
+            </div>
+            <div>
+              <label for="compra-ciudad" class="block text-xs text-slate-400 mb-1.5">Ciudad</label>
+              <input id="compra-ciudad" name="ciudad" type="text" required maxlength="80" autocomplete="address-level2" class="w-full bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500">
+            </div>
+            <div>
+              <label for="compra-documento" class="block text-xs text-slate-400 mb-1.5">Documento (para la factura)</label>
+              <div class="flex gap-2">
+                <select id="compra-documento-tipo" name="documento_tipo" aria-label="Tipo de documento" class="bg-obsidian-900 border border-white/10 rounded-xl px-3 py-3 text-sm text-white focus:border-indigo-500">
+                  <option value="NIT">NIT</option>
+                  <option value="CC">CC</option>
+                  <option value="CE">CE</option>
+                </select>
+                <input id="compra-documento" name="documento" type="text" inputmode="numeric" required maxlength="20" class="min-w-0 flex-1 bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500">
+              </div>
+            </div>
+            <div>
+              <label for="compra-responsable" class="block text-xs text-slate-400 mb-1.5">Nombre del responsable</label>
+              <input id="compra-responsable" name="responsable" type="text" required maxlength="120" autocomplete="name" class="w-full bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500">
+            </div>
+            <div>
+              <label for="compra-email" class="block text-xs text-slate-400 mb-1.5">Correo electrónico</label>
+              <input id="compra-email" name="email" type="email" required maxlength="160" autocomplete="email" class="w-full bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500">
+            </div>
+            <div>
+              <label for="compra-telefono" class="block text-xs text-slate-400 mb-1.5">Celular / WhatsApp</label>
+              <input id="compra-telefono" name="telefono" type="tel" inputmode="numeric" required maxlength="10" pattern="3[0-9]{9}" title="Celular colombiano de 10 dígitos, por ejemplo 3001234567" placeholder="3001234567" autocomplete="tel-national" class="w-full bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-indigo-500">
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="pt-5 border-t border-white/10">
+          <label class="legal-consent mb-3">
+            <input type="checkbox" id="compra-terminos" required>
+            <span>Acepto los <a href="terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a> y autorizo el tratamiento de mis datos según la <a href="privacidad.html" target="_blank" rel="noopener">Política de Privacidad</a>.</span>
+          </label>
+          <label class="legal-consent mb-4">
+            <input type="checkbox" id="compra-marketing">
+            <span>Acepto recibir información comercial, ofertas y novedades de NetxPremium. <span class="text-slate-500">(Opcional)</span></span>
+          </label>
+
+          <p id="compra-status" role="status" aria-live="polite" class="hidden mb-4 text-xs rounded-lg px-3 py-2"></p>
+
+          <button id="compra-submit" type="submit" class="w-full py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold text-sm transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+            <span id="compra-submit-label">Ir a pagar</span>
+          </button>
+          <p class="mt-3 text-[11px] text-slate-500 text-center">Pago seguro procesado por Wompi (Bancolombia). NetxPremium no ve ni almacena los datos de tu tarjeta o cuenta.</p>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -1112,8 +1199,151 @@
     }
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeAppSwitcher();
+      if (e.key === 'Escape') {
+        closeAppSwitcher();
+        closeCompra();
+      }
     });
+
+    // Compra de NexoBar POS: los planes y el checkout de Wompi vienen de la Edge Function crear-compra
+    const NEXOBAR_COMPRA_API = 'https://fthjtbhxqqzqpyhtynaa.supabase.co/functions/v1/crear-compra';
+    let compraTrigger = null;
+    let planesCargados = false;
+
+    function escapeHtml(text) {
+      return String(text ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function openCompra() {
+      // El foco vuelve al botón que abrió el selector, no al "Comprar" que queda oculto
+      compraTrigger = appSwitcherTrigger;
+      const switcher = document.getElementById('app-switcher');
+      switcher.classList.remove('is-open');
+      switcher.setAttribute('aria-hidden', 'true');
+
+      const modal = document.getElementById('nexobar-compra');
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('compra-close').focus({ preventScroll: true });
+
+      if (!planesCargados) cargarPlanes();
+    }
+
+    function closeCompra() {
+      const modal = document.getElementById('nexobar-compra');
+      if (!modal.classList.contains('is-open')) return;
+
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+
+      if (compraTrigger && document.body.contains(compraTrigger)) {
+        compraTrigger.focus({ preventScroll: true });
+      }
+    }
+
+    function setCompraStatus(message, type) {
+      const status = document.getElementById('compra-status');
+      if (!message) {
+        status.className = 'hidden mb-4 text-xs rounded-lg px-3 py-2';
+        status.textContent = '';
+        return;
+      }
+      const tone = type === 'error'
+        ? 'bg-rose-500/10 border border-rose-500/20 text-rose-300'
+        : 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-200';
+      status.className = `mb-4 text-xs rounded-lg px-3 py-2 ${tone}`;
+      status.textContent = message;
+    }
+
+    async function cargarPlanes() {
+      const container = document.getElementById('compra-planes');
+      const submit = document.getElementById('compra-submit');
+      submit.disabled = true;
+
+      try {
+        const res = await fetch(NEXOBAR_COMPRA_API);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const { planes } = await res.json();
+        if (!planes || !planes.length) throw new Error('Sin planes activos');
+
+        container.innerHTML = planes.map((plan, i) => `
+          <label class="relative cursor-pointer">
+            <input type="radio" name="plan" value="${escapeHtml(plan.id)}" data-precio="${Number(plan.precio_cop)}" ${i === 0 ? 'checked' : ''} required onchange="actualizarTotalCompra()" class="peer sr-only">
+            <div class="h-full p-4 rounded-xl bg-obsidian-900 border border-white/10 peer-checked:border-indigo-500 peer-checked:bg-indigo-500/10 peer-focus-visible:ring-2 peer-focus-visible:ring-sky-400 hover:border-white/20 transition-all">
+              <span class="block text-sm font-bold text-white">${escapeHtml(plan.nombre)}</span>
+              <span class="block text-lg font-mono font-bold text-indigo-300 mt-1">$ ${Number(plan.precio_cop).toLocaleString('es-CO')} <span class="text-[10px] text-slate-500">COP</span></span>
+              ${plan.descripcion ? `<span class="block text-[11px] text-slate-400 mt-1">${escapeHtml(plan.descripcion)}</span>` : ''}
+              <ul class="mt-3 space-y-1 text-[11px] text-slate-400">
+                ${(plan.caracteristicas || []).map(c => `<li class="flex gap-1.5"><span class="text-emerald-400">✓</span><span>${escapeHtml(c)}</span></li>`).join('')}
+              </ul>
+            </div>
+          </label>
+        `).join('');
+
+        planesCargados = true;
+        submit.disabled = false;
+        actualizarTotalCompra();
+      } catch (err) {
+        console.error('No se pudieron cargar los planes de NexoBar', err);
+        container.innerHTML = `
+          <p class="sm:col-span-2 text-xs text-slate-400 rounded-xl border border-white/10 bg-obsidian-900 p-4">
+            La compra en línea no está disponible en este momento.
+            <a href="https://wa.me/573052484278?text=${encodeURIComponent('Hola Netxpremium! Quiero adquirir NexoBar POS para mi bar.')}" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 font-semibold">Escríbenos por WhatsApp</a>
+            y te ayudamos con la compra.
+          </p>`;
+      }
+    }
+
+    function actualizarTotalCompra() {
+      const plan = document.querySelector('#compra-planes input[name="plan"]:checked');
+      const label = document.getElementById('compra-submit-label');
+      label.textContent = plan
+        ? `Ir a pagar $ ${Number(plan.dataset.precio).toLocaleString('es-CO')} COP`
+        : 'Ir a pagar';
+    }
+
+    async function submitCompra(event) {
+      event.preventDefault();
+      const form = event.target;
+      const submit = document.getElementById('compra-submit');
+      const plan = form.querySelector('input[name="plan"]:checked');
+
+      const payload = {
+        plan_id: plan ? plan.value : '',
+        comercio: form.comercio.value,
+        ciudad: form.ciudad.value,
+        documento_tipo: form.documento_tipo.value,
+        documento: form.documento.value,
+        responsable: form.responsable.value,
+        email: form.email.value,
+        telefono: form.telefono.value,
+        acepta_terminos: document.getElementById('compra-terminos').checked,
+        acepta_marketing: document.getElementById('compra-marketing').checked,
+      };
+
+      submit.disabled = true;
+      setCompraStatus('Preparando tu pago seguro…');
+
+      try {
+        const res = await fetch(NEXOBAR_COMPRA_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.checkout_url) throw new Error(data.error || 'No pudimos iniciar el pago. Intenta de nuevo.');
+
+        setCompraStatus('Te estamos llevando a Wompi para completar el pago…');
+        window.location.href = data.checkout_url;
+      } catch (err) {
+        // TypeError = fallo de red ("Failed to fetch"), mejor un mensaje en español
+        const message = err instanceof TypeError ? 'No pudimos conectarnos. Revisa tu internet e intenta de nuevo.' : err.message;
+        setCompraStatus(message, 'error');
+        submit.disabled = false;
+      }
+    }
 
     function setCurrency(curr) {
       currentCurrency = curr;
@@ -1259,6 +1489,9 @@
       initCookieBanner();
       onProjectTypeChange();
       goToSlide(0);
+
+      // pago.html enlaza a index.html?comprar=1 para reintentar una compra rechazada
+      if (new URLSearchParams(location.search).has('comprar')) openCompra();
     });
   </script>
 </body>
