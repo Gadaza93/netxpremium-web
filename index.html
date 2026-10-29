@@ -140,6 +140,35 @@
     .np-btn { background-color: #FF8C32; color: #12141A; box-shadow: 0 10px 15px -3px rgba(255, 140, 50, 0.3); }
     .np-btn:hover { background-color: #FF9D4D; }
     .np-glow { box-shadow: 0 0 50px -12px rgba(255, 140, 50, 0.3); }
+
+    /* Menú «Apps para tu negocio» */
+    .nav-links a, .nav-links button { white-space: nowrap; }
+    .apps-menu { position: relative; }
+    .apps-toggle { display: inline-flex; align-items: center; gap: 6px; color: inherit; font: inherit; background: none; border: 0; cursor: pointer; padding: 0; transition: color .2s; }
+    .apps-toggle:hover, .apps-toggle[aria-expanded="true"] { color: #fff; }
+    .apps-toggle svg { transition: transform .2s; }
+    .apps-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+    .apps-panel { position: absolute; top: calc(100% + 18px); left: 50%; width: 360px; padding: 10px; border-radius: 16px;
+      background: #0D111A; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.8);
+      opacity: 0; visibility: hidden; transform: translate(-50%, -6px); transition: opacity .18s, transform .18s, visibility .18s; }
+    .apps-menu.is-open .apps-panel { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+    .apps-titulo { padding: 8px 10px 10px; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #818CF8; font-family: 'JetBrains Mono', monospace; }
+    .apps-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 12px; color: #E2E8F0; text-decoration: none; transition: background-color .15s; }
+    a.apps-item:hover, a.apps-item:focus-visible { background: rgba(255, 255, 255, 0.05); outline: none; }
+    .apps-item-off { opacity: .55; cursor: default; }
+    .apps-ico { width: 40px; height: 40px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .apps-nombre { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; color: #fff; }
+    .apps-negocio { display: block; font-size: 12px; color: #94A3B8; margin-top: 2px; }
+    .apps-chip { font-size: 9px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; color: #94A3B8; border: 1px solid rgba(148, 163, 184, 0.25); font-family: 'JetBrains Mono', monospace; }
+    .apps-chip-nuevo { color: #FFB070; border-color: rgba(255, 140, 50, 0.35); background: rgba(255, 140, 50, 0.1); }
+    .apps-flecha { color: #64748B; transition: transform .15s, color .15s; }
+    a.apps-item:hover .apps-flecha { color: #fff; transform: translateX(2px); }
+    .apps-pie { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; padding: 12px 10px 6px; border-top: 1px solid rgba(255, 255, 255, 0.06); font-size: 12px; color: #94A3B8; }
+    .apps-pie a { color: #A5B4FC; font-weight: 600; text-decoration: none; white-space: nowrap; }
+    .apps-pie a:hover { color: #fff; }
+    .apps-texto { flex: 1; min-width: 0; }
+    .apps-movil { padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+    .apps-movil .apps-item { padding: 8px 0; }
   </style>
   <!-- Después del <style> propio: las utilidades de Tailwind deben ganar en la cascada, como con el CDN -->
   <link rel="stylesheet" href="/assets/app.css?v=0869f6db61">
@@ -163,13 +192,46 @@
         </div>
       </a>
 
-      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+      <div class="nav-links hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+        <div class="apps-menu" id="apps-menu">
+          <button type="button" id="apps-toggle" class="apps-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="apps-panel">
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span> Apps para tu negocio <i data-lucide="chevron-down" class="w-4 h-4"></i>
+          </button>
+          <div id="apps-panel" class="apps-panel" role="menu" aria-labelledby="apps-toggle">
+            <div class="apps-titulo">Encuentra la app para tu negocio</div>
+            <a href="/nexobar" class="apps-item" role="menuitem">
+              <span class="apps-ico" style="color:#818CF8;background:rgba(99,102,241,.12)"><i data-lucide="wine" class="w-5 h-5"></i></span>
+              <span class="apps-texto">
+                <span class="apps-nombre">NexoBar POS</span>
+                <span class="apps-negocio">Bares, gastrobares y discotecas</span>
+              </span>
+              <i data-lucide="arrow-right" class="apps-flecha w-4 h-4"></i>
+            </a>
+            <a href="/nexopos" class="apps-item" role="menuitem">
+              <img src="/assets/nexopos/logo.svg" alt="" width="40" height="40" class="apps-ico">
+              <span class="apps-texto">
+                <span class="apps-nombre">NexoPos <span class="apps-chip apps-chip-nuevo">Nuevo</span></span>
+                <span class="apps-negocio">Restaurantes y cafeterías</span>
+              </span>
+              <i data-lucide="arrow-right" class="apps-flecha w-4 h-4"></i>
+            </a>
+            <div class="apps-item apps-item-off" aria-disabled="true">
+              <span class="apps-ico" style="color:#94A3B8;background:rgba(148,163,184,.1)"><i data-lucide="scissors" class="w-5 h-5"></i></span>
+              <span class="apps-texto">
+                <span class="apps-nombre">NexoBarber <span class="apps-chip">Próximamente</span></span>
+                <span class="apps-negocio">Barberías</span>
+              </span>
+            </div>
+            <div class="apps-pie">
+              <span>¿No ves tu tipo de negocio?</span>
+              <a href="#cotizador">Lo creamos a la medida →</a>
+            </div>
+          </div>
+        </div>
         <a href="#soluciones" class="hover:text-white transition-colors">Soluciones</a>
         <a href="#nexobar" class="hover:text-white transition-colors">Caso de éxito</a>
         <a href="#arquitectura" class="hover:text-white transition-colors">Arquitectura</a>
         <a href="#cotizador" class="hover:text-white transition-colors">Cotizador</a>
-        <a href="/nexobar" class="hover:text-white transition-colors inline-flex items-center gap-1.5">NexoBar POS <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span></a>
-        <a href="/nexopos" class="hover:text-white transition-colors inline-flex items-center gap-1.5">NexoPos <span class="w-1.5 h-1.5 rounded-full np-dot"></span></a>
       </div>
 
       <div class="hidden md:flex items-center gap-4">
@@ -209,8 +271,32 @@
           <a href="#nexobar" onclick="toggleDrawer()" class="hover:text-white">Caso de éxito</a>
           <a href="#arquitectura" onclick="toggleDrawer()" class="hover:text-white">Arquitectura</a>
           <a href="#cotizador" onclick="toggleDrawer()" class="hover:text-white">Cotizador</a>
-          <a href="/nexobar" class="hover:text-white">NexoBar POS</a>
-          <a href="/nexopos" class="hover:text-white">NexoPos</a>
+          <div class="apps-movil">
+            <div class="apps-titulo" style="padding:0 0 4px">Apps para tu negocio</div>
+            <a href="/nexobar" class="apps-item" role="menuitem">
+              <span class="apps-ico" style="color:#818CF8;background:rgba(99,102,241,.12)"><i data-lucide="wine" class="w-5 h-5"></i></span>
+              <span class="apps-texto">
+                <span class="apps-nombre">NexoBar POS</span>
+                <span class="apps-negocio">Bares, gastrobares y discotecas</span>
+              </span>
+              <i data-lucide="arrow-right" class="apps-flecha w-4 h-4"></i>
+            </a>
+            <a href="/nexopos" class="apps-item" role="menuitem">
+              <img src="/assets/nexopos/logo.svg" alt="" width="40" height="40" class="apps-ico">
+              <span class="apps-texto">
+                <span class="apps-nombre">NexoPos <span class="apps-chip apps-chip-nuevo">Nuevo</span></span>
+                <span class="apps-negocio">Restaurantes y cafeterías</span>
+              </span>
+              <i data-lucide="arrow-right" class="apps-flecha w-4 h-4"></i>
+            </a>
+            <div class="apps-item apps-item-off" aria-disabled="true">
+              <span class="apps-ico" style="color:#94A3B8;background:rgba(148,163,184,.1)"><i data-lucide="scissors" class="w-5 h-5"></i></span>
+              <span class="apps-texto">
+                <span class="apps-nombre">NexoBarber <span class="apps-chip">Próximamente</span></span>
+                <span class="apps-negocio">Barberías</span>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
       <div class="pt-6 border-t border-white/10 flex flex-col gap-4">
@@ -854,6 +940,17 @@
         ]
       }
     };
+
+    (function () {
+      const menu = document.getElementById('apps-menu');
+      const toggle = document.getElementById('apps-toggle');
+      const abrir = (si) => { menu.classList.toggle('is-open', si); toggle.setAttribute('aria-expanded', String(si)); };
+      toggle.addEventListener('click', () => abrir(!menu.classList.contains('is-open')));
+      document.addEventListener('click', (e) => { if (!menu.contains(e.target)) abrir(false); });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && menu.classList.contains('is-open')) { abrir(false); toggle.focus(); }
+      });
+    })();
 
     function toggleDrawer() {
       const drawer = document.getElementById('mobile-drawer');
