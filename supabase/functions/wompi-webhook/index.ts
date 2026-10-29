@@ -256,9 +256,10 @@ async function notificarCliente(compra: Compra): Promise<void> {
        <ol>
          <li>Abre ${NEXOBAR_APP_URL.replace('https://', '')} en el computador, tablet o celular de tu caja.</li>
          <li>Escribe tu correo y la contraseña temporal, y pulsa <em>Vincular y Descargar Catálogo</em>.</li>
+         <li>La app te pedirá crear tu <strong>contraseña definitiva</strong> (mínimo 8 caracteres). Úsala de ahí en adelante para vincular tus cajas.</li>
          <li>Configura los datos de tu bar, tus productos y los usuarios de tu equipo.</li>
        </ol>
-       <p>Por seguridad, cambia esta contraseña con la opción <em>¿Olvidaste tu contraseña?</em> de la pantalla de ingreso.</p>
+       <p>La contraseña temporal solo sirve para ese primer ingreso. Si más adelante olvidas tu contraseña definitiva, usa <em>¿Olvidaste tu contraseña?</em> en la pantalla de ingreso.</p>
        <p>Referencia de pago: <strong>${escapeHtml(compra.referencia)}</strong></p>
        ${pieCorreo}`,
       replyTo,
