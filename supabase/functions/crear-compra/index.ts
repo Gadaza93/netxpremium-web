@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
   if (req.method === 'GET') {
     const { data, error } = await supabase
       .from('planes')
-      .select('id, nombre, descripcion, precio_cop, caracteristicas')
+      .select('id, nombre, descripcion, precio_cop, caracteristicas, ciclo')
       .eq('activo', true)
       .order('orden');
 

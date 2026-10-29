@@ -6,6 +6,18 @@
   <title>Netxpremium | Software a la Medida, Sistemas POS & Desarrollo Web</title>
   <meta name="description" content="Netxpremium - Ingeniería de software, desarrollo web de alto rendimiento y creadores de NexoBar POS.">
 
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "¿NexoBar funciona sin internet?", "acceptedAnswer": { "@type": "Answer", "text": "Sí. Puedes seguir registrando ventas y operando el punto de venta. Una vez recuperes la conexión, la caja se sincronizará automáticamente en la nube." } },
+      { "@type": "Question", "name": "¿Qué equipos necesito para empezar?", "acceptedAnswer": { "@type": "Answer", "text": "Puedes usar cualquier computador, tablet o celular con navegador web. Opcionalmente, puedes conectar una impresora térmica estándar para los recibos y comandas." } },
+      { "@type": "Question", "name": "¿Hay cláusulas de permanencia?", "acceptedAnswer": { "@type": "Answer", "text": "No. Pagas mes a mes (o el año completo con descuento) y puedes cancelar tu suscripción cuando lo desees, sin penalidades." } },
+      { "@type": "Question", "name": "¿Cuánto tiempo tarda la entrega del sistema?", "acceptedAnswer": { "@type": "Answer", "text": "Al confirmar tu pago recibes de inmediato un correo de confirmación, y te enviamos tus credenciales de acceso por correo y WhatsApp para que empieces a configurar tu negocio el mismo día." } }
+    ]
+  }
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -126,6 +138,11 @@
       scrollbar-gutter: stable;
     }
 
+    /* FAQ: acordeón nativo con <details>, sin el triángulo por defecto */
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item[open] { border-color: rgba(99, 102, 241, 0.35); }
+    .faq-item:hover { transform: none; }
+
     /* App Switcher: solo se animan opacity y transform (compositor / GPU) */
     .app-switcher {
       background-color: rgba(6, 7, 10, 0.85);
@@ -184,6 +201,7 @@
       <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
         <a href="#soluciones" class="hover:text-white transition-colors">Soluciones</a>
         <a href="#nexobar" class="hover:text-white transition-colors">Caso NexoBar POS</a>
+        <a href="#planes" class="hover:text-white transition-colors">Planes</a>
         <a href="#arquitectura" class="hover:text-white transition-colors">Arquitectura</a>
         <a href="#cotizador" class="hover:text-white transition-colors">Cotizador</a>
       </div>
@@ -223,6 +241,7 @@
         <div class="flex flex-col gap-5 mt-6 text-slate-300 font-medium">
           <a href="#soluciones" onclick="toggleDrawer()" class="hover:text-white">Soluciones</a>
           <a href="#nexobar" onclick="toggleDrawer()" class="hover:text-white">Caso NexoBar POS</a>
+          <a href="#planes" onclick="toggleDrawer()" class="hover:text-white">Planes</a>
           <a href="#arquitectura" onclick="toggleDrawer()" class="hover:text-white">Arquitectura</a>
           <a href="#cotizador" onclick="toggleDrawer()" class="hover:text-white">Cotizador</a>
         </div>
@@ -353,8 +372,12 @@
 
       <form id="compra-form" onsubmit="submitCompra(event)" class="space-y-6">
         <fieldset class="min-w-0">
-          <legend class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-3">1. Elige tu plan</legend>
-          <div id="compra-planes" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <legend class="float-left text-xs font-mono text-slate-400 uppercase tracking-wider py-1.5">1. Elige tu plan</legend>
+          <div role="group" aria-label="Ciclo de facturación" class="float-right inline-flex items-center p-0.5 rounded-lg bg-obsidian-900 border border-white/10 text-xs font-semibold">
+            <button type="button" data-compra-ciclo="mensual" aria-pressed="true" onclick="setCicloCompra('mensual')" class="px-3 py-1 rounded-md transition-all bg-indigo-600 text-white shadow-md">Mensual</button>
+            <button type="button" data-compra-ciclo="anual" aria-pressed="false" onclick="setCicloCompra('anual')" class="px-3 py-1 rounded-md transition-all text-slate-400 hover:text-white">Anual <span class="text-emerald-300 font-mono text-[10px]">-2 meses</span></button>
+          </div>
+          <div id="compra-planes" class="clear-both pt-3 grid grid-cols-1 sm:grid-cols-2 gap-3"> class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <p class="sm:col-span-2 text-xs text-slate-500 font-mono">Cargando planes…</p>
           </div>
         </fieldset>
@@ -781,6 +804,157 @@
         </a>
       </div>
     </div>
+  </section>
+
+  <!-- PLANES Y PRECIOS DE NEXOBAR POS -->
+  <section id="planes" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-5xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-mono mb-4">
+        PLANES NEXOBAR POS
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Planes simples, sin permanencia</h2>
+      <p class="text-slate-400 text-sm sm:text-base mt-3">Elige el plan para tu bar y empieza a vender hoy. Paga mes a mes o ahorra dos meses con el plan anual.</p>
+    </div>
+
+    <div class="flex justify-center mb-10">
+      <div role="group" aria-label="Ciclo de facturación" class="inline-flex items-center p-1 rounded-xl bg-obsidian-900 border border-white/10 text-sm font-semibold">
+        <button type="button" data-ciclo-btn="mensual" aria-pressed="true" onclick="setCicloPlanes('mensual')" class="px-5 py-2 rounded-lg transition-all bg-indigo-600 text-white shadow-md">Mensual</button>
+        <button type="button" data-ciclo-btn="anual" aria-pressed="false" onclick="setCicloPlanes('anual')" class="px-5 py-2 rounded-lg transition-all flex items-center gap-2 text-slate-400 hover:text-white">
+          Anual
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">2 meses gratis</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+      <!-- Plan Básico -->
+      <article data-plan-card="basico" data-mensual="49.990" data-anual="499.900" data-ahorro="99.980" data-equivale="41.658" class="glass-card rounded-2xl p-6 sm:p-8 flex flex-col">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center">
+            <i data-lucide="store" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white">Plan Básico</h3>
+            <p class="text-xs text-slate-400">Para bares pequeños que están empezando</p>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-4xl font-extrabold font-mono tracking-tight text-white" data-precio>$ 49.990</span>
+            <span class="text-sm text-slate-400" data-periodo>COP / mes</span>
+          </div>
+          <p class="mt-2 min-h-[2.5rem] text-xs text-slate-400" data-ahorro-texto>Facturación mensual. Cancela cuando quieras.</p>
+        </div>
+
+        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1">
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Hasta 10 mesas</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Facturación, POS y control de stock simple</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Cierre de caja y ventas del día</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Interfaz tradicional en lista</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>1 usuario (cajero/administrador)</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Soporte por WhatsApp</li>
+        </ul>
+
+        <button type="button" onclick="elegirPlan('basico')" aria-haspopup="dialog" aria-controls="nexobar-compra" class="mt-8 w-full py-3.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 hover:border-indigo-500/50 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2">
+          Elegir Plan Básico
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </article>
+
+      <!-- Plan Pro (destacado) -->
+      <article data-plan-card="pro" data-mensual="89.990" data-anual="899.900" data-ahorro="179.980" data-equivale="74.992" class="glass-card relative rounded-2xl p-6 sm:p-8 flex flex-col !border-indigo-500/50 glow-indigo bg-gradient-to-b from-indigo-500/[0.07] to-transparent">
+        <span class="absolute -top-3 left-6 sm:left-8 px-3 py-1 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">Más completo</span>
+
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-indigo-500/15 text-indigo-300 flex items-center justify-center">
+            <i data-lucide="crown" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white">Plan Pro</h3>
+            <p class="text-xs text-slate-400">Para bares con más mesas, personal y control</p>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-4xl font-extrabold font-mono tracking-tight text-white" data-precio>$ 89.990</span>
+            <span class="text-sm text-slate-400" data-periodo>COP / mes</span>
+          </div>
+          <p class="mt-2 min-h-[2.5rem] text-xs text-slate-400" data-ahorro-texto>Facturación mensual. Cancela cuando quieras.</p>
+        </div>
+
+        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1">
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Mesas ilimitadas</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Facturación y POS</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Valoración de inventario y exportaciones</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Analítica de ganancias netas y control de gastos</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Mapa de layout de mesas interactivo</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Múltiples roles de usuario</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Soporte prioritario por WhatsApp</li>
+        </ul>
+
+        <button type="button" onclick="elegirPlan('pro')" aria-haspopup="dialog" aria-controls="nexobar-compra" class="mt-8 w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2">
+          Elegir Plan Pro
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </article>
+    </div>
+
+    <p class="mt-8 text-center text-xs text-slate-500 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+      <span class="inline-flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>Pago seguro con Wompi</span>
+      <span class="inline-flex items-center gap-1.5"><i data-lucide="calendar-x" class="w-3.5 h-3.5 text-sky-400"></i>Sin cláusulas de permanencia</span>
+      <span class="inline-flex items-center gap-1.5"><i data-lucide="wifi-off" class="w-3.5 h-3.5 text-indigo-400"></i>Funciona sin internet</span>
+    </p>
+  </section>
+
+  <!-- PREGUNTAS FRECUENTES -->
+  <section id="faq" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-3xl mx-auto">
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-mono mb-4">
+        PREGUNTAS FRECUENTES
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Resolvemos tus dudas</h2>
+    </div>
+
+    <div class="space-y-3">
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿NexoBar funciona sin internet?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-indigo-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Sí. Puedes seguir registrando ventas y operando el punto de venta. Una vez recuperes la conexión, la caja se sincronizará automáticamente en la nube.</p>
+      </details>
+
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿Qué equipos necesito para empezar?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-indigo-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Puedes usar cualquier computador, tablet o celular con navegador web. Opcionalmente, puedes conectar una impresora térmica estándar para los recibos y comandas.</p>
+      </details>
+
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿Hay cláusulas de permanencia?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-indigo-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">No. Pagas mes a mes (o el año completo con descuento) y puedes cancelar tu suscripción cuando lo desees, sin penalidades.</p>
+      </details>
+
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿Cuánto tiempo tarda la entrega del sistema?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-indigo-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Al confirmar tu pago recibes de inmediato un correo de confirmación, y te enviamos tus credenciales de acceso por correo y WhatsApp para que empieces a configurar tu negocio el mismo día.</p>
+      </details>
+    </div>
+
+    <p class="mt-8 text-center text-sm text-slate-400">
+      ¿Tienes otra pregunta?
+      <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="text-emerald-400 hover:text-emerald-300 font-semibold">Escríbenos por WhatsApp</a>
+    </p>
   </section>
 
   <section id="soluciones" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-7xl mx-auto">
@@ -1217,15 +1391,25 @@
     const NEXOBAR_COMPRA_API = 'https://fthjtbhxqqzqpyhtynaa.supabase.co/functions/v1/crear-compra';
     let compraTrigger = null;
     let planesCargados = false;
+    let planesNexobar = [];
+    let compraCiclo = 'mensual';
+    let planPreseleccionado = null;
 
     function escapeHtml(text) {
       return String(text ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
 
-    function openCompra() {
-      // El foco vuelve al botón que abrió el selector, no al "Comprar" que queda oculto
-      compraTrigger = appSwitcherTrigger;
+    // planId opcional ('basico', 'pro_anual'…): llega desde las tarjetas de la sección Planes
+    function openCompra(planId) {
       const switcher = document.getElementById('app-switcher');
+      // Desde el selector, el foco vuelve al botón que lo abrió, no al "Comprar" que queda oculto
+      compraTrigger = switcher.classList.contains('is-open') ? appSwitcherTrigger : document.activeElement;
+
+      if (planId) {
+        planPreseleccionado = planId;
+        compraCiclo = planId.endsWith('_anual') ? 'anual' : 'mensual';
+      }
+
       switcher.classList.remove('is-open');
       switcher.setAttribute('aria-hidden', 'true');
 
@@ -1235,7 +1419,12 @@
       document.body.style.overflow = 'hidden';
       document.getElementById('compra-close').focus({ preventScroll: true });
 
-      if (!planesCargados) cargarPlanes();
+      if (planesCargados) renderPlanesCompra();
+      else cargarPlanes();
+    }
+
+    function elegirPlan(base) {
+      openCompra(cicloPlanes === 'anual' ? `${base}_anual` : base);
     }
 
     function closeCompra() {
@@ -1276,9 +1465,64 @@
         const { planes } = await res.json();
         if (!planes || !planes.length) throw new Error('Sin planes activos');
 
-        container.innerHTML = planes.map((plan, i) => `
+        planesNexobar = planes;
+        planesCargados = true;
+        renderPlanesCompra();
+      } catch (err) {
+        console.error('No se pudieron cargar los planes de NexoBar', err);
+        container.innerHTML = `
+          <p class="sm:col-span-2 text-xs text-slate-400 rounded-xl border border-white/10 bg-obsidian-900 p-4">
+            La compra en línea no está disponible en este momento.
+            <a href="https://wa.me/573052484278?text=${encodeURIComponent('Hola Netxpremium! Quiero adquirir NexoBar POS para mi bar.')}" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 font-semibold">Escríbenos por WhatsApp</a>
+            y te ayudamos con la compra.
+          </p>`;
+      }
+    }
+
+    function marcarCiclo(btn, activo) {
+      btn.setAttribute('aria-pressed', String(activo));
+      btn.classList.toggle('bg-indigo-600', activo);
+      btn.classList.toggle('text-white', activo);
+      btn.classList.toggle('shadow-md', activo);
+      btn.classList.toggle('text-slate-400', !activo);
+      btn.classList.toggle('hover:text-white', !activo);
+    }
+
+    function setCicloCompra(ciclo) {
+      // Conserva el plan elegido (Básico o Pro) al cambiar de ciclo
+      const actual = document.querySelector('#compra-planes input[name="plan"]:checked');
+      const base = actual ? actual.value.replace(/_anual$/, '') : null;
+      compraCiclo = ciclo;
+      planPreseleccionado = base ? (ciclo === 'anual' ? `${base}_anual` : base) : null;
+      if (planesCargados) renderPlanesCompra();
+    }
+
+    function renderPlanesCompra() {
+      const container = document.getElementById('compra-planes');
+      const submit = document.getElementById('compra-submit');
+
+      document.querySelectorAll('[data-compra-ciclo]').forEach(btn => {
+        marcarCiclo(btn, btn.dataset.compraCiclo === compraCiclo);
+      });
+
+      const planes = planesNexobar.filter(plan => (plan.ciclo || 'mensual') === compraCiclo);
+      if (!planes.length) {
+        container.innerHTML = `
+          <p class="sm:col-span-2 text-xs text-slate-400 rounded-xl border border-white/10 bg-obsidian-900 p-4">
+            El pago anual aún no está disponible en línea.
+            <a href="https://wa.me/573052484278?text=${encodeURIComponent('Hola Netxpremium! Quiero el plan anual de NexoBar POS.')}" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 font-semibold">Escríbenos por WhatsApp</a>
+            y te ayudamos con la compra.
+          </p>`;
+        submit.disabled = true;
+        actualizarTotalCompra();
+        return;
+      }
+
+      const seleccionado = planes.some(plan => plan.id === planPreseleccionado) ? planPreseleccionado : planes[0].id;
+
+      container.innerHTML = planes.map(plan => `
           <label class="relative cursor-pointer">
-            <input type="radio" name="plan" value="${escapeHtml(plan.id)}" data-precio="${Number(plan.precio_cop)}" ${i === 0 ? 'checked' : ''} required onchange="actualizarTotalCompra()" class="peer sr-only">
+            <input type="radio" name="plan" value="${escapeHtml(plan.id)}" data-precio="${Number(plan.precio_cop)}" ${plan.id === seleccionado ? 'checked' : ''} required onchange="actualizarTotalCompra()" class="peer sr-only">
             <div class="h-full p-4 rounded-xl bg-obsidian-900 border border-white/10 peer-checked:border-indigo-500 peer-checked:bg-indigo-500/10 peer-focus-visible:ring-2 peer-focus-visible:ring-sky-400 hover:border-white/20 transition-all">
               <span class="block text-sm font-bold text-white">${escapeHtml(plan.nombre)}</span>
               <span class="block text-lg font-mono font-bold text-indigo-300 mt-1">$ ${Number(plan.precio_cop).toLocaleString('es-CO')} <span class="text-[10px] text-slate-500">COP</span></span>
@@ -1290,18 +1534,28 @@
           </label>
         `).join('');
 
-        planesCargados = true;
-        submit.disabled = false;
-        actualizarTotalCompra();
-      } catch (err) {
-        console.error('No se pudieron cargar los planes de NexoBar', err);
-        container.innerHTML = `
-          <p class="sm:col-span-2 text-xs text-slate-400 rounded-xl border border-white/10 bg-obsidian-900 p-4">
-            La compra en línea no está disponible en este momento.
-            <a href="https://wa.me/573052484278?text=${encodeURIComponent('Hola Netxpremium! Quiero adquirir NexoBar POS para mi bar.')}" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 font-semibold">Escríbenos por WhatsApp</a>
-            y te ayudamos con la compra.
-          </p>`;
-      }
+      submit.disabled = false;
+      actualizarTotalCompra();
+    }
+
+    // Sección Planes: alterna precios entre mensual y anual
+    let cicloPlanes = 'mensual';
+
+    function setCicloPlanes(ciclo) {
+      cicloPlanes = ciclo;
+      const anual = ciclo === 'anual';
+
+      document.querySelectorAll('[data-ciclo-btn]').forEach(btn => {
+        marcarCiclo(btn, btn.dataset.cicloBtn === ciclo);
+      });
+
+      document.querySelectorAll('[data-plan-card]').forEach(card => {
+        card.querySelector('[data-precio]').textContent = `$ ${anual ? card.dataset.anual : card.dataset.mensual}`;
+        card.querySelector('[data-periodo]').textContent = anual ? 'COP / año' : 'COP / mes';
+        card.querySelector('[data-ahorro-texto]').innerHTML = anual
+          ? `<span class="inline-flex flex-wrap items-center gap-x-1.5 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-semibold">Ahorras $${card.dataset.ahorro} COP - ¡2 meses gratis!</span><span class="block mt-1.5">Equivale a $${card.dataset.equivale} COP al mes.</span>`
+          : 'Facturación mensual. Cancela cuando quieras.';
+      });
     }
 
     function actualizarTotalCompra() {

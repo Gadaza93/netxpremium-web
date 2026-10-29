@@ -24,10 +24,11 @@ Flujo:
 
 ## 2. Base de datos
 
-Ejecuta las dos migraciones en orden. Puedes hacerlo con `supabase db push` o pegándolas en el SQL Editor de Supabase:
+Ejecuta las migraciones en orden. Puedes hacerlo con `supabase db push` o pegándolas en el SQL Editor de Supabase:
 
 1. `migrations/20261028120000_compras_nexobar.sql` crea las tablas `planes` y `compras`.
 2. `migrations/20261028120100_planes_nexobar.sql` carga el Plan Básico ($ 49.990) y el Plan Pro ($ 89.990).
+3. `migrations/20261028120200_planes_anuales.sql` agrega la columna `ciclo` y los planes anuales: `basico_anual` ($ 499.900) y `pro_anual` ($ 899.900).
 
 Los precios se cambian en la tabla `planes` y la landing los toma de ahí. Para ocultar un plan, pon `activo = false`.
 
