@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estado del Pago | NetxPremium</title>
+  <meta name="description" content="Estado del pago de tu suscripción a NexoPos.">
+  <link rel="icon" type="image/png" href="/assets/nexopos/icon-192.png">
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #06070A;
+      --surface: #0B0E14;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #F1F5F9;
+      --muted: #94A3B8;
+      --accent: #FF8C32;
+      --focus: #38BDF8;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+      line-height: 1.7;
+    }
+
+    a { color: var(--accent); text-underline-offset: 3px; }
+    a:hover { color: #A5B4FC; }
+
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 16px;
+      top: -48px;
+      padding: 8px 14px;
+      background: var(--accent);
+      color: #06070A;
+      border-radius: 8px;
+      font-weight: 600;
+      z-index: 10;
+    }
+    .skip-link:focus { top: 12px; }
+
+    /* Navbar: réplica del index (logo, enlaces y CTA) */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: rgba(16, 21, 32, 0.92);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 16px 24px;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px 32px;
+    }
+
+    .brand-text { display: flex; flex-direction: column; line-height: 1.35; }
+
+    .brand-name {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .brand-dot { width: 6px; height: 6px; border-radius: 50%; background: #34D399; }
+
+    .brand-tag {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 32px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .nav-links a { color: #CBD5E1; text-decoration: none; }
+    .nav-links a:hover { color: #fff; }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: #fff;
+      color: #06070A;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.025em;
+      text-decoration: none;
+    }
+
+    .nav-cta:hover { background: #E2E8F0; color: #06070A; }
+
+    .nav svg, .foot svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 767px) {
+      .nav { position: static; }
+      .nav-cta { display: none; }
+      .nav-links { order: 3; width: 100%; flex-wrap: nowrap; gap: 20px; overflow-x: auto; white-space: nowrap; padding-bottom: 2px; }
+    }
+
+    @media (min-width: 768px) {
+      .nav { padding: 16px 48px; }
+    }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: linear-gradient(45deg, #4F46E5, #38BDF8);
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 800;
+    }
+
+    main { padding: 48px 16px 64px; }
+
+    .eyebrow {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    h1 {
+      font-size: clamp(28px, 5vw, 40px);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin: 8px 0 12px;
+    }
+
+    h2 {
+      font-size: 20px;
+      letter-spacing: -0.01em;
+      margin: 48px 0 12px;
+      padding-top: 8px;
+      scroll-margin-top: 112px;
+    }
+
+    h3 { font-size: 16px; margin: 24px 0 8px; }
+
+    p, li { color: #CBD5E1; font-size: 15px; }
+
+    .meta { color: var(--muted); font-size: 14px; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+
+    .card p { margin: 4px 0; }
+
+    nav.toc ol { padding-left: 20px; margin: 8px 0 0; }
+    nav.toc li { margin: 4px 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin: 16px 0;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    th { color: var(--text); font-weight: 600; }
+    td { color: #CBD5E1; }
+    .table-scroll { overflow-x: auto; }
+
+    /* Footer: réplica del index */
+    .foot {
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 48px 24px;
+      color: var(--muted);
+    }
+
+    .foot-grid {
+      display: grid;
+      gap: 32px;
+      text-align: center;
+    }
+
+    .foot p { margin: 0; color: inherit; }
+    .foot-name { font-size: 14px; font-weight: 700; color: #fff !important; }
+    .foot-tag { font-size: 12px; margin-top: 4px !important; }
+
+    .foot-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-style: normal;
+    }
+
+    .foot a { color: var(--muted); text-decoration: none; }
+    .foot a:hover, .foot a[aria-current="page"] { color: #fff; }
+
+    .foot-item { display: inline-flex; align-items: center; gap: 8px; }
+    .foot-item svg { color: #64748B; }
+
+    .foot-copy {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      text-align: center;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      color: #64748B;
+    }
+
+    @media (min-width: 768px) {
+      .foot { padding: 48px; }
+      .foot-grid { grid-template-columns: repeat(3, 1fr); text-align: left; }
+      .foot-col { align-items: flex-start; }
+    }
+
+    /* Estado del pago */
+    .card-title { margin: 0 0 8px; padding: 0; font-size: 16px; }
+    .card ol { margin: 0; padding-left: 20px; }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .pill.ok { color: #34D399; border-color: rgba(52, 211, 153, 0.3); background: rgba(52, 211, 153, 0.08); }
+    .pill.wait { color: #FBBF24; border-color: rgba(251, 191, 36, 0.3); background: rgba(251, 191, 36, 0.08); }
+    .pill.fail { color: #FB7185; border-color: rgba(251, 113, 133, 0.3); background: rgba(251, 113, 133, 0.08); }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .btn:hover { color: #fff; border-color: var(--accent); }
+    .btn-primary { background: #4F46E5; border-color: #4F46E5; color: #fff; }
+    .btn-primary:hover { background: #6366F1; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <nav class="nav" aria-label="Navegación principal">
+    <div class="container">
+      <a class="brand" href="/" aria-label="Netxpremium — Ir al inicio">
+        <span class="brand-mark" aria-hidden="true">N</span>
+        <span class="brand-text">
+          <span class="brand-name">Netxpremium <span class="brand-dot" aria-hidden="true"></span></span>
+          <span class="brand-tag">Engineering &amp; Systems</span>
+        </span>
+      </a>
+
+      <div class="nav-links">
+        <a href="/#soluciones">Soluciones</a>
+        <a href="/#nexobar">Caso de éxito</a>
+        <a href="/#arquitectura">Arquitectura</a>
+        <a href="/#cotizador">Cotizador</a>
+        <a href="/nexobar">NexoBar POS</a>
+        <a href="/nexopos">NexoPos</a>
+      </div>
+
+      <a class="nav-cta" href="/#cotizador">
+        <span>Iniciar Proyecto</span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
+      </a>
+    </div>
+  </nav>
+
+
+  <main id="contenido">
+    <article class="wrap">
+      <span class="eyebrow">NexoPos · Pago en línea</span>
+      <h1 id="pago-titulo">Consultando tu pago…</h1>
+      <p id="pago-mensaje" class="meta" role="status" aria-live="polite">Estamos verificando el estado de la transacción con Wompi. Esto toma unos segundos.</p>
+
+      <div id="pago-detalle" class="card" hidden>
+        <p><strong>Estado:</strong> <span id="pago-estado" class="pill">—</span></p>
+        <p><strong>Referencia:</strong> <span id="pago-referencia">—</span></p>
+        <p><strong>Valor:</strong> <span id="pago-valor">—</span></p>
+        <p><strong>Medio de pago:</strong> <span id="pago-metodo">—</span></p>
+        <p><strong>Transacción Wompi:</strong> <span id="pago-id">—</span></p>
+      </div>
+
+      <div id="pago-siguientes" class="card" hidden>
+        <h2 class="card-title">¿Qué sigue?</h2>
+        <ol>
+          <li>En unos segundos recibirás un correo con tus datos de acceso. Si no lo ves, revisa la carpeta de spam.</li>
+          <li>Abre <a href="https://nexopos.netxpremium.com" target="_blank" rel="noopener noreferrer">nexopos.netxpremium.com</a> en el equipo de tu caja.</li>
+          <li>Ingresa con tu correo y la contraseña temporal, y pulsa <em>Vincular y Descargar Catálogo</em>.</li>
+          <li>Crea tu contraseña definitiva cuando la app te la pida: es la que usarás de ahí en adelante.</li>
+        </ol>
+      </div>
+
+      <div class="actions">
+        <a id="pago-reintentar" class="btn btn-primary" href="/nexopos?comprar=1" hidden>Intentar de nuevo</a>
+        <a class="btn" href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer">Hablar por WhatsApp</a>
+        <a class="btn" href="/nexopos">Volver a NexoPos</a>
+      </div>
+    </article>
+  </main>
+
+  <footer class="foot">
+    <div class="container foot-grid">
+      <div>
+        <p class="foot-name">NetxPremium</p>
+        <p class="foot-tag">Soluciones de Software y Punto de Venta</p>
+      </div>
+
+      <address class="foot-col">
+        <span class="foot-item">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+          Ibagué, Tolima, Colombia
+        </span>
+        <a class="foot-item" href="mailto:soporte@netxpremium.com">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          soporte@netxpremium.com
+        </a>
+      </address>
+
+      <nav class="foot-col" aria-label="Enlaces legales">
+        <a href="/terminos">Términos y Condiciones</a>
+        <a href="/privacidad">Política de Privacidad</a>
+      </nav>
+    </div>
+
+    <div class="container foot-copy">
+      © 2026 NetxPremium. Todos los derechos reservados.
+    </div>
+  </footer>
+
+  <script>
+    // Wompi agrega ?id=<transacción> al volver. Esta página solo informa al cliente:
+    // la confirmación real del pago llega al backend por el webhook firmado.
+    // NexoPos se prueba primero en el sandbox de Wompi: si la transacción no está en producción, se busca allí
+    const WOMPI_APIS = ['https://production.wompi.co/v1', 'https://sandbox.wompi.co/v1'];
+    let wompiApi = null;
+
+    async function buscarTransaccion(id) {
+      for (const api of wompiApi ? [wompiApi] : WOMPI_APIS) {
+        const res = await fetch(api + '/transactions/' + encodeURIComponent(id));
+        if (res.ok) { wompiApi = api; return res; }
+        if (res.status !== 404) return res;
+      }
+      return new Response(null, { status: 404 });
+    }
+    const MAX_INTENTOS = 10;
+
+    const ESTADOS = {
+      APPROVED: { texto: 'Aprobado', clase: 'ok', titulo: '¡Pago aprobado!', mensaje: 'Gracias por elegir NexoPos. Tu negocio ya está creado: te enviamos tus datos de acceso al correo que registraste.' },
+      PENDING: { texto: 'En proceso', clase: 'wait', titulo: 'Tu pago está en proceso', mensaje: 'Tu banco aún no confirma la transacción. Esta página se actualiza sola; también te avisaremos por correo cuando se apruebe.' },
+      DECLINED: { texto: 'Rechazado', clase: 'fail', titulo: 'El pago no fue aprobado', mensaje: 'Tu banco o la pasarela rechazó la transacción. No se realizó ningún cobro. Puedes intentarlo de nuevo con otro medio de pago.' },
+      VOIDED: { texto: 'Anulado', clase: 'fail', titulo: 'El pago fue anulado', mensaje: 'La transacción fue anulada y no se realizó ningún cobro.' },
+      ERROR: { texto: 'Error', clase: 'fail', titulo: 'No pudimos procesar el pago', mensaje: 'Ocurrió un error al procesar la transacción. No se realizó ningún cobro. Intenta de nuevo o escríbenos por WhatsApp.' },
+    };
+
+    const METODOS = { CARD: 'Tarjeta', PSE: 'PSE', NEQUI: 'Nequi', BANCOLOMBIA_TRANSFER: 'Botón Bancolombia', BANCOLOMBIA_QR: 'QR Bancolombia', DAVIPLATA: 'Daviplata' };
+
+    const $ = (id) => document.getElementById(id);
+
+    function mostrar(tx) {
+      const estado = ESTADOS[tx.status] || ESTADOS.PENDING;
+      $('pago-titulo').textContent = estado.titulo;
+      $('pago-mensaje').textContent = estado.mensaje;
+      $('pago-estado').textContent = estado.texto;
+      $('pago-estado').className = 'pill ' + estado.clase;
+      $('pago-referencia').textContent = tx.reference || '—';
+      $('pago-valor').textContent = tx.amount_in_cents ? '$ ' + (tx.amount_in_cents / 100).toLocaleString('es-CO') + ' COP' : '—';
+      $('pago-metodo').textContent = METODOS[tx.payment_method_type] || tx.payment_method_type || '—';
+      $('pago-id').textContent = tx.id || '—';
+      $('pago-detalle').hidden = false;
+      $('pago-siguientes').hidden = tx.status !== 'APPROVED';
+      $('pago-reintentar').hidden = estado.clase !== 'fail';
+    }
+
+    function sinInformacion(mensaje) {
+      $('pago-titulo').textContent = 'No pudimos consultar tu pago';
+      $('pago-mensaje').textContent = mensaje;
+    }
+
+    async function consultar(id, intento) {
+      try {
+        const res = await buscarTransaccion(id);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const { data } = await res.json();
+        mostrar(data);
+        if (data.status === 'PENDING' && intento < MAX_INTENTOS) {
+          setTimeout(() => consultar(id, intento + 1), 3000);
+        }
+      } catch (err) {
+        console.error(err);
+        sinInformacion('Si completaste el pago, te confirmaremos por correo en unos minutos. Si tienes dudas, escríbenos por WhatsApp con el número de transacción: ' + id + '.');
+      }
+    }
+
+    const id = new URLSearchParams(location.search).get('id');
+    if (id) {
+      consultar(id, 1);
+    } else {
+      sinInformacion('No encontramos el número de transacción en el enlace. Si realizaste un pago, revisa tu correo o escríbenos por WhatsApp.');
+    }
+  </script>
+</body>
+</html>

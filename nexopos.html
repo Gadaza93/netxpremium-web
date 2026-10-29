@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexoPos | POS para restaurantes y cafeterías que funciona sin internet</title>
+  <meta name="description" content="NexoPos: punto de venta para restaurantes y cafeterías con comandas a cocina y barra, insumos y recetas, adiciones con precio, propina separada y modo sin internet. Planes desde $49.990 COP al mes.">
+  <link rel="icon" type="image/png" href="/assets/nexopos/icon-192.png">
+  <link rel="apple-touch-icon" href="/assets/nexopos/icon-512.png">
+  <meta property="og:title" content="NexoPos · POS para restaurantes y cafeterías">
+  <meta property="og:description" content="Comandas a cocina, recetas que descuentan insumos, propina separada y funciona sin internet.">
+  <meta property="og:image" content="https://netxpremium.com/assets/nexopos/logo.png">
+  <meta name="theme-color" content="#181A20">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "¿NexoPos funciona sin internet?", "acceptedAnswer": { "@type": "Answer", "text": "Sí. Puedes tomar pedidos, enviar comandas y cobrar sin conexión. Cuando vuelve el internet, todo se sincroniza solo en la nube y entre tus cajas." } },
+      { "@type": "Question", "name": "¿Qué equipos necesito para empezar?", "acceptedAnswer": { "@type": "Answer", "text": "Cualquier computador, tablet o celular con navegador web. Para las comandas, conecta impresoras térmicas estándar: puedes asignar una a la cocina y otra a la barra." } },
+      { "@type": "Question", "name": "¿La propina se suma a mis ventas?", "acceptedAnswer": { "@type": "Answer", "text": "No. NexoPos sugiere una propina voluntaria del 10 % en los pedidos de mesa, que el cajero puede cambiar o quitar, y la muestra aparte en el cierre de caja y en el Ticket Z." } },
+      { "@type": "Question", "name": "¿Hay cláusulas de permanencia?", "acceptedAnswer": { "@type": "Answer", "text": "No. Pagas tu plan por adelantado y puedes cancelar cuando lo desees, sin penalidades." } },
+      { "@type": "Question", "name": "¿Cuánto tiempo tarda la entrega del sistema?", "acceptedAnswer": { "@type": "Answer", "text": "Al confirmar tu pago, tu negocio se crea al instante y recibes en tu correo el acceso con una contraseña temporal. Al entrar por primera vez creas tu propia contraseña y empiezas a configurar tu carta el mismo día." } }
+    ]
+  }
+  </script>
+  <script defer src="https://unpkg.com/lucide@1.57.0/dist/umd/lucide.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+
+  <style>
+    body {
+      background-color: #181A20;
+      color: #F1F5F9;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+
+    .glass-panel {
+      background: rgba(32, 35, 43, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .glass-card {
+      background: linear-gradient(180deg, rgba(40, 44, 55, 0.62) 0%, rgba(22, 24, 31, 0.72) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(255, 140, 50, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px -10px rgba(255, 140, 50, 0.15);
+    }
+
+    .glow-cyan {
+      box-shadow: 0 0 40px -10px rgba(245, 158, 11, 0.25);
+    }
+
+    .glow-brand {
+      box-shadow: 0 0 50px -12px rgba(255, 140, 50, 0.3);
+    }
+
+    .ambient-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.15;
+    }
+
+    /* Foco visible por teclado en todo el sitio (cian sobre fondo oscuro, contraste > 3:1) */
+    :focus-visible {
+      outline: 2px solid #38BDF8;
+      outline-offset: 2px;
+    }
+
+    .legal-consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #94A3B8;
+      cursor: pointer;
+    }
+
+    .legal-consent input {
+      width: 16px;
+      height: 16px;
+      margin-top: 1px;
+      flex-shrink: 0;
+      accent-color: #FF8C32;
+      cursor: pointer;
+    }
+
+    .legal-consent a {
+      color: #FFB070;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .legal-consent a:hover {
+      color: #FFFFFF;
+    }
+
+    /* Evita el salto de layout al bloquear el scroll con el modal abierto */
+    html {
+      scrollbar-gutter: stable;
+    }
+
+    /* FAQ: acordeón nativo con <details>, sin el triángulo por defecto */
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item[open] { border-color: rgba(255, 140, 50, 0.35); }
+    .faq-item:hover { transform: none; }
+
+    /* App Switcher: solo se animan opacity y transform (compositor / GPU) */
+    .app-switcher {
+      background-color: rgba(18, 20, 26, 0.85);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      will-change: opacity, transform;
+      transform: translateZ(0);
+      backface-visibility: hidden;
+      transition: opacity 0.2s ease-out, visibility 0s linear 0.2s;
+    }
+
+    .app-switcher.is-open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transition: opacity 0.2s ease-out, visibility 0s linear 0s;
+    }
+
+    .app-switcher-panel {
+      background: #1C1E25;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 24px 60px -20px rgba(255, 140, 50, 0.35);
+      opacity: 0;
+      will-change: opacity, transform;
+      transform: translate3d(0, 12px, 0) scale(0.98);
+      backface-visibility: hidden;
+      transition: opacity 0.2s ease-out, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .app-switcher.is-open .app-switcher-panel {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+  </style>
+  <!-- Después del <style> propio: las utilidades de Tailwind deben ganar en la cascada, como con el CDN -->
+  <link rel="stylesheet" href="/assets/nexopos.css?v=fb50347a3b">
+</head>
+<body class="overflow-x-hidden selection:bg-brand-500 selection:text-white">
+
+  <div class="ambient-glow bg-brand-600 top-[-100px] left-1/2 -translate-x-1/2"></div>
+  <div class="ambient-glow bg-amber-500 top-[900px] right-[-150px]"></div>
+
+  <nav class="sticky top-0 z-50 glass-panel border-b border-white/5 py-4 px-6 md:px-12">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <a href="/nexopos" class="flex items-center gap-3" aria-label="NexoPos — Ir al inicio">
+        <img src="/assets/nexopos/logo.svg" alt="" width="36" height="36" class="w-9 h-9 rounded-xl shadow-lg shadow-brand-500/20">
+        <div class="flex flex-col">
+          <span class="text-lg font-bold tracking-tight text-white">Nexo<span class="text-brand-400">Pos</span></span>
+          <span class="text-[10px] text-slate-400 uppercase tracking-widest font-mono">by Netxpremium</span>
+        </div>
+      </a>
+
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+        <a href="#beneficios" class="hover:text-white transition-colors">Beneficios</a>
+        <a href="#demo" class="hover:text-white transition-colors">Cómo funciona</a>
+        <a href="#planes" class="hover:text-white transition-colors">Planes</a>
+        <a href="#faq" class="hover:text-white transition-colors">Preguntas</a>
+      </div>
+
+      <div class="hidden md:flex items-center gap-4">
+        <button type="button" onclick="openAppSwitcher()" aria-haspopup="dialog" aria-controls="app-switcher" class="border border-white/10 text-slate-300 hover:text-white hover:border-brand-500/50 hover:bg-white/5 transition-all px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i>
+          <span>Ingresar</span>
+        </button>
+
+        <a href="#planes" class="px-4 py-2 rounded-lg bg-white text-grafito-950 font-semibold text-xs tracking-wide hover:bg-slate-200 transition-all shadow-md flex items-center gap-2">
+          <span>Ver planes</span>
+          <i data-lucide="arrow-down" class="w-4 h-4"></i>
+        </a>
+      </div>
+
+      <button onclick="toggleDrawer()" aria-label="Abrir menú" class="md:hidden text-slate-300 hover:text-white p-2">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
+    </div>
+  </nav>
+
+  <div id="mobile-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden transition-opacity duration-300">
+    <div class="w-4/5 max-w-xs h-full bg-grafito-900 border-r border-white/10 p-6 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-6 border-b border-white/10">
+          <span class="font-bold text-white text-lg">NexoPos</span>
+          <button onclick="toggleDrawer()" aria-label="Cerrar menú" class="text-slate-400 hover:text-white">
+            <i data-lucide="x" class="w-6 h-6"></i>
+          </button>
+        </div>
+        <div class="flex flex-col gap-5 mt-6 text-slate-300 font-medium">
+          <a href="#beneficios" onclick="toggleDrawer()" class="hover:text-white">Beneficios</a>
+          <a href="#demo" onclick="toggleDrawer()" class="hover:text-white">Cómo funciona</a>
+          <a href="#planes" onclick="toggleDrawer()" class="hover:text-white">Planes</a>
+          <a href="#faq" onclick="toggleDrawer()" class="hover:text-white">Preguntas</a>
+          <a href="/" class="hover:text-white text-slate-400 text-sm">Netxpremium — Desarrollo a la medida</a>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-white/10 flex flex-col gap-4">
+        <button type="button" onclick="toggleDrawer(); openAppSwitcher();" aria-haspopup="dialog" aria-controls="app-switcher" class="w-full py-2.5 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:border-brand-500/50 hover:bg-white/5 transition-all font-medium text-xs flex items-center justify-center gap-2">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i>
+          <span>Ingresar a las Apps</span>
+        </button>
+        <a href="#planes" onclick="toggleDrawer()" class="w-full text-center py-2.5 rounded-lg bg-white text-grafito-950 font-semibold text-xs">
+          Ver planes
+        </a>
+        <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="w-full text-center py-2.5 rounded-lg bg-brand-600 text-white font-medium text-xs">
+          Hablar por WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Selector de Aplicaciones (App Switcher) -->
+  <div id="app-switcher" class="app-switcher fixed inset-0 z-[60] flex items-center justify-center p-4" aria-hidden="true" onclick="if (event.target === this) closeAppSwitcher()">
+    <div role="dialog" aria-modal="true" aria-labelledby="app-switcher-title" class="app-switcher-panel w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 md:p-8">
+      <div class="flex items-start justify-between gap-4 mb-8">
+        <div>
+          <span class="text-[10px] text-brand-400 uppercase tracking-widest font-mono">Ecosistema Netxpremium</span>
+          <h2 id="app-switcher-title" class="text-xl md:text-2xl font-extrabold tracking-tight text-white mt-1">Selecciona la aplicación a la que deseas ingresar</h2>
+          <p class="text-sm text-slate-400 mt-1">Accede a tus sistemas o conoce nuestros servicios de desarrollo.</p>
+        </div>
+        <button id="app-switcher-close" type="button" onclick="closeAppSwitcher()" aria-label="Cerrar selector de aplicaciones" class="shrink-0 p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- NexoPos -->
+        <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
+          <div>
+            <div class="flex items-start justify-between mb-5">
+              <img src="/assets/nexopos/logo.svg" alt="" width="44" height="44" class="w-11 h-11 rounded-xl">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Disponible
+              </span>
+            </div>
+            <h3 class="text-lg font-bold text-white">NexoPos</h3>
+            <span class="text-xs font-mono text-brand-300">POS Restaurantes & Cafeterías</span>
+            <p class="text-xs text-slate-400 leading-relaxed mt-3">Comandas a cocina y barra, insumos y recetas, adiciones con precio y propina separada.</p>
+          </div>
+          <div class="mt-6 grid grid-cols-2 gap-2">
+            <a href="https://nexopos.netxpremium.com" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-white/10 text-xs font-semibold text-white hover:border-brand-500/50 hover:bg-white/5 transition-all">
+              Ingresar
+              <i data-lucide="arrow-up-right" class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+            </a>
+            <button type="button" onclick="openCompra()" aria-haspopup="dialog" aria-controls="nexopos-compra" class="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-brand-500 hover:bg-brand-400 text-xs font-semibold text-grafito-950 transition-all">
+              <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+              Comprar
+            </button>
+          </div>
+        </div>
+
+        <!-- NexoBar POS (sus propios enlaces) -->
+        <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
+          <div>
+            <div class="flex items-start justify-between mb-5">
+              <div class="w-11 h-11 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                <i data-lucide="wine" class="w-5 h-5"></i>
+              </div>
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Disponible
+              </span>
+            </div>
+            <h3 class="text-lg font-bold text-white">NexoBar</h3>
+            <span class="text-xs font-mono text-indigo-300">POS Gastrobares & Discotecas</span>
+            <p class="text-xs text-slate-400 leading-relaxed mt-3">Control de mesas, comandas en tiempo real, turnos de caja y finanzas de tu negocio.</p>
+          </div>
+          <div class="mt-6 grid grid-cols-2 gap-2">
+            <a href="https://nexobar.netxpremium.com" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg border border-white/10 text-xs font-semibold text-white hover:border-indigo-500/50 hover:bg-white/5 transition-all">
+              Ingresar
+              <i data-lucide="arrow-up-right" class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+            </a>
+            <a href="/nexobar?comprar=1" class="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition-all">
+              <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+              Comprar
+            </a>
+          </div>
+        </div>
+
+        <!-- NexoBarber -->
+        <div class="glass-card p-6 rounded-2xl flex flex-col justify-between cursor-default opacity-70" aria-disabled="true">
+          <div>
+            <div class="flex items-start justify-between mb-5">
+              <div class="w-11 h-11 rounded-xl bg-slate-500/10 text-slate-400 flex items-center justify-center">
+                <i data-lucide="scissors" class="w-5 h-5"></i>
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-slate-500/10 text-slate-400 border border-slate-500/20">En desarrollo</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">NexoBarber</h3>
+            <span class="text-xs font-mono text-slate-400">Gestión para Barberías</span>
+            <p class="text-xs text-slate-400 leading-relaxed mt-3">Agenda de turnos, control de comisiones por barbero y caja diaria.</p>
+          </div>
+          <span class="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+            <i data-lucide="clock" class="w-4 h-4"></i>
+            Próximamente
+          </span>
+        </div>
+
+        <!-- Desarrollo Web & SaaS -->
+        <a href="/#cotizador" class="glass-card p-6 rounded-2xl flex flex-col justify-between group">
+          <div>
+            <div class="flex items-start justify-between mb-5">
+              <div class="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
+                <i data-lucide="code-2" class="w-5 h-5"></i>
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20">Servicios</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">Desarrollo Web & SaaS</h3>
+            <span class="text-xs font-mono text-amber-300">Software & Web a la Medida</span>
+            <p class="text-xs text-slate-400 leading-relaxed mt-3">Landing pages, sistemas POS y software empresarial hechos para tu operación.</p>
+          </div>
+          <span class="mt-6 inline-flex items-center gap-1.5 text-xs font-semibold text-white">
+            Cotizar proyecto
+            <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+          </span>
+        </a>
+      </div>
+
+      <div class="mt-8 pt-5 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+        <span class="font-mono">¿Problemas para ingresar?</span>
+        <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-medium font-mono transition-colors">
+          <i data-lucide="headphones" class="w-4 h-4"></i>
+          <span>Soporte técnico: +57 305 248 4278</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Compra de NexoPos (pago con Wompi) -->
+  <div id="nexopos-compra" class="app-switcher fixed inset-0 z-[60] flex items-center justify-center p-4" aria-hidden="true" onclick="if (event.target === this) closeCompra()">
+    <div role="dialog" aria-modal="true" aria-labelledby="compra-title" class="app-switcher-panel w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 md:p-8">
+      <div class="flex items-start justify-between gap-4 mb-6">
+        <div>
+          <span class="text-[10px] text-brand-400 uppercase tracking-widest font-mono">NexoPos</span>
+          <h2 id="compra-title" class="text-xl md:text-2xl font-extrabold tracking-tight text-white mt-1">Adquiere NexoPos para tu restaurante</h2>
+          <p class="text-sm text-slate-400 mt-1">Elige tu plan, completa los datos de tu comercio y paga en línea. Al confirmarse el pago, tu negocio se crea automáticamente y recibes en tu correo el acceso con una contraseña temporal.</p>
+        </div>
+        <button id="compra-close" type="button" onclick="closeCompra()" aria-label="Cerrar formulario de compra" class="shrink-0 p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="compra-form" onsubmit="submitCompra(event)" class="space-y-6">
+        <fieldset class="min-w-0">
+          <legend class="float-left text-xs font-mono text-slate-400 uppercase tracking-wider py-1.5">1. Elige tu plan</legend>
+          <div role="group" aria-label="Ciclo de facturación" class="float-right inline-flex items-center p-0.5 rounded-lg bg-grafito-900 border border-white/10 text-xs font-semibold">
+            <button type="button" data-compra-ciclo="mensual" aria-pressed="true" onclick="setCicloCompra('mensual')" class="px-3 py-1 rounded-md transition-all bg-brand-600 text-white shadow-md">Mensual</button>
+            <button type="button" data-compra-ciclo="anual" aria-pressed="false" onclick="setCicloCompra('anual')" class="px-3 py-1 rounded-md transition-all text-slate-400 hover:text-white">Anual <span class="text-emerald-300 font-mono text-[10px]">-2 meses</span></button>
+          </div>
+          <div id="compra-planes" class="clear-both pt-3 grid grid-cols-1 sm:grid-cols-2 gap-3"> class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <p class="sm:col-span-2 text-xs text-slate-500 font-mono">Cargando planes…</p>
+          </div>
+        </fieldset>
+
+        <fieldset class="min-w-0">
+          <legend class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-3">2. Datos del comercio</legend>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="compra-comercio" class="block text-xs text-slate-400 mb-1.5">Nombre del restaurante o cafetería</label>
+              <input id="compra-comercio" name="comercio" type="text" required maxlength="120" autocomplete="organization" class="w-full bg-grafito-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500">
+            </div>
+            <div>
+              <label for="compra-ciudad" class="block text-xs text-slate-400 mb-1.5">Ciudad</label>
+              <input id="compra-ciudad" name="ciudad" type="text" required maxlength="80" autocomplete="address-level2" class="w-full bg-grafito-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500">
+            </div>
+            <div>
+              <label for="compra-documento" class="block text-xs text-slate-400 mb-1.5">Documento (para la factura)</label>
+              <div class="flex gap-2">
+                <select id="compra-documento-tipo" name="documento_tipo" aria-label="Tipo de documento" class="bg-grafito-900 border border-white/10 rounded-xl px-3 py-3 text-sm text-white focus:border-brand-500">
+                  <option value="NIT">NIT</option>
+                  <option value="CC">CC</option>
+                  <option value="CE">CE</option>
+                </select>
+                <input id="compra-documento" name="documento" type="text" inputmode="numeric" required maxlength="20" class="min-w-0 flex-1 bg-grafito-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500">
+              </div>
+            </div>
+            <div>
+              <label for="compra-responsable" class="block text-xs text-slate-400 mb-1.5">Nombre del responsable</label>
+              <input id="compra-responsable" name="responsable" type="text" required maxlength="120" autocomplete="name" class="w-full bg-grafito-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500">
+            </div>
+            <div>
+              <label for="compra-email" class="block text-xs text-slate-400 mb-1.5">Correo electrónico</label>
+              <input id="compra-email" name="email" type="email" required maxlength="160" autocomplete="email" aria-describedby="compra-email-ayuda" class="w-full bg-grafito-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-brand-500">
+              <p id="compra-email-ayuda" class="mt-1.5 text-[11px] text-slate-500">¿Ya eres cliente? Usa el correo de tu cuenta para renovar tu mismo comercio.</p>
+            </div>
+            <div>
+              <label for="compra-telefono" class="block text-xs text-slate-400 mb-1.5">Celular / WhatsApp</label>
+              <input id="compra-telefono" name="telefono" type="tel" inputmode="numeric" required maxlength="10" pattern="3[0-9]{9}" title="Celular colombiano de 10 dígitos, por ejemplo 3001234567" placeholder="3001234567" autocomplete="tel-national" class="w-full bg-grafito-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-brand-500">
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="pt-5 border-t border-white/10">
+          <label class="legal-consent mb-3">
+            <input type="checkbox" id="compra-terminos" required>
+            <span>Acepto los <a href="/terminos" target="_blank" rel="noopener">Términos y Condiciones</a> y autorizo el tratamiento de mis datos según la <a href="/privacidad" target="_blank" rel="noopener">Política de Privacidad</a>.</span>
+          </label>
+          <label class="legal-consent mb-4">
+            <input type="checkbox" id="compra-marketing">
+            <span>Acepto recibir información comercial, ofertas y novedades de NetxPremium. <span class="text-slate-500">(Opcional)</span></span>
+          </label>
+
+          <div class="mb-4 flex items-start gap-2.5 rounded-xl border border-amber-500/20 bg-amber-500/5 px-3.5 py-3">
+            <i data-lucide="info" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
+            <p class="text-[11px] leading-relaxed text-slate-300">
+              <span class="font-semibold text-amber-300">Nota de facturación:</span>
+              El cobro se procesará de forma segura mediante Wompi bajo nuestra razón social operativa <span class="whitespace-nowrap">(<span class="font-semibold text-white">Elites Drinks</span>).</span>
+            </p>
+          </div>
+
+          <p id="compra-status" role="status" aria-live="polite" class="hidden mb-4 text-xs rounded-lg px-3 py-2"></p>
+
+          <button id="compra-submit" type="submit" class="w-full py-4 rounded-xl bg-brand-600 hover:bg-brand-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold text-sm transition-all shadow-lg shadow-brand-600/20 flex items-center justify-center gap-2">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+            <span id="compra-submit-label">Ir a pagar</span>
+          </button>
+          <p class="mt-3 text-[11px] text-slate-500 text-center">Pago seguro procesado por Wompi (Bancolombia). NetxPremium no ve ni almacena los datos de tu tarjeta o cuenta.</p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <section class="relative pt-20 pb-16 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-7 text-center md:text-left">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-brand-500/30 bg-brand-500/10 text-brand-300 text-xs font-mono mb-6">
+          <i data-lucide="chef-hat" class="w-3.5 h-3.5"></i>
+          <span>POS para restaurantes y cafeterías</span>
+        </div>
+
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-6">
+          Del salón a la cocina, <span class="bg-gradient-to-r from-brand-300 via-brand-400 to-orange-500 bg-clip-text text-transparent">sin perder un pedido.</span>
+        </h1>
+
+        <p class="text-base sm:text-lg text-slate-400 font-normal leading-relaxed mb-8 max-w-2xl mx-auto md:mx-0">
+          Comandas impresas por estación, recetas que descuentan tus insumos, adiciones con precio y propina separada en el cierre. Funciona aunque se caiga el internet.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
+          <a href="#planes" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-grafito-950 font-semibold text-sm transition-all shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2">
+            <span>Ver planes y precios</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+          <a href="https://nexopos.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-7 py-3.5 rounded-xl glass-card hover:bg-white/5 text-slate-200 font-semibold text-sm transition-all flex items-center justify-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>Probar demo gratis</span>
+          </a>
+        </div>
+
+        <ul class="mt-8 flex flex-wrap items-center justify-center md:justify-start gap-x-5 gap-y-2 text-xs text-slate-400">
+          <li class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>Sin permanencia</li>
+          <li class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>Pago seguro con Wompi</li>
+          <li class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>Desde <span data-precio-desde>$49.990</span> COP al mes</li>
+        </ul>
+      </div>
+
+      <!-- Vista ilustrativa de una comanda en NexoPos -->
+      <div class="lg:col-span-5">
+        <div class="glass-panel rounded-2xl border border-white/10 glow-brand p-5 sm:p-6" aria-hidden="true">
+          <div class="flex items-center justify-between pb-4 mb-4 border-b border-white/5">
+            <span class="text-sm font-bold text-white">Mesa 5 · Salón</span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Comanda enviada
+            </span>
+          </div>
+          <div class="space-y-2 text-xs font-mono">
+            <div class="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-grafito-900/80 border border-white/5">
+              <span class="text-slate-200"><span class="text-brand-400 font-bold">1x</span> Churrasco · término 3/4</span>
+              <span class="shrink-0 px-2 py-0.5 rounded bg-brand-500/15 text-brand-300 text-[10px]">Cocina</span>
+            </div>
+            <div class="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-grafito-900/80 border border-white/5">
+              <span class="text-slate-200"><span class="text-brand-400 font-bold">1x</span> Ensalada · sin cebolla</span>
+              <span class="shrink-0 px-2 py-0.5 rounded bg-brand-500/15 text-brand-300 text-[10px]">Cocina</span>
+            </div>
+            <div class="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-grafito-900/80 border border-white/5">
+              <span class="text-slate-200"><span class="text-brand-400 font-bold">2x</span> Jugo de mora en agua</span>
+              <span class="shrink-0 px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 text-[10px]">Barra</span>
+            </div>
+          </div>
+          <div class="mt-4 grid grid-cols-2 gap-3">
+            <div class="bg-grafito-900/80 p-3.5 rounded-xl border border-white/5">
+              <span class="text-[11px] text-slate-400">Consumo</span>
+              <div class="text-base sm:text-lg font-bold font-mono text-white mt-0.5 whitespace-nowrap">$ 86.000</div>
+            </div>
+            <div class="bg-grafito-900/80 p-3.5 rounded-xl border border-white/5">
+              <span class="text-[11px] text-slate-400">Propina sugerida 10 %</span>
+              <div class="text-base sm:text-lg font-bold font-mono text-amber-300 mt-0.5 whitespace-nowrap">$ 8.600</div>
+            </div>
+          </div>
+          <div class="mt-4 flex items-center gap-2 rounded-xl border border-brand-500/20 bg-brand-500/5 px-3 py-2.5 text-[11px] text-brand-200">
+            <i data-lucide="package-check" class="w-4 h-4 shrink-0"></i>
+            Al cobrar, la receta descuenta carne, verduras y fruta del inventario.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFICIOS -->
+  <section id="beneficios" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-mono mb-4">
+        HECHO PARA RESTAURANTES Y CAFETERÍAS
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">La cocina, la caja y el inventario, conectados</h2>
+      <p class="text-slate-400 text-sm sm:text-base mt-3">Pensado para negocios que preparan lo que venden: platos, bebidas, cafés y postres.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <article class="glass-card rounded-2xl p-6">
+        <div class="w-11 h-11 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center mb-4"><i data-lucide="printer" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Comandas a cocina y barra</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Cada estación recibe su comanda impresa. Se envía solo lo nuevo del pedido y las anulaciones también se imprimen.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6">
+        <div class="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-300 flex items-center justify-center mb-4"><i data-lucide="carrot" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Insumos y recetas</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Cada venta descuenta los insumos de la receta. Ves el costo real por plato y recibes alertas cuando el stock baja.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6">
+        <div class="w-11 h-11 rounded-xl bg-orange-500/10 text-orange-300 flex items-center justify-center mb-4"><i data-lucide="sliders-horizontal" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Adiciones y modificadores</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Término de la carne, extras con precio y notas como «sin cebolla», que llegan tal cual a la cocina.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6">
+        <div class="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4"><i data-lucide="hand-coins" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Propina voluntaria separada</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Sugiere el 10 % en las mesas y la lleva aparte de las ventas en el cierre de caja y en el Ticket Z.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6">
+        <div class="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-300 flex items-center justify-center mb-4"><i data-lucide="wifi-off" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Sigue vendiendo sin internet</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Todo se guarda en el equipo y se sincroniza en la nube cuando vuelve la conexión. Varias cajas y meseros a la vez.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6">
+        <div class="w-11 h-11 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center mb-4"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Salón, reportes y Ticket Z</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Plano del salón con tus mesas, reportes de ventas y el Ticket Z de cada turno para cuadrar la caja.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="demo" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono mb-4">
+        ASÍ SE VE NEXOPOS
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Todo tu restaurante en una sola pantalla</h2>
+      <p class="text-slate-400 text-sm sm:text-base mt-3">Explora los módulos principales o pruébalo tú mismo en la demo en vivo, sin registrarte.</p>
+    </div>
+
+    <div class="glass-panel rounded-2xl p-4 md:p-8 border border-white/10 glow-brand">
+      <div class="flex flex-wrap items-center justify-between pb-6 mb-6 border-b border-white/5 gap-4">
+        <div class="flex items-center gap-3">
+          <span class="text-lg font-bold text-white tracking-tight">NexoPos</span>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> En línea / Sincronizado
+          </span>
+        </div>
+        <div class="flex flex-wrap items-center gap-3 text-xs font-mono">
+          <a href="https://nexopos.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" id="btn-live-demo" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-mono transition-all group">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>Probar Demo en Vivo</span>
+            <i data-lucide="external-link" class="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+          </a>
+          <div class="px-3 py-1.5 rounded-lg bg-grafito-900 border border-white/5 text-slate-300">
+            Supabase Realtime
+          </div>
+          <div class="px-3 py-1.5 rounded-lg bg-brand-600/20 border border-brand-500/30 text-brand-300">
+            Turno #04 — Activo
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de navegación del carrusel: Tabs, Flechas y Dots -->
+      <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 pb-5 mb-6 border-b border-white/5">
+        <div class="flex items-center gap-1 p-1 bg-grafito-900/90 rounded-xl border border-white/5 overflow-x-auto text-xs font-mono">
+          <button onclick="goToSlide(0)" id="nexopos-tab-0" class="nexopos-tab px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 bg-brand-600 text-white font-medium shadow-sm whitespace-nowrap">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>Salón & Mesas</span>
+          </button>
+          <button onclick="goToSlide(1)" id="nexopos-tab-1" class="nexopos-tab px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 text-slate-400 hover:text-white whitespace-nowrap">
+            <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+            <span>Comandas a Cocina</span>
+          </button>
+          <button onclick="goToSlide(2)" id="nexopos-tab-2" class="nexopos-tab px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 text-slate-400 hover:text-white whitespace-nowrap">
+            <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
+            <span>Cierre & Propina</span>
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between lg:justify-end gap-4">
+          <div class="flex items-center gap-2" id="nexopos-dots">
+            <button onclick="goToSlide(0)" class="nexopos-dot w-6 h-2 rounded-full bg-brand-500 transition-all" aria-label="Slide 1"></button>
+            <button onclick="goToSlide(1)" class="nexopos-dot w-2 h-2 rounded-full bg-white/20 hover:bg-white/40 transition-all" aria-label="Slide 2"></button>
+            <button onclick="goToSlide(2)" class="nexopos-dot w-2 h-2 rounded-full bg-white/20 hover:bg-white/40 transition-all" aria-label="Slide 3"></button>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="prevSlide()" class="p-2 rounded-lg bg-grafito-900 border border-white/10 hover:border-white/20 text-slate-300 hover:text-white transition-all shadow-sm" aria-label="Anterior">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <button onclick="nextSlide()" class="p-2 rounded-lg bg-grafito-900 border border-white/10 hover:border-white/20 text-slate-300 hover:text-white transition-all shadow-sm" aria-label="Siguiente">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="nexopos-slides-container" class="relative min-h-[380px] md:min-h-[350px]">
+        <!-- SLIDE 1: Salón & Mesas -->
+        <div id="slide-0" class="nexopos-slide transition-opacity duration-300 opacity-100 flex flex-col justify-between h-full space-y-6">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-grafito-900/80 p-4 rounded-xl border border-white/5">
+              <span class="text-xs text-slate-400">Ventas del turno</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-white mt-1">$ 412.000</div>
+              <span class="text-[10px] text-slate-500">9 cuentas cerradas</span>
+            </div>
+            <div class="bg-grafito-900/80 p-4 rounded-xl border border-white/5">
+              <span class="text-xs text-slate-400">Mesas activas</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-amber-400 mt-1">3</div>
+              <span class="text-[10px] text-slate-500">Mesa 2, Mesa 5, Terraza 1</span>
+            </div>
+            <div class="bg-grafito-900/80 p-4 rounded-xl border border-white/5">
+              <span class="text-xs text-slate-400">Pedidos abiertos</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-white mt-1">2</div>
+              <span class="text-[10px] text-slate-500">En cocina y barra</span>
+            </div>
+            <div class="bg-grafito-900/80 p-4 rounded-xl border border-brand-500/20 bg-brand-950/10">
+              <span class="text-xs text-amber-400/90 font-medium">Caja esperada</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-amber-400 mt-1">$ 70.000</div>
+              <span class="text-[10px] text-slate-400">Base inicial en efectivo</span>
+            </div>
+          </div>
+
+          <div class="bg-grafito-900/50 p-6 rounded-xl border border-white/5">
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-sm font-semibold text-slate-200">Plano del salón</span>
+              <span class="text-xs text-slate-400 font-mono">Control táctil instantáneo</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div class="p-4 rounded-xl bg-brand-600/10 border border-brand-500/30 flex flex-col justify-between h-24">
+                <div class="flex justify-between items-start">
+                  <span class="text-xs font-bold text-white">Mesa 2</span>
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                </div>
+                <div class="text-[11px] text-slate-400">4 platos · comanda enviada</div>
+              </div>
+              <div class="p-4 rounded-xl bg-brand-600/10 border border-brand-500/30 flex flex-col justify-between h-24">
+                <div class="flex justify-between items-start">
+                  <span class="text-xs font-bold text-white">Mesa 5</span>
+                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                </div>
+                <div class="text-[11px] text-slate-400">2 cafés · por enviar</div>
+              </div>
+              <div class="p-4 rounded-xl bg-grafito-850 border border-white/5 flex flex-col justify-between h-24 opacity-60">
+                <div class="flex justify-between items-start">
+                  <span class="text-xs font-medium text-slate-300">Mesa 1</span>
+                  <span class="w-2 h-2 rounded-full bg-slate-600"></span>
+                </div>
+                <div class="text-[11px] text-slate-500">Disponible</div>
+              </div>
+              <div class="p-4 rounded-xl bg-grafito-850 border border-white/5 flex flex-col justify-between h-24 opacity-60">
+                <div class="flex justify-between items-start">
+                  <span class="text-xs font-medium text-slate-300">Terraza 2</span>
+                  <span class="w-2 h-2 rounded-full bg-slate-600"></span>
+                </div>
+                <div class="text-[11px] text-slate-500">Disponible</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 2: Comandas a Cocina -->
+        <div id="slide-1" class="nexopos-slide transition-opacity duration-300 opacity-0 hidden flex flex-col justify-between h-full space-y-6">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            <!-- Catálogo Táctil -->
+            <div class="lg:col-span-7 bg-grafito-900/60 p-5 rounded-xl border border-white/5 flex flex-col justify-between">
+              <div class="flex items-center justify-between pb-3 mb-3 border-b border-white/5">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-semibold text-white">Carta</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-brand-500/10 text-brand-400 border border-brand-500/20">Con adiciones</span>
+                </div>
+                <span class="text-xs text-slate-400 font-mono">Término, extras, «sin…»</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div class="p-3.5 rounded-xl bg-grafito-850 border border-white/5 hover:border-brand-500/40 transition-all flex flex-col justify-between cursor-pointer group">
+                  <div class="flex items-start justify-between">
+                    <span class="text-xs font-bold text-white group-hover:text-brand-300 transition-colors">Hamburguesa artesanal</span>
+                    <i data-lucide="beef" class="w-4 h-4 text-brand-400"></i>
+                  </div>
+                  <div class="flex items-center justify-between mt-3 pt-2 border-t border-white/5 font-mono">
+                    <span class="text-xs font-bold text-white">$ 28.000</span>
+                    <span class="text-[10px] text-brand-400 bg-brand-950/60 px-1.5 py-0.5 rounded">+1 Agregar</span>
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-grafito-850 border border-white/5 hover:border-brand-500/40 transition-all flex flex-col justify-between cursor-pointer group">
+                  <div class="flex items-start justify-between">
+                    <span class="text-xs font-bold text-white group-hover:text-brand-300 transition-colors">Bandeja paisa</span>
+                    <i data-lucide="utensils" class="w-4 h-4 text-orange-400"></i>
+                  </div>
+                  <div class="flex items-center justify-between mt-3 pt-2 border-t border-white/5 font-mono">
+                    <span class="text-xs font-bold text-white">$ 32.000</span>
+                    <span class="text-[10px] text-brand-400 bg-brand-950/60 px-1.5 py-0.5 rounded">+1 Agregar</span>
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-grafito-850 border border-white/5 hover:border-brand-500/40 transition-all flex flex-col justify-between cursor-pointer group">
+                  <div class="flex items-start justify-between">
+                    <span class="text-xs font-bold text-white group-hover:text-brand-300 transition-colors">Limonada de coco</span>
+                    <i data-lucide="citrus" class="w-4 h-4 text-amber-400"></i>
+                  </div>
+                  <div class="flex items-center justify-between mt-3 pt-2 border-t border-white/5 font-mono">
+                    <span class="text-xs font-bold text-white">$ 9.000</span>
+                    <span class="text-[10px] text-brand-400 bg-brand-950/60 px-1.5 py-0.5 rounded">+1 Agregar</span>
+                  </div>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-grafito-850 border border-white/5 hover:border-brand-500/40 transition-all flex flex-col justify-between cursor-pointer group">
+                  <div class="flex items-start justify-between">
+                    <span class="text-xs font-bold text-white group-hover:text-brand-300 transition-colors">Capuchino</span>
+                    <i data-lucide="coffee" class="w-4 h-4 text-amber-300"></i>
+                  </div>
+                  <div class="flex items-center justify-between mt-3 pt-2 border-t border-white/5 font-mono">
+                    <span class="text-xs font-bold text-white">$ 7.000</span>
+                    <span class="text-[10px] text-brand-400 bg-brand-950/60 px-1.5 py-0.5 rounded">+1 Agregar</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Panel Lateral de Comanda Activa -->
+            <div class="lg:col-span-5 bg-grafito-900/80 p-5 rounded-xl border border-brand-500/30 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between pb-3 border-b border-white/5">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold text-white">Pedido:</span>
+                    <span class="px-2 py-0.5 rounded bg-brand-600/30 text-brand-300 text-xs font-mono font-bold">Mesa 2</span>
+                  </div>
+                  <span class="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Abierta
+                  </span>
+                </div>
+
+                <div class="space-y-2 mt-3 text-xs font-mono">
+                  <div class="flex justify-between items-center p-2 rounded-lg bg-grafito-850 border border-white/5">
+                    <div class="flex items-center gap-2">
+                      <span class="text-brand-400 font-bold">2x</span>
+                      <span class="text-slate-200">Hamburguesa · término medio, sin cebolla</span>
+                    </div>
+                    <span class="text-white font-bold">$ 56.000</span>
+                  </div>
+                  <div class="flex justify-between items-center p-2 rounded-lg bg-grafito-850 border border-white/5">
+                    <div class="flex items-center gap-2">
+                      <span class="text-brand-400 font-bold">2x</span>
+                      <span class="text-slate-200">Limonada de coco → Barra</span>
+                    </div>
+                    <span class="text-white font-bold">$ 18.000</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-4 border-t border-white/10 mt-4">
+                <div class="flex justify-between items-baseline mb-3 font-mono">
+                  <span class="text-xs text-slate-400">Total acumulado:</span>
+                  <span class="text-xl font-black text-white">$ 74.000</span>
+                </div>
+                <button class="w-full py-2.5 px-3 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-all shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2">
+                  <i data-lucide="printer" class="w-4 h-4"></i>
+                  <span>Enviar a Cocina y Barra</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SLIDE 3: Cierre & Propina -->
+        <div id="slide-2" class="nexopos-slide transition-opacity duration-300 opacity-0 hidden flex flex-col justify-between h-full space-y-6">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-grafito-900/80 p-4 rounded-xl border border-white/5">
+              <span class="text-xs text-slate-400">Ventas del turno</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-white mt-1">$ 1.180.000</div>
+              <span class="text-[10px] text-slate-500">Sin incluir propinas</span>
+            </div>
+            <div class="bg-grafito-900/80 p-4 rounded-xl border border-white/5">
+              <span class="text-xs text-slate-400">Propina voluntaria</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-amber-400 mt-1">$ 96.000</div>
+              <span class="text-[10px] text-slate-500">Separada de las ventas</span>
+            </div>
+            <div class="bg-grafito-900/80 p-4 rounded-xl border border-white/5">
+              <span class="text-xs text-slate-400">Efectivo en Gaveta</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-emerald-400 mt-1">$ 250.000</div>
+              <span class="text-[10px] text-slate-500">Base + efectivo + propina</span>
+            </div>
+            <div class="bg-grafito-900/80 p-4 rounded-xl border border-brand-500/20 bg-brand-950/10">
+              <span class="text-xs text-brand-300 font-medium">Costo de insumos</span>
+              <div class="text-xl md:text-2xl font-bold font-mono text-white mt-1">$ 401.000</div>
+              <span class="text-[10px] text-slate-400">Descontado por recetas</span>
+            </div>
+          </div>
+
+          <div class="p-6 rounded-xl border border-emerald-500/20 bg-emerald-950/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <div class="space-y-1.5 text-center sm:text-left">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                <i data-lucide="check-check" class="w-4 h-4"></i>
+                <span>Caja Cuadrada — Diferencia $ 0</span>
+              </div>
+              <p class="text-xs text-slate-400 max-w-xl">
+                Cierre de caja con la propina aparte de las ventas y el Ticket Z del turno, listo para imprimir o enviar por WhatsApp.
+              </p>
+            </div>
+
+            <button class="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 whitespace-nowrap">
+              <i data-lucide="receipt" class="w-4 h-4"></i>
+              <span>Generar Cierre & Ticket Z</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie del carrusel: Acceso directo secundario a la demo -->
+      <div class="mt-8 pt-5 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+        <div class="flex items-center gap-2 font-mono">
+          <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
+          <span>¿Quieres probar la velocidad tú mismo?</span>
+        </div>
+        <a href="https://nexopos.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-medium font-mono group transition-colors">
+          <span>Abrir terminal interactivo</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLANES Y PRECIOS DE NEXOPOS POS -->
+  <section id="planes" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-5xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-mono mb-4">
+        PLANES NEXOPOS
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Planes simples, sin permanencia</h2>
+      <p class="text-slate-400 text-sm sm:text-base mt-3">Elige el plan para tu restaurante y empieza a vender hoy. Paga mes a mes o ahorra dos meses con el plan anual.</p>
+    </div>
+
+    <div class="flex justify-center mb-10">
+      <div role="group" aria-label="Ciclo de facturación" class="inline-flex items-center p-1 rounded-xl bg-grafito-900 border border-white/10 text-sm font-semibold">
+        <button type="button" data-ciclo-btn="mensual" aria-pressed="true" onclick="setCicloPlanes('mensual')" class="px-5 py-2 rounded-lg transition-all bg-brand-600 text-white shadow-md">Mensual</button>
+        <button type="button" data-ciclo-btn="anual" aria-pressed="false" onclick="setCicloPlanes('anual')" class="px-5 py-2 rounded-lg transition-all flex items-center gap-2 text-slate-400 hover:text-white">
+          Anual
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">2 meses gratis</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+      <!-- Plan Básico -->
+      <article data-plan-card="basico" data-mensual="49.990" data-anual="499.900" data-ahorro="99.980" data-equivale="41.658" class="glass-card rounded-2xl p-6 sm:p-8 flex flex-col">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-300 flex items-center justify-center">
+            <i data-lucide="coffee" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white">Plan Básico</h3>
+            <p class="text-xs text-slate-400">Para cafeterías y restaurantes pequeños</p>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-4xl font-extrabold font-mono tracking-tight text-white" data-precio>$ 49.990</span>
+            <span class="text-sm text-slate-400" data-periodo>COP / mes</span>
+          </div>
+          <p class="mt-2 min-h-[2.5rem] text-xs text-slate-400" data-ahorro-texto>Facturación mensual. Cancela cuando quieras.</p>
+        </div>
+
+        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1" data-caracteristicas>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Hasta 10 mesas</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>1 usuario administrador</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Comandas a cocina y barra por estación</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Insumos y recetas con costo por plato</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Adiciones y modificadores con precio</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Propina separada, cierre de caja y Ticket Z</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Funciona sin internet</li>
+        </ul>
+
+        <button type="button" onclick="elegirPlan('basico')" aria-haspopup="dialog" aria-controls="nexopos-compra" class="mt-8 w-full py-3.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 hover:border-brand-500/50 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2">
+          Elegir Plan Básico
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </article>
+
+      <!-- Plan Pro (destacado) -->
+      <article data-plan-card="pro" data-mensual="89.990" data-anual="899.900" data-ahorro="179.980" data-equivale="74.992" class="glass-card relative rounded-2xl p-6 sm:p-8 flex flex-col !border-brand-500/50 glow-brand bg-gradient-to-b from-brand-500/[0.07] to-transparent">
+        <span class="absolute -top-3 left-6 sm:left-8 px-3 py-1 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider bg-brand-500 text-grafito-950 shadow-lg shadow-brand-500/30">Más completo</span>
+
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-brand-500/15 text-brand-300 flex items-center justify-center">
+            <i data-lucide="chef-hat" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white">Plan Pro</h3>
+            <p class="text-xs text-slate-400">Para restaurantes con equipo y más mesas</p>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-4xl font-extrabold font-mono tracking-tight text-white" data-precio>$ 89.990</span>
+            <span class="text-sm text-slate-400" data-periodo>COP / mes</span>
+          </div>
+          <p class="mt-2 min-h-[2.5rem] text-xs text-slate-400" data-ahorro-texto>Facturación mensual. Cancela cuando quieras.</p>
+        </div>
+
+        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1" data-caracteristicas>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Todo lo del Plan Básico</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Mesas ilimitadas y plano del salón interactivo</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Varios usuarios: meseros y cajeros con su PIN</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Utilidad neta y rentabilidad</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Registro de gastos</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Exportación de reportes a Excel y PDF</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Valoración de inventario</li>
+        </ul>
+
+        <button type="button" onclick="elegirPlan('pro')" aria-haspopup="dialog" aria-controls="nexopos-compra" class="mt-8 w-full py-3.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-grafito-950 font-semibold text-sm transition-all shadow-lg shadow-brand-500/25 flex items-center justify-center gap-2">
+          Elegir Plan Pro
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+      </article>
+    </div>
+
+    <p class="mt-8 text-center text-xs text-slate-500 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+      <span class="inline-flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>Pago seguro con Wompi</span>
+      <span class="inline-flex items-center gap-1.5"><i data-lucide="calendar-x" class="w-3.5 h-3.5 text-amber-400"></i>Sin cláusulas de permanencia</span>
+      <span class="inline-flex items-center gap-1.5"><i data-lucide="wifi-off" class="w-3.5 h-3.5 text-brand-400"></i>Funciona sin internet</span>
+    </p>
+  </section>
+
+  <!-- PREGUNTAS FRECUENTES -->
+  <section id="faq" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-3xl mx-auto">
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-mono mb-4">
+        PREGUNTAS FRECUENTES
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Resolvemos tus dudas</h2>
+    </div>
+
+    <div class="space-y-3">
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿NexoPos funciona sin internet?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-brand-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Sí. Puedes tomar pedidos, enviar comandas y cobrar sin conexión. Cuando vuelve el internet, todo se sincroniza solo en la nube y entre tus cajas.</p>
+      </details>
+
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿Qué equipos necesito para empezar?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-brand-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Cualquier computador, tablet o celular con navegador web. Para las comandas, conecta impresoras térmicas estándar: puedes asignar una a la cocina y otra a la barra.</p>
+      </details>
+
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿La propina se suma a mis ventas?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-brand-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">No. NexoPos sugiere una propina voluntaria del 10 % en los pedidos de mesa, que el cajero puede cambiar o quitar, y la muestra aparte en el cierre de caja y en el Ticket Z.</p>
+      </details>
+
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿Hay cláusulas de permanencia?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-brand-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">No. Pagas tu plan por adelantado y puedes cancelar cuando lo desees, sin penalidades.</p>
+      </details>
+
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿Cuánto tiempo tarda la entrega del sistema?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-brand-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Al confirmar tu pago, tu negocio se crea al instante y recibes en tu correo el acceso con una contraseña temporal. Al entrar por primera vez creas tu propia contraseña y empiezas a configurar tu carta el mismo día.</p>
+      </details>
+    </div>
+
+    <p class="mt-8 text-center text-sm text-slate-400">
+      ¿Tienes otra pregunta?
+      <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="text-emerald-400 hover:text-emerald-300 font-semibold">Escríbenos por WhatsApp</a>
+    </p>
+  </section>
+
+  <!-- LLAMADO FINAL -->
+  <section class="py-20 px-6 md:px-12 max-w-5xl mx-auto">
+    <div class="glass-panel rounded-3xl border border-brand-500/30 glow-brand p-8 md:p-12 text-center">
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">¿Listo para modernizar tu restaurante?</h2>
+      <p class="text-slate-400 text-sm sm:text-base mt-3 max-w-xl mx-auto">Elige tu plan y empieza hoy mismo, o escríbenos y te ayudamos a configurarlo.</p>
+      <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="#planes" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-semibold text-sm transition-all shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2">
+          <span>Ver planes</span>
+          <i data-lucide="arrow-up" class="w-4 h-4"></i>
+        </a>
+        <a href="https://wa.me/573052484278?text=Hola%20Netxpremium!%20Quiero%20saber%20m%C3%A1s%20de%20NexoPos%20para%20mi%20restaurante." target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="w-full sm:w-auto px-7 py-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 font-semibold text-sm transition-all flex items-center justify-center gap-2">
+          <i data-lucide="message-circle" class="w-4 h-4"></i>
+          <span>Hablar por WhatsApp</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="border-t border-white/5 py-12 px-6 md:px-12 text-sm text-slate-400">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+      <div>
+        <p class="font-bold text-white">NexoPos</p>
+        <p class="text-xs text-slate-400 mt-1">Un producto de <a href="/" class="text-slate-300 hover:text-white underline underline-offset-2">NetxPremium</a>, soluciones de software a la medida.</p>
+      </div>
+
+      <address class="not-italic flex flex-col gap-2 text-xs items-center md:items-start">
+        <span class="inline-flex items-center gap-2">
+          <i data-lucide="map-pin" class="w-4 h-4 text-slate-500" aria-hidden="true"></i>
+          Ibagué, Tolima, Colombia
+        </span>
+        <a href="mailto:soporte@netxpremium.com" class="inline-flex items-center gap-2 hover:text-white transition-colors">
+          <i data-lucide="mail" class="w-4 h-4 text-slate-500" aria-hidden="true"></i>
+          soporte@netxpremium.com
+        </a>
+      </address>
+
+      <nav aria-label="Enlaces legales" class="flex flex-col gap-2 text-xs items-center md:items-start">
+        <a href="/terminos" class="hover:text-white transition-colors">Términos y Condiciones</a>
+        <a href="/privacidad" class="hover:text-white transition-colors">Política de Privacidad</a>
+      </nav>
+    </div>
+
+    <div class="max-w-7xl mx-auto mt-10 pt-6 border-t border-white/5 text-center text-xs text-slate-500 font-mono">
+      © 2026 NetxPremium. Todos los derechos reservados.
+    </div>
+  </footer>
+
+  <!-- Aviso de cookies y almacenamiento local -->
+  <div id="cookie-banner" role="region" aria-label="Aviso de cookies" class="hidden fixed bottom-4 left-4 right-20 md:right-auto md:max-w-md z-[45] rounded-2xl border border-white/10 bg-grafito-850 p-4 shadow-2xl shadow-black/50">
+    <p class="text-xs text-slate-300 leading-relaxed">
+      Utilizamos cookies y almacenamiento local estrictamente necesarios para mejorar tu experiencia. Al continuar navegando, aceptas nuestra
+      <a href="/privacidad#almacenamiento" class="text-brand-300 underline underline-offset-2 hover:text-white">Política de Cookies y Privacidad</a>.
+    </p>
+    <button type="button" onclick="acceptCookies()" class="mt-3 px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-colors">
+      Aceptar
+    </button>
+  </div>
+
+  <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 transition-transform hover:scale-110">
+    <i data-lucide="message-circle" class="w-6 h-6"></i>
+  </a>
+
+  <script>
+
+    // Lógica del Carrusel NexoPos
+    let currentSlideIndex = 0;
+    const totalSlides = 3;
+
+    function goToSlide(index) {
+      currentSlideIndex = (index + totalSlides) % totalSlides;
+
+      for (let i = 0; i < totalSlides; i++) {
+        const slide = document.getElementById(`slide-${i}`);
+        if (!slide) continue;
+
+        if (i === currentSlideIndex) {
+          slide.classList.remove('hidden');
+          void slide.offsetWidth;
+          slide.classList.remove('opacity-0');
+          slide.classList.add('opacity-100');
+        } else {
+          slide.classList.remove('opacity-100');
+          slide.classList.add('opacity-0');
+          slide.classList.add('hidden');
+        }
+      }
+
+      for (let i = 0; i < totalSlides; i++) {
+        const tab = document.getElementById(`nexopos-tab-${i}`);
+        if (!tab) continue;
+        if (i === currentSlideIndex) {
+          tab.className = 'nexopos-tab px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 bg-brand-600 text-white font-medium shadow-sm whitespace-nowrap';
+        } else {
+          tab.className = 'nexopos-tab px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 text-slate-400 hover:text-white whitespace-nowrap';
+        }
+      }
+
+      const dots = document.querySelectorAll('.nexopos-dot');
+      dots.forEach((dot, i) => {
+        if (i === currentSlideIndex) {
+          dot.className = 'nexopos-dot w-6 h-2 rounded-full bg-brand-500 transition-all';
+        } else {
+          dot.className = 'nexopos-dot w-2 h-2 rounded-full bg-white/20 hover:bg-white/40 transition-all';
+        }
+      });
+
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function nextSlide() {
+      goToSlide(currentSlideIndex + 1);
+    }
+
+    function prevSlide() {
+      goToSlide(currentSlideIndex - 1);
+    }
+
+    function toggleDrawer() {
+      const drawer = document.getElementById('mobile-drawer');
+      drawer.classList.toggle('hidden');
+    }
+
+    // Selector de Aplicaciones (App Switcher)
+    let appSwitcherTrigger = null;
+
+    function openAppSwitcher() {
+      const modal = document.getElementById('app-switcher');
+      appSwitcherTrigger = document.activeElement;
+
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+
+      document.getElementById('app-switcher-close').focus({ preventScroll: true });
+    }
+
+    function closeAppSwitcher() {
+      const modal = document.getElementById('app-switcher');
+      if (!modal.classList.contains('is-open')) return;
+
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+
+      if (appSwitcherTrigger && document.body.contains(appSwitcherTrigger)) {
+        appSwitcherTrigger.focus({ preventScroll: true });
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAppSwitcher();
+        closeCompra();
+      }
+    });
+
+    // Compra de NexoPos: los planes y el checkout de Wompi vienen de la Edge Function crear-compra
+    const NEXOPOS_COMPRA_API = 'https://voesyutyotonbktndrum.supabase.co/functions/v1/crear-compra';
+    let compraTrigger = null;
+    let planesCargados = false;
+    let planesNexobar = [];
+    let compraCiclo = 'mensual';
+    let planPreseleccionado = null;
+
+    function escapeHtml(text) {
+      return String(text ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    // planId opcional ('basico', 'pro_anual'…): llega desde las tarjetas de la sección Planes
+    function openCompra(planId) {
+      const switcher = document.getElementById('app-switcher');
+      // Desde el selector, el foco vuelve al botón que lo abrió, no al "Comprar" que queda oculto
+      compraTrigger = switcher.classList.contains('is-open') ? appSwitcherTrigger : document.activeElement;
+
+      if (planId) {
+        planPreseleccionado = planId;
+        compraCiclo = planId.endsWith('_anual') ? 'anual' : 'mensual';
+      }
+
+      switcher.classList.remove('is-open');
+      switcher.setAttribute('aria-hidden', 'true');
+
+      const modal = document.getElementById('nexopos-compra');
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      document.getElementById('compra-close').focus({ preventScroll: true });
+
+      if (planesCargados) renderPlanesCompra();
+      else cargarPlanes();
+    }
+
+    function elegirPlan(base) {
+      openCompra(cicloPlanes === 'anual' ? `${base}_anual` : base);
+    }
+
+    function closeCompra() {
+      const modal = document.getElementById('nexopos-compra');
+      if (!modal.classList.contains('is-open')) return;
+
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+
+      if (compraTrigger && document.body.contains(compraTrigger)) {
+        compraTrigger.focus({ preventScroll: true });
+      }
+    }
+
+    function setCompraStatus(message, type) {
+      const status = document.getElementById('compra-status');
+      if (!message) {
+        status.className = 'hidden mb-4 text-xs rounded-lg px-3 py-2';
+        status.textContent = '';
+        return;
+      }
+      const tone = type === 'error'
+        ? 'bg-rose-500/10 border border-rose-500/20 text-rose-300'
+        : 'bg-brand-500/10 border border-brand-500/20 text-brand-200';
+      status.className = `mb-4 text-xs rounded-lg px-3 py-2 ${tone}`;
+      status.textContent = message;
+    }
+
+    // Una sola petición compartida por las tarjetas de precios y el formulario de compra
+    let planesPromesa = null;
+
+    function obtenerPlanes() {
+      planesPromesa ??= fetch(NEXOPOS_COMPRA_API)
+        .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
+        .then(({ planes }) => { if (!planes || !planes.length) throw new Error('Sin planes activos'); return planes; })
+        .catch(err => { planesPromesa = null; throw err; });
+      return planesPromesa;
+    }
+
+    // Las tarjetas traen precios en el HTML (SEO y carga sin JS); aquí se reemplazan por los de la tabla planes,
+    // la misma fuente que cobra el checkout. Así un cambio de precio en Supabase nunca deja la landing desactualizada.
+    function hidratarPlanes(planes) {
+      const fmt = n => Math.round(Number(n)).toLocaleString('es-CO');
+      const check = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+      let anualCompleto = true;
+
+      document.querySelectorAll('[data-plan-card]').forEach(card => {
+        const base = card.dataset.planCard;
+        const mensual = planes.find(p => p.id === base);
+        const anual = planes.find(p => p.id === `${base}_anual`);
+        if (!mensual) return card.classList.add('hidden');
+
+        card.classList.remove('hidden');
+        card.dataset.mensual = fmt(mensual.precio_cop);
+        if (anual) {
+          card.dataset.anual = fmt(anual.precio_cop);
+          card.dataset.ahorro = fmt(Math.max(0, mensual.precio_cop * 12 - anual.precio_cop));
+          card.dataset.equivale = fmt(anual.precio_cop / 12);
+        } else {
+          anualCompleto = false;
+        }
+
+        const lista = card.querySelector('[data-caracteristicas]');
+        if (lista && mensual.caracteristicas?.length) {
+          lista.innerHTML = mensual.caracteristicas.map(c => `<li class="flex gap-2.5">${check}${escapeHtml(c)}</li>`).join('');
+        }
+      });
+
+      const mensuales = planes.filter(p => (p.ciclo || 'mensual') === 'mensual').map(p => p.precio_cop);
+      if (mensuales.length) {
+        document.querySelectorAll('[data-precio-desde]').forEach(el => { el.textContent = `$${fmt(Math.min(...mensuales))}`; });
+      }
+
+      // Sin planes anuales activos no se ofrece el switch anual
+      document.querySelector('[data-ciclo-btn="anual"]')?.classList.toggle('hidden', !anualCompleto);
+      setCicloPlanes(anualCompleto ? cicloPlanes : 'mensual');
+    }
+
+    async function cargarPlanes() {
+      const container = document.getElementById('compra-planes');
+      const submit = document.getElementById('compra-submit');
+      submit.disabled = true;
+
+      try {
+        const planes = await obtenerPlanes();
+
+        planesNexobar = planes;
+        planesCargados = true;
+        renderPlanesCompra();
+      } catch (err) {
+        console.error('No se pudieron cargar los planes de NexoPos', err);
+        container.innerHTML = `
+          <p class="sm:col-span-2 text-xs text-slate-400 rounded-xl border border-white/10 bg-grafito-900 p-4">
+            La compra en línea no está disponible en este momento.
+            <a href="https://wa.me/573052484278?text=${encodeURIComponent('Hola Netxpremium! Quiero adquirir NexoPos para mi restaurante.')}" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 font-semibold">Escríbenos por WhatsApp</a>
+            y te ayudamos con la compra.
+          </p>`;
+      }
+    }
+
+    function marcarCiclo(btn, activo) {
+      btn.setAttribute('aria-pressed', String(activo));
+      btn.classList.toggle('bg-brand-600', activo);
+      btn.classList.toggle('text-white', activo);
+      btn.classList.toggle('shadow-md', activo);
+      btn.classList.toggle('text-slate-400', !activo);
+      btn.classList.toggle('hover:text-white', !activo);
+    }
+
+    function setCicloCompra(ciclo) {
+      // Conserva el plan elegido (Básico o Pro) al cambiar de ciclo
+      const actual = document.querySelector('#compra-planes input[name="plan"]:checked');
+      const base = actual ? actual.value.replace(/_anual$/, '') : null;
+      compraCiclo = ciclo;
+      planPreseleccionado = base ? (ciclo === 'anual' ? `${base}_anual` : base) : null;
+      if (planesCargados) renderPlanesCompra();
+    }
+
+    function renderPlanesCompra() {
+      const container = document.getElementById('compra-planes');
+      const submit = document.getElementById('compra-submit');
+
+      document.querySelectorAll('[data-compra-ciclo]').forEach(btn => {
+        marcarCiclo(btn, btn.dataset.compraCiclo === compraCiclo);
+      });
+
+      const planes = planesNexobar.filter(plan => (plan.ciclo || 'mensual') === compraCiclo);
+      if (!planes.length) {
+        container.innerHTML = `
+          <p class="sm:col-span-2 text-xs text-slate-400 rounded-xl border border-white/10 bg-grafito-900 p-4">
+            El pago anual aún no está disponible en línea.
+            <a href="https://wa.me/573052484278?text=${encodeURIComponent('Hola Netxpremium! Quiero el plan anual de NexoPos.')}" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 font-semibold">Escríbenos por WhatsApp</a>
+            y te ayudamos con la compra.
+          </p>`;
+        submit.disabled = true;
+        actualizarTotalCompra();
+        return;
+      }
+
+      const seleccionado = planes.some(plan => plan.id === planPreseleccionado) ? planPreseleccionado : planes[0].id;
+
+      container.innerHTML = planes.map(plan => `
+          <label class="relative cursor-pointer">
+            <input type="radio" name="plan" value="${escapeHtml(plan.id)}" data-precio="${Number(plan.precio_cop)}" ${plan.id === seleccionado ? 'checked' : ''} required onchange="actualizarTotalCompra()" class="peer sr-only">
+            <div class="h-full p-4 rounded-xl bg-grafito-900 border border-white/10 peer-checked:border-brand-500 peer-checked:bg-brand-500/10 peer-focus-visible:ring-2 peer-focus-visible:ring-amber-400 hover:border-white/20 transition-all">
+              <span class="block text-sm font-bold text-white">${escapeHtml(plan.nombre)}</span>
+              <span class="block text-lg font-mono font-bold text-brand-300 mt-1">$ ${Number(plan.precio_cop).toLocaleString('es-CO')} <span class="text-[10px] text-slate-500">COP</span></span>
+              ${plan.descripcion ? `<span class="block text-[11px] text-slate-400 mt-1">${escapeHtml(plan.descripcion)}</span>` : ''}
+              <ul class="mt-3 space-y-1 text-[11px] text-slate-400">
+                ${(plan.caracteristicas || []).map(c => `<li class="flex gap-1.5"><span class="text-emerald-400">✓</span><span>${escapeHtml(c)}</span></li>`).join('')}
+              </ul>
+            </div>
+          </label>
+        `).join('');
+
+      submit.disabled = false;
+      actualizarTotalCompra();
+    }
+
+    // Sección Planes: alterna precios entre mensual y anual
+    let cicloPlanes = 'mensual';
+
+    function setCicloPlanes(ciclo) {
+      cicloPlanes = ciclo;
+      const anual = ciclo === 'anual';
+
+      document.querySelectorAll('[data-ciclo-btn]').forEach(btn => {
+        marcarCiclo(btn, btn.dataset.cicloBtn === ciclo);
+      });
+
+      document.querySelectorAll('[data-plan-card]').forEach(card => {
+        card.querySelector('[data-precio]').textContent = `$ ${anual ? card.dataset.anual : card.dataset.mensual}`;
+        card.querySelector('[data-periodo]').textContent = anual ? 'COP / año' : 'COP / mes';
+        card.querySelector('[data-ahorro-texto]').innerHTML = anual
+          ? `<span class="inline-flex flex-wrap items-center gap-x-1.5 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-semibold">Ahorras $${card.dataset.ahorro} COP - ¡2 meses gratis!</span><span class="block mt-1.5">Equivale a $${card.dataset.equivale} COP al mes.</span>`
+          : 'Facturación mensual. Cancela cuando quieras.';
+      });
+    }
+
+    function actualizarTotalCompra() {
+      const plan = document.querySelector('#compra-planes input[name="plan"]:checked');
+      const label = document.getElementById('compra-submit-label');
+      label.textContent = plan
+        ? `Ir a pagar $ ${Number(plan.dataset.precio).toLocaleString('es-CO')} COP`
+        : 'Ir a pagar';
+    }
+
+    async function submitCompra(event) {
+      event.preventDefault();
+      const form = event.target;
+      const submit = document.getElementById('compra-submit');
+      const plan = form.querySelector('input[name="plan"]:checked');
+
+      const payload = {
+        plan_id: plan ? plan.value : '',
+        comercio: form.comercio.value,
+        ciudad: form.ciudad.value,
+        documento_tipo: form.documento_tipo.value,
+        documento: form.documento.value,
+        responsable: form.responsable.value,
+        email: form.email.value,
+        telefono: form.telefono.value,
+        acepta_terminos: document.getElementById('compra-terminos').checked,
+        acepta_marketing: document.getElementById('compra-marketing').checked,
+      };
+
+      submit.disabled = true;
+      setCompraStatus('Preparando tu pago seguro…');
+
+      try {
+        const res = await fetch(NEXOPOS_COMPRA_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.checkout_url) throw new Error(data.error || 'No pudimos iniciar el pago. Intenta de nuevo.');
+
+        setCompraStatus('Te estamos llevando a Wompi para completar el pago…');
+        window.location.href = data.checkout_url;
+      } catch (err) {
+        // TypeError = fallo de red ("Failed to fetch"), mejor un mensaje en español
+        const message = err instanceof TypeError ? 'No pudimos conectarnos. Revisa tu internet e intenta de nuevo.' : err.message;
+        setCompraStatus(message, 'error');
+        submit.disabled = false;
+      }
+    }
+
+    // Aviso de cookies: la aceptación se recuerda en localStorage (sin cookies de terceros)
+    const COOKIE_CONSENT_KEY = 'netx-cookie-consent';
+
+    function initCookieBanner() {
+      let accepted = false;
+      try {
+        accepted = localStorage.getItem(COOKIE_CONSENT_KEY) === 'accepted';
+      } catch (e) {}
+
+      if (!accepted) {
+        document.getElementById('cookie-banner').classList.remove('hidden');
+      }
+    }
+
+    function acceptCookies() {
+      try {
+        localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted');
+      } catch (e) {}
+
+      document.getElementById('cookie-banner').classList.add('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      initCookieBanner();
+      goToSlide(0);
+      obtenerPlanes().then(hidratarPlanes).catch(err => console.warn('Precios: se muestran los del HTML', err));
+
+      // /pago y el selector de apps de la agencia enlazan a /nexopos?comprar=1
+      if (new URLSearchParams(location.search).has('comprar')) openCompra();
+    });
+  </script>
+</body>
+</html>
