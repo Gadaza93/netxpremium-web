@@ -4,7 +4,7 @@ Flujo:
 
 1. En la landing, el cliente abre **Ingresar → NexoBar → Comprar**, elige un plan y llena los datos de su comercio.
 2. `crear-compra` registra la compra como `pendiente` y devuelve el enlace firmado al Web Checkout de Wompi.
-3. El cliente paga en Wompi y vuelve a `pago.html`, que le muestra el estado.
+3. El cliente paga en Wompi y vuelve a `/pago`, que le muestra el estado.
 4. Wompi avisa a `wompi-webhook`. La función verifica la firma, marca la compra como `pagado` y envía dos correos:
    - una alerta a soporte@netxpremium.com con los datos del comercio;
    - una confirmación al cliente.
@@ -50,7 +50,7 @@ supabase secrets set \
   WOMPI_INTEGRITY_SECRET=prod_integrity_xxx \
   WOMPI_EVENTS_SECRET=prod_events_xxx \
   WOMPI_ENVIRONMENT=prod \
-  WOMPI_REDIRECT_URL=https://netxpremium.com/pago.html \
+  WOMPI_REDIRECT_URL=https://netxpremium.com/pago \
   ALLOWED_ORIGINS=https://netxpremium.com,https://www.netxpremium.com \
   RESEND_API_KEY=re_xxx \
   ALERTA_EMAIL_FROM="NexoBar POS <pagos@netxpremium.com>" \
