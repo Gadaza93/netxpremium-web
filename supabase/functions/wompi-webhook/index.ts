@@ -1,12 +1,16 @@
 // wompi-webhook
 // Recibe el evento transaction.updated de Wompi, verifica su firma y actualiza la compra.
-// Cuando el pago queda APROBADO envía la alerta a NetxPremium (y una confirmación al
-// cliente) para crear el comercio y entregar las credenciales.
-// Wompi reintenta el evento si la respuesta no es 200, así que todo es idempotente.
+// Cuando el pago queda APROBADO:
+//   1. crea el comercio y su usuario en NexoBar, o renueva el existente si el correo ya tiene cuenta;
+//   2. envía al cliente sus credenciales (o la confirmación de la renovación);
+//   3. envía la alerta a NetxPremium.
+// Wompi reintenta el evento si la respuesta no es 200, así que cada paso es idempotente.
 import { createClient } from 'npm:@supabase/supabase-js@2.49.4';
 
+const NEXOBAR_APP_URL = Deno.env.get('NEXOBAR_APP_URL') ?? 'https://nexobar.netxpremium.com';
+
 const supabase = createClient(Deno.env.get('SUPABASE_URL')!, getSecretKey(), {
-  auth: { persistSession: false },
+  auth: { persistSession: false, autoRefreshToken: false },
 });
 
 function getSecretKey(): string {
@@ -52,6 +56,10 @@ function escapeHtml(text: unknown): string {
 
 const cop = (valor: number) => `$ ${valor.toLocaleString('es-CO')} COP`;
 
+const fechaLarga = (iso: string | null) => iso
+  ? new Date(iso).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/Bogota' })
+  : '—';
+
 async function enviarCorreo(to: string, subject: string, html: string, replyTo?: string): Promise<void> {
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -71,6 +79,76 @@ async function enviarCorreo(to: string, subject: string, html: string, replyTo?:
   if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text()}`);
 }
 
+// ---------- Provisión del comercio en NexoBar ----------
+
+// "Bar La Esquiña!" → "bar-la-esquina-7f3a"
+function idComercio(nombre: string): string {
+  const base = nombre
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 30)
+    .replace(/-+$/, '') || 'negocio';
+  return `${base}-${crypto.randomUUID().slice(0, 4)}`;
+}
+
+// Sin caracteres confundibles (0/O, 1/l/I) para que se pueda copiar a mano
+const ALFABETO = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
+function contrasenaTemporal(largo = 12): string {
+  return Array.from(crypto.getRandomValues(new Uint8Array(largo)), (b) => ALFABETO[b % ALFABETO.length]).join('');
+}
+
+type Provision = { negocio_id: string; usuario_id: string; es_renovacion: boolean };
+
+async function provisionar(compra: Compra): Promise<Provision> {
+  const plan = compra.plan_id.replace(/_anual$/, '');
+  const meses = compra.plan_id.endsWith('_anual') ? 12 : 1;
+
+  const { data: cuentas, error: buscarError } = await supabase.rpc('provision_buscar_cuenta', { p_email: compra.email });
+  if (buscarError) throw new Error(`buscar cuenta: ${buscarError.message}`);
+
+  const cuenta = (cuentas as { usuario_id: string; negocio_id: string | null }[] | null)?.[0];
+  if (cuenta) {
+    if (!cuenta.negocio_id) throw new Error('El correo ya existe en NexoBar pero no tiene un comercio asociado');
+    const { data: vence, error } = await supabase.rpc('provision_renovar_negocio', {
+      p_id: cuenta.negocio_id, p_plan: plan, p_meses: meses,
+    });
+    if (error) throw new Error(`renovar comercio: ${error.message}`);
+    if (!vence) throw new Error(`El comercio ${cuenta.negocio_id} no existe`);
+    return { negocio_id: cuenta.negocio_id, usuario_id: cuenta.usuario_id, es_renovacion: true };
+  }
+
+  let negocioId: string | null = null;
+  for (let intento = 0; intento < 3 && !negocioId; intento++) {
+    const id = idComercio(compra.comercio);
+    const { error } = await supabase.rpc('provision_crear_negocio', {
+      p_id: id, p_nombre: compra.comercio, p_telefono: compra.telefono, p_plan: plan, p_meses: meses,
+    });
+    if (!error) negocioId = id;
+    else if (error.code !== '23505') throw new Error(`crear comercio: ${error.message}`);
+  }
+  if (!negocioId) throw new Error('No se pudo generar un ID de comercio único');
+
+  // La contraseña real se asigna al enviar las credenciales (ver notificarCliente)
+  const { data: creado, error: userError } = await supabase.auth.admin.createUser({
+    email: compra.email,
+    password: contrasenaTemporal(24),
+    email_confirm: true,
+    app_metadata: { business_id: negocioId },
+    user_metadata: { nombre: compra.comercio },
+  });
+
+  if (userError || !creado?.user) {
+    await supabase.from('negocios').delete().eq('id', negocioId);
+    throw new Error(`crear usuario: ${userError?.message ?? 'sin respuesta'}`);
+  }
+
+  return { negocio_id: negocioId, usuario_id: creado.user.id, es_renovacion: false };
+}
+
+// ---------- Correos ----------
+
 type Compra = {
   referencia: string;
   plan_id: string;
@@ -86,13 +164,102 @@ type Compra = {
   metodo_pago: string | null;
   wompi_transaccion_id: string | null;
   pagado_at: string;
+  negocio_id: string | null;
+  usuario_id: string | null;
+  es_renovacion: boolean | null;
+  provision_error: string | null;
+  cliente_notificado_at: string | null;
+  alerta_enviada_at: string | null;
   planes: { nombre: string } | null;
 };
 
-async function enviarAlertas(compra: Compra): Promise<void> {
+async function vencimiento(negocioId: string | null): Promise<string | null> {
+  if (!negocioId) return null;
+  const { data } = await supabase.from('negocios').select('fecha_vencimiento').eq('id', negocioId).maybeSingle();
+  return data?.fecha_vencimiento ?? null;
+}
+
+const pieCorreo = `<p>¿Dudas? Escríbenos a soporte@netxpremium.com o al WhatsApp +57 305 248 4278.</p><p>— Equipo NetxPremium</p>`;
+
+async function notificarCliente(compra: Compra): Promise<void> {
+  const plan = escapeHtml(compra.planes?.nombre ?? compra.plan_id);
+  const saludo = `<p>Hola ${escapeHtml(compra.responsable)},</p>`;
+  const replyTo = Deno.env.get('ALERTA_EMAIL_TO')!;
+
+  if (compra.negocio_id && !compra.es_renovacion) {
+    // Contraseña nueva en cada envío: si un reintento reenvía el correo, la anterior deja de servir
+    const password = contrasenaTemporal();
+    const { error } = await supabase.auth.admin.updateUserById(compra.usuario_id!, { password });
+    if (error) throw new Error(`asignar contraseña: ${error.message}`);
+
+    const vence = fechaLarga(await vencimiento(compra.negocio_id));
+    await enviarCorreo(
+      compra.email,
+      'Bienvenido a NexoBar POS: tus datos de acceso',
+      `${saludo}
+       <p>Confirmamos tu pago de <strong>${plan}</strong> por <strong>${escapeHtml(cop(compra.monto_cop))}</strong>. Tu comercio <strong>${escapeHtml(compra.comercio)}</strong> ya está creado y listo para usar.</p>
+       <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px;margin:16px 0">
+         <tr><td style="padding:6px 12px;color:#64748b">Ingresa en</td><td style="padding:6px 12px"><a href="${NEXOBAR_APP_URL}"><strong>${NEXOBAR_APP_URL.replace('https://', '')}</strong></a></td></tr>
+         <tr><td style="padding:6px 12px;color:#64748b">Correo</td><td style="padding:6px 12px"><strong>${escapeHtml(compra.email)}</strong></td></tr>
+         <tr><td style="padding:6px 12px;color:#64748b">Contraseña temporal</td><td style="padding:6px 12px"><strong style="font-family:monospace;font-size:16px;letter-spacing:1px">${password}</strong></td></tr>
+         <tr><td style="padding:6px 12px;color:#64748b">Plan vigente hasta</td><td style="padding:6px 12px"><strong>${escapeHtml(vence)}</strong></td></tr>
+       </table>
+       <p><strong>Primeros pasos:</strong></p>
+       <ol>
+         <li>Abre ${NEXOBAR_APP_URL.replace('https://', '')} en el computador, tablet o celular de tu caja.</li>
+         <li>Escribe tu correo y la contraseña temporal, y pulsa <em>Vincular y Descargar Catálogo</em>.</li>
+         <li>Configura los datos de tu bar, tus productos y los usuarios de tu equipo.</li>
+       </ol>
+       <p>Por seguridad, cambia esta contraseña con la opción <em>¿Olvidaste tu contraseña?</em> de la pantalla de ingreso.</p>
+       <p>Referencia de pago: <strong>${escapeHtml(compra.referencia)}</strong></p>
+       ${pieCorreo}`,
+      replyTo,
+    );
+    return;
+  }
+
+  if (compra.negocio_id && compra.es_renovacion) {
+    const vence = fechaLarga(await vencimiento(compra.negocio_id));
+    await enviarCorreo(
+      compra.email,
+      'Tu plan de NexoBar POS fue renovado',
+      `${saludo}
+       <p>Confirmamos tu pago de <strong>${plan}</strong> por <strong>${escapeHtml(cop(compra.monto_cop))}</strong>.</p>
+       <p>Tu comercio sigue activo con los mismos datos de acceso. Plan vigente hasta el <strong>${escapeHtml(vence)}</strong>.</p>
+       <p>Referencia de pago: <strong>${escapeHtml(compra.referencia)}</strong></p>
+       ${pieCorreo}`,
+      replyTo,
+    );
+    return;
+  }
+
+  // La provisión falló: NetxPremium recibe la alerta para crearlo manualmente
+  await enviarCorreo(
+    compra.email,
+    'Recibimos tu pago de NexoBar POS',
+    `${saludo}
+     <p>Confirmamos el pago de <strong>${plan}</strong> por <strong>${escapeHtml(cop(compra.monto_cop))}</strong> para <strong>${escapeHtml(compra.comercio)}</strong>.</p>
+     <p>Estamos terminando de crear tu comercio. Te enviaremos los datos de acceso a este correo y por WhatsApp al +57 ${escapeHtml(compra.telefono)} en las próximas horas.</p>
+     <p>Referencia de pago: <strong>${escapeHtml(compra.referencia)}</strong></p>
+     ${pieCorreo}`,
+    replyTo,
+  );
+}
+
+async function enviarAlertaAdmin(compra: Compra): Promise<void> {
   const plan = compra.planes?.nombre ?? compra.plan_id;
+  const vence = fechaLarga(await vencimiento(compra.negocio_id));
+
+  const [asunto, titulo, resultado] = compra.provision_error
+    ? [`⚠️ Pago NexoBar sin comercio: ${compra.comercio}`, 'Pago aprobado: crea el comercio manualmente', `Error automático: ${compra.provision_error}`]
+    : compra.es_renovacion
+      ? [`🔁 Renovación NexoBar: ${compra.comercio} (${plan})`, 'Renovación aplicada automáticamente', `Comercio ${compra.negocio_id} renovado hasta ${vence}`]
+      : [`✅ Nuevo comercio NexoBar: ${compra.comercio} (${plan})`, 'Comercio creado y credenciales enviadas', `Comercio ${compra.negocio_id} activo hasta ${vence}`];
+
   const filas: [string, string][] = [
+    ['Resultado', resultado],
     ['Comercio', compra.comercio],
+    ['ID del comercio', compra.negocio_id ?? '—'],
     ['Documento', `${compra.documento_tipo} ${compra.documento}`],
     ['Responsable', compra.responsable],
     ['Correo', compra.email],
@@ -112,30 +279,11 @@ async function enviarAlertas(compra: Compra): Promise<void> {
 
   await enviarCorreo(
     Deno.env.get('ALERTA_EMAIL_TO')!,
-    `💰 Nuevo pago NexoBar: ${compra.comercio} (${plan})`,
-    `<h2>Nuevo pago aprobado de NexoBar POS</h2>
-     <p>Crea el comercio y entrega las credenciales al cliente.</p>
-     <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px">${tabla}</table>
-     <p style="color:#64748b;font-size:12px">Cuando entregues las credenciales, marca la compra como <code>entregado</code> en la tabla <code>compras</code> de Supabase.</p>`,
+    asunto,
+    `<h2>${escapeHtml(titulo)}</h2>
+     <table style="border-collapse:collapse;font-family:sans-serif;font-size:14px">${tabla}</table>`,
     compra.email,
   );
-
-  // La confirmación al cliente es informativa: si falla no se reintenta todo el evento
-  try {
-    await enviarCorreo(
-      compra.email,
-      'Recibimos tu pago de NexoBar POS',
-      `<p>Hola ${escapeHtml(compra.responsable)},</p>
-       <p>Confirmamos el pago de <strong>${escapeHtml(plan)}</strong> por <strong>${escapeHtml(cop(compra.monto_cop))}</strong> para <strong>${escapeHtml(compra.comercio)}</strong>.</p>
-       <p>Estamos creando tu comercio en NexoBar POS. Te enviaremos las credenciales de acceso a este correo y por WhatsApp al +57 ${escapeHtml(compra.telefono)}.</p>
-       <p>Referencia de pago: <strong>${escapeHtml(compra.referencia)}</strong></p>
-       <p>¿Dudas? Escríbenos a soporte@netxpremium.com o al WhatsApp +57 305 248 4278.</p>
-       <p>— Equipo NetxPremium</p>`,
-      Deno.env.get('ALERTA_EMAIL_TO')!,
-    );
-  } catch (err) {
-    console.error('correo cliente', err);
-  }
 }
 
 type WompiEvent = {
@@ -156,6 +304,65 @@ type WompiTransaction = {
 };
 
 const ok = () => new Response('ok', { status: 200 });
+const ahora = () => new Date().toISOString();
+
+async function leerCompra(referencia: string): Promise<Compra | null> {
+  const { data } = await supabase
+    .from('compras')
+    .select('*, planes(nombre)')
+    .eq('referencia', referencia)
+    .in('estado', ['pagado', 'entregado'])
+    .maybeSingle();
+  return data as Compra | null;
+}
+
+// Pasos posteriores al pago. Devuelve false si algo falló y conviene que Wompi reintente.
+async function completarCompra(referencia: string): Promise<boolean> {
+  let compra = await leerCompra(referencia);
+  if (!compra) return true;
+
+  // 1. Provisión (una sola vez: queda marcada con negocio_id o provision_error)
+  if (!compra.negocio_id && !compra.provision_error) {
+    let cambios: Record<string, unknown>;
+    try {
+      cambios = { ...(await provisionar(compra)) };
+    } catch (err) {
+      console.error('provision', err);
+      cambios = { provision_error: String((err as Error)?.message ?? err).slice(0, 500) };
+    }
+    await supabase.from('compras').update(cambios).eq('referencia', referencia);
+    compra = (await leerCompra(referencia))!;
+  }
+
+  let todoOk = true;
+
+  // 2. Correo al cliente: credenciales, renovación o confirmación
+  if (!compra.cliente_notificado_at) {
+    try {
+      await notificarCliente(compra);
+      await supabase.from('compras').update({
+        cliente_notificado_at: ahora(),
+        ...(compra.negocio_id ? { estado: 'entregado', entregado_at: ahora() } : {}),
+      }).eq('referencia', referencia);
+    } catch (err) {
+      console.error('correo cliente', err);
+      todoOk = false;
+    }
+  }
+
+  // 3. Alerta a NetxPremium
+  if (!compra.alerta_enviada_at) {
+    try {
+      await enviarAlertaAdmin(compra);
+      await supabase.from('compras').update({ alerta_enviada_at: ahora() }).eq('referencia', referencia);
+    } catch (err) {
+      console.error('alerta', err);
+      todoOk = false;
+    }
+  }
+
+  return todoOk;
+}
 
 Deno.serve(async (req) => {
   if (req.method !== 'POST') return new Response('Método no permitido', { status: 405 });
@@ -210,7 +417,7 @@ Deno.serve(async (req) => {
     if (compra.estado === 'pendiente' || compra.estado === 'rechazado') {
       const { error: updateError } = await supabase
         .from('compras')
-        .update({ ...datosWompi, estado: 'pagado', pagado_at: new Date().toISOString() })
+        .update({ ...datosWompi, estado: 'pagado', pagado_at: ahora() })
         .eq('referencia', tx.reference)
         .in('estado', ['pendiente', 'rechazado']);
 
@@ -220,26 +427,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Se alerta una sola vez; si el correo falla, el 500 hace que Wompi reintente
-    const { data: porAlertar } = await supabase
-      .from('compras')
-      .select('*, planes(nombre)')
-      .eq('referencia', tx.reference)
-      .eq('estado', 'pagado')
-      .is('alerta_enviada_at', null)
-      .maybeSingle();
-
-    if (porAlertar) {
-      try {
-        await enviarAlertas(porAlertar as Compra);
-      } catch (err) {
-        console.error('alerta', err);
-        return new Response('No se pudo enviar la alerta', { status: 500 });
-      }
-      await supabase.from('compras').update({ alerta_enviada_at: new Date().toISOString() }).eq('referencia', tx.reference);
-    }
-
-    return ok();
+    return (await completarCompra(tx.reference)) ? ok() : new Response('Reintentar', { status: 500 });
   }
 
   if (['DECLINED', 'VOIDED', 'ERROR'].includes(tx.status)) {

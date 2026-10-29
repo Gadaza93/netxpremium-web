@@ -360,9 +360,9 @@
       <div id="pago-siguientes" class="card" hidden>
         <h2 class="card-title">¿Qué sigue?</h2>
         <ol>
-          <li>Recibirás un correo con la confirmación de tu pago.</li>
-          <li>Creamos tu comercio en NexoBar POS.</li>
-          <li>Te enviamos las credenciales de acceso por correo y por WhatsApp.</li>
+          <li>En unos segundos recibirás un correo con tus datos de acceso. Si no lo ves, revisa la carpeta de spam.</li>
+          <li>Abre <a href="https://nexobar.netxpremium.com" target="_blank" rel="noopener noreferrer">nexobar.netxpremium.com</a> en el equipo de tu caja.</li>
+          <li>Ingresa con tu correo y la contraseña temporal, y pulsa <em>Vincular y Descargar Catálogo</em>.</li>
         </ol>
       </div>
 
@@ -410,7 +410,7 @@
     const MAX_INTENTOS = 10;
 
     const ESTADOS = {
-      APPROVED: { texto: 'Aprobado', clase: 'ok', titulo: '¡Pago aprobado!', mensaje: 'Gracias por elegir NexoBar POS. Ya recibimos tu pago y estamos creando tu comercio.' },
+      APPROVED: { texto: 'Aprobado', clase: 'ok', titulo: '¡Pago aprobado!', mensaje: 'Gracias por elegir NexoBar POS. Tu comercio ya está creado: te enviamos tus datos de acceso al correo que registraste.' },
       PENDING: { texto: 'En proceso', clase: 'wait', titulo: 'Tu pago está en proceso', mensaje: 'Tu banco aún no confirma la transacción. Esta página se actualiza sola; también te avisaremos por correo cuando se apruebe.' },
       DECLINED: { texto: 'Rechazado', clase: 'fail', titulo: 'El pago no fue aprobado', mensaje: 'Tu banco o la pasarela rechazó la transacción. No se realizó ningún cobro. Puedes intentarlo de nuevo con otro medio de pago.' },
       VOIDED: { texto: 'Anulado', clase: 'fail', titulo: 'El pago fue anulado', mensaje: 'La transacción fue anulada y no se realizó ningún cobro.' },
