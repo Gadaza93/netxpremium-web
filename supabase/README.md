@@ -74,6 +74,16 @@ supabase secrets set \
   BARRIDO_SECRET=<aleatorio, el mismo que en Vault>
 ```
 
+**Pagos de NexoPos.** Usan el mismo comercio de Wompi, con referencias `NEXOPOS-…`. Este webhook verifica la firma de Wompi y reenvía esos eventos intactos a la función de NexoPos, que vive en su propio proyecto (`voesyutyotonbktndrum`). Aquí no se escribe nada. Para activarlo en producción hacen falta dos secretos:
+
+```bash
+supabase secrets set \
+  NEXOPOS_WEBHOOK_URL=https://voesyutyotonbktndrum.supabase.co/functions/v1/wompi-webhook \
+  REENVIO_NEXOPOS_SECRET=<aleatorio, el mismo que en el proyecto de NexoPos>
+```
+
+Sin esos secretos, un pago `NEXOPOS-…` responde 500 y Wompi lo reintenta. Los pagos de NexoBar (`NXB-…`) no cambian.
+
 `--no-verify-jwt` se usa porque el visitante de la landing y Wompi no tienen sesión de Supabase. La seguridad la dan dos cosas:
 - el precio se lee del servidor;
 - la firma del webhook se verifica con el secreto de eventos.

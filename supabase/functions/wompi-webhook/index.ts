@@ -27,6 +27,12 @@ async function sha256Hex(text: string): Promise<string> {
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+async function hmacHex(secreto: string, text: string): Promise<string> {
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secreto), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const firma = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(firma), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 // "transaction.amount_in_cents" → data.transaction.amount_in_cents
 function valueAt(data: Record<string, unknown>, path: string): string {
   const value = path.split('.').reduce<unknown>(
@@ -358,6 +364,36 @@ type WompiTransaction = {
 const ok = () => new Response('ok', { status: 200 });
 const ahora = () => new Date().toISOString();
 
+// Pagos de NexoPos: mismo comercio de Wompi, otra base de datos (otro proyecto de Supabase).
+// El evento ya verificado se reenvía intacto, firmado con REENVIO_NEXOPOS_SECRET, y aquí no se escribe nada.
+// Si NexoPos no responde 200, se responde error para que Wompi reintente.
+async function reenviarANexoPos(cuerpo: string): Promise<Response> {
+  const url = Deno.env.get('NEXOPOS_WEBHOOK_URL');
+  const secreto = Deno.env.get('REENVIO_NEXOPOS_SECRET');
+  if (!url || !secreto) {
+    console.error('Reenvío a NexoPos sin configurar');
+    return new Response('Reenvío sin configurar', { status: 500 });
+  }
+
+  const ts = String(Math.floor(Date.now() / 1000));
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-nexopos-reenvio-ts': ts,
+        'x-nexopos-reenvio-firma': await hmacHex(secreto, `${ts}.${cuerpo}`),
+      },
+      body: cuerpo,
+    });
+    if (res.ok) return ok();
+    console.error('NexoPos respondió', res.status, await res.text());
+  } catch (err) {
+    console.error('Reenvío a NexoPos', err);
+  }
+  return new Response('Reenvío a NexoPos falló', { status: 502 });
+}
+
 async function leerCompra(referencia: string): Promise<Compra | null> {
   const { data } = await supabase
     .from('compras')
@@ -468,9 +504,10 @@ Deno.serve(async (req) => {
     return barrido();
   }
 
+  const cuerpo = await req.text();
   let event: WompiEvent;
   try {
-    event = await req.json();
+    event = JSON.parse(cuerpo);
   } catch (_) {
     return new Response('JSON no válido', { status: 400 });
   }
@@ -487,6 +524,7 @@ Deno.serve(async (req) => {
 
   const tx = event.data.transaction as WompiTransaction | undefined;
   if (!tx?.reference) return ok();
+  if (tx.reference.startsWith('NEXOPOS-')) return reenviarANexoPos(cuerpo);
 
   const { data: compra, error } = await supabase
     .from('compras')
