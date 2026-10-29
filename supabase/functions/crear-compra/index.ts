@@ -7,6 +7,10 @@ import { createClient } from 'npm:@supabase/supabase-js@2.49.4';
 
 const WOMPI_CHECKOUT_URL = 'https://checkout.wompi.co/p/';
 
+// Máximo de compras que una misma IP puede iniciar en la ventana (frena bots que llenan la tabla)
+const LIMITE_POR_IP = 5;
+const VENTANA_MIN = 10;
+
 const supabase = createClient(Deno.env.get('SUPABASE_URL')!, getSecretKey(), {
   auth: { persistSession: false },
 });
@@ -34,11 +38,15 @@ function corsHeaders(origin: string | null): Record<string, string> {
   };
 }
 
-function json(body: unknown, status: number, cors: Record<string, string>): Response {
+function json(body: unknown, status: number, cors: Record<string, string>, extra: Record<string, string> = {}): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8' },
+    headers: { ...cors, 'Content-Type': 'application/json; charset=utf-8', ...extra },
   });
+}
+
+function ipCliente(req: Request): string {
+  return (req.headers.get('cf-connecting-ip') ?? req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim().slice(0, 64);
 }
 
 async function sha256Hex(text: string): Promise<string> {
@@ -109,7 +117,8 @@ Deno.serve(async (req) => {
       console.error('planes', error);
       return json({ error: 'No pudimos cargar los planes.' }, 500, cors);
     }
-    return json({ planes: data }, 200, cors);
+    // Un cambio de precio en la tabla se ve en la landing en máximo 60 s
+    return json({ planes: data }, 200, cors, { 'Cache-Control': 'public, max-age=60' });
   }
 
   if (req.method !== 'POST') return json({ error: 'Método no permitido.' }, 405, cors);
@@ -133,11 +142,25 @@ Deno.serve(async (req) => {
 
   if (planError || !plan) return json({ error: 'El plan seleccionado no está disponible.' }, 400, cors);
 
+  const ip = ipCliente(req);
+  if (ip) {
+    const desde = new Date(Date.now() - VENTANA_MIN * 60_000).toISOString();
+    const { count } = await supabase
+      .from('compras')
+      .select('id', { count: 'exact', head: true })
+      .eq('ip', ip)
+      .gte('created_at', desde);
+    if ((count ?? 0) >= LIMITE_POR_IP) {
+      return json({ error: 'Demasiados intentos de compra. Espera unos minutos e intenta de nuevo.' }, 429, cors);
+    }
+  }
+
   const referencia = nuevaReferencia();
   const { error: insertError } = await supabase.from('compras').insert({
     ...input,
     referencia,
     monto_cop: plan.precio_cop,
+    ip: ip || null,
   });
 
   if (insertError) {

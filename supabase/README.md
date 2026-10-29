@@ -11,7 +11,11 @@ Flujo:
    3. **Alerta a soporte@netxpremium.com:** ✅ comercio creado, 🔁 renovación o ⚠️ error.
 5. La compra queda `entregado`. Si la provisión falla, la compra queda `pagado` con `provision_error`, el cliente recibe "Recibimos tu pago" y tú recibes la alerta ⚠️ para crearlo a mano desde el panel.
 
-Cada paso queda marcado (`negocio_id`/`provision_error`, `cliente_notificado_at`, `alerta_enviada_at`), así que los reintentos de Wompi nunca duplican comercios ni correos.
+Cada paso queda marcado (`negocio_id`/`provision_error`, `cliente_notificado_at`, `alerta_enviada_at`), y un bloqueo atómico por compra impide que dos eventos simultáneos la procesen a la vez. Así los reintentos de Wompi nunca duplican comercios ni correos.
+
+Si Resend falla, el webhook reintenta el correo en el momento, 3 veces. Si sigue fallando, el barrido programado (`wompi-webhook?barrido=1`, protegido con `BARRIDO_SECRET`) lo reenvía cada 10 minutos durante 3 días.
+
+`crear-compra` acepta como máximo 5 compras por IP cada 10 minutos.
 
 ## 1. Cuentas externas
 
@@ -33,6 +37,14 @@ Ejecuta las migraciones en orden. Puedes hacerlo con `supabase db push` o pegán
 2. `migrations/20261028120100_planes_nexobar.sql` carga el Plan Básico ($ 49.990) y el Plan Pro ($ 89.990).
 3. `migrations/20261028120200_planes_anuales.sql` agrega la columna `ciclo` y los planes anuales: `basico_anual` ($ 499.900) y `pro_anual` ($ 899.900).
 4. `migrations/20261029120000_provision_negocios.sql` agrega las columnas de entrega en `compras` y las funciones `provision_*`, que solo puede ejecutar el webhook.
+5. `migrations/20261029130000_auditoria_fase1.sql` agrega:
+   - el bloqueo por compra (`compras_reclamar`/`compras_liberar`), para que eventos simultáneos de Wompi no dupliquen nada;
+   - el prorrateo de cambios de plan: el saldo vigente se convierte al plan nuevo según su precio mensual;
+   - las columnas `duplicado_de` e `ip`;
+   - el barrido con `pg_cron` cada 10 minutos.
+
+   Antes de aplicarla, guarda el secreto del barrido en Vault con el mismo valor de `BARRIDO_SECRET`:
+   `select vault.create_secret('<BARRIDO_SECRET>', 'barrido_secret');`
 
 Los precios se cambian en la tabla `planes` y la landing los toma de ahí. Para ocultar un plan, pon `activo = false`.
 
@@ -58,7 +70,8 @@ supabase secrets set \
   ALLOWED_ORIGINS=https://netxpremium.com,https://www.netxpremium.com \
   RESEND_API_KEY=re_xxx \
   ALERTA_EMAIL_FROM="NexoBar POS <pagos@netxpremium.com>" \
-  ALERTA_EMAIL_TO=soporte@netxpremium.com
+  ALERTA_EMAIL_TO=soporte@netxpremium.com \
+  BARRIDO_SECRET=<aleatorio, el mismo que en Vault>
 ```
 
 `--no-verify-jwt` se usa porque el visitante de la landing y Wompi no tienen sesión de Supabase. La seguridad la dan dos cosas:

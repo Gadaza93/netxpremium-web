@@ -36,16 +36,25 @@ function valueAt(data: Record<string, unknown>, path: string): string {
   return value === undefined || value === null ? '' : String(value);
 }
 
+// Comparación en tiempo constante: no revela por tiempos cuántos caracteres coinciden
+function igualSeguro(a: string, b: string): boolean {
+  const x = new TextEncoder().encode(a), y = new TextEncoder().encode(b);
+  let diff = x.length ^ y.length;
+  for (let i = 0; i < Math.max(x.length, y.length); i++) diff |= (x[i] ?? 0) ^ (y[i] ?? 0);
+  return diff === 0;
+}
+
 async function firmaValida(event: WompiEvent): Promise<boolean> {
   const properties = event.signature?.properties ?? [];
   const checksum = event.signature?.checksum ?? '';
-  if (!properties.length || !checksum) return false;
+  if (!Array.isArray(properties) || !properties.length || typeof checksum !== 'string' || !checksum) return false;
+  if (!event.data || typeof event.data !== 'object' || event.timestamp === undefined) return false;
 
-  const concatenado = properties.map((p) => valueAt(event.data, p)).join('')
+  const concatenado = properties.map((p) => valueAt(event.data, String(p))).join('')
     + String(event.timestamp)
     + Deno.env.get('WOMPI_EVENTS_SECRET');
 
-  return (await sha256Hex(concatenado)) === checksum.toLowerCase();
+  return igualSeguro(await sha256Hex(concatenado), checksum.toLowerCase());
 }
 
 function escapeHtml(text: unknown): string {
@@ -60,23 +69,41 @@ const fechaLarga = (iso: string | null) => iso
   ? new Date(iso).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'America/Bogota' })
   : '—';
 
+const esperar = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+// Reintenta caídas momentáneas de Resend (red, 429, 5xx) dentro de la misma invocación.
+// La Idempotency-Key es la misma en los reintentos: si Resend sí alcanzó a enviarlo, no lo duplica.
 async function enviarCorreo(to: string, subject: string, html: string, replyTo?: string): Promise<void> {
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: Deno.env.get('ALERTA_EMAIL_FROM'),
-      to: [to],
-      subject,
-      html,
-      ...(replyTo ? { reply_to: replyTo } : {}),
-    }),
+  const idempotencyKey = crypto.randomUUID();
+  const body = JSON.stringify({
+    from: Deno.env.get('ALERTA_EMAIL_FROM'),
+    to: [to],
+    subject,
+    html,
+    ...(replyTo ? { reply_to: replyTo } : {}),
   });
 
-  if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text()}`);
+  let ultimoError = '';
+  for (const pausa of [0, 700, 2000]) {
+    if (pausa) await esperar(pausa);
+    try {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
+          'Content-Type': 'application/json',
+          'Idempotency-Key': idempotencyKey,
+        },
+        body,
+      });
+      if (res.ok) return;
+      ultimoError = `Resend ${res.status}: ${await res.text()}`;
+      if (res.status !== 429 && res.status < 500) break;
+    } catch (err) {
+      ultimoError = `Resend sin conexión: ${(err as Error)?.message ?? err}`;
+    }
+  }
+  throw new Error(ultimoError);
 }
 
 // ---------- Provisión del comercio en NexoBar ----------
@@ -99,7 +126,22 @@ function contrasenaTemporal(largo = 12): string {
   return Array.from(crypto.getRandomValues(new Uint8Array(largo)), (b) => ALFABETO[b % ALFABETO.length]).join('');
 }
 
-type Provision = { negocio_id: string; usuario_id: string; es_renovacion: boolean };
+type Provision = { negocio_id: string; usuario_id: string; es_renovacion: boolean; duplicado_de?: string | null };
+
+// Mismo documento con otro correo: probablemente un cliente que renovó con un correo distinto.
+// No se fusiona solo (un mismo NIT puede tener varias sedes): se crea el comercio y se te avisa.
+async function comercioPrevioDelDocumento(compra: Compra): Promise<string | null> {
+  const { data } = await supabase
+    .from('compras')
+    .select('negocio_id, email')
+    .eq('documento_tipo', compra.documento_tipo)
+    .eq('documento', compra.documento)
+    .neq('email', compra.email)
+    .not('negocio_id', 'is', null)
+    .limit(1);
+  const previa = (data as { negocio_id: string; email: string }[] | null)?.[0];
+  return previa ? `${previa.negocio_id} (${previa.email})` : null;
+}
 
 async function provisionar(compra: Compra): Promise<Provision> {
   const plan = compra.plan_id.replace(/_anual$/, '');
@@ -144,7 +186,12 @@ async function provisionar(compra: Compra): Promise<Provision> {
     throw new Error(`crear usuario: ${userError?.message ?? 'sin respuesta'}`);
   }
 
-  return { negocio_id: negocioId, usuario_id: creado.user.id, es_renovacion: false };
+  return {
+    negocio_id: negocioId,
+    usuario_id: creado.user.id,
+    es_renovacion: false,
+    duplicado_de: await comercioPrevioDelDocumento(compra),
+  };
 }
 
 // ---------- Correos ----------
@@ -168,6 +215,7 @@ type Compra = {
   usuario_id: string | null;
   es_renovacion: boolean | null;
   provision_error: string | null;
+  duplicado_de: string | null;
   cliente_notificado_at: string | null;
   alerta_enviada_at: string | null;
   planes: { nombre: string } | null;
@@ -258,6 +306,9 @@ async function enviarAlertaAdmin(compra: Compra): Promise<void> {
 
   const filas: [string, string][] = [
     ['Resultado', resultado],
+    ...(compra.duplicado_de
+      ? [['⚠️ Posible duplicado', `Este documento ya tiene el comercio ${compra.duplicado_de}. Si es el mismo cliente, traslada el pago a ese comercio y desactiva el nuevo.`] as [string, string]]
+      : []),
     ['Comercio', compra.comercio],
     ['ID del comercio', compra.negocio_id ?? '—'],
     ['Documento', `${compra.documento_tipo} ${compra.documento}`],
@@ -317,7 +368,24 @@ async function leerCompra(referencia: string): Promise<Compra | null> {
 }
 
 // Pasos posteriores al pago. Devuelve false si algo falló y conviene que Wompi reintente.
+// Solo una invocación a la vez por compra: si otra ya la está procesando, esta no hace nada
+// (si aquella falla, responde 500 y Wompi o el barrido la reintentan).
 async function completarCompra(referencia: string): Promise<boolean> {
+  const { data: reclamada, error } = await supabase.rpc('compras_reclamar', { p_referencia: referencia });
+  if (error) {
+    console.error('compras_reclamar', error);
+    return false;
+  }
+  if (!reclamada) return true;
+
+  try {
+    return await procesarCompra(referencia);
+  } finally {
+    await supabase.rpc('compras_liberar', { p_referencia: referencia });
+  }
+}
+
+async function procesarCompra(referencia: string): Promise<boolean> {
   let compra = await leerCompra(referencia);
   if (!compra) return true;
 
@@ -364,8 +432,40 @@ async function completarCompra(referencia: string): Promise<boolean> {
   return todoOk;
 }
 
+// Barrido programado (pg_cron cada 10 min): reintenta correos y alertas pendientes de los últimos 3 días
+async function barrido(): Promise<Response> {
+  const desde = new Date(Date.now() - 3 * 864e5).toISOString();
+  const { data, error } = await supabase
+    .from('compras')
+    .select('referencia, cliente_notificado_at, alerta_enviada_at')
+    .in('estado', ['pagado', 'entregado'])
+    .gte('pagado_at', desde)
+    .limit(50);
+
+  if (error) {
+    console.error('barrido', error);
+    return new Response('Error de base de datos', { status: 500 });
+  }
+
+  const pendientes = (data ?? []).filter((c) => !c.cliente_notificado_at || !c.alerta_enviada_at);
+  let completas = 0;
+  for (const c of pendientes) if (await completarCompra(c.referencia)) completas++;
+
+  return new Response(JSON.stringify({ pendientes: pendientes.length, completas }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
 Deno.serve(async (req) => {
   if (req.method !== 'POST') return new Response('Método no permitido', { status: 405 });
+
+  if (new URL(req.url).searchParams.has('barrido')) {
+    const secreto = Deno.env.get('BARRIDO_SECRET') ?? '';
+    if (!secreto || !igualSeguro(req.headers.get('x-barrido-secret') ?? '', secreto)) {
+      return new Response('No autorizado', { status: 401 });
+    }
+    return barrido();
+  }
 
   let event: WompiEvent;
   try {
@@ -384,7 +484,8 @@ Deno.serve(async (req) => {
     return ok();
   }
 
-  const tx = event.data.transaction as WompiTransaction;
+  const tx = event.data.transaction as WompiTransaction | undefined;
+  if (!tx?.reference) return ok();
 
   const { data: compra, error } = await supabase
     .from('compras')

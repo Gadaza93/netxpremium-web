@@ -2,3 +2,6 @@
 supabase/
 supabase/.env
 .gitignore
+tailwind.config.js
+src/
+scripts/

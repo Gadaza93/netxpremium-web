@@ -18,40 +18,11 @@
     ]
   }
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="https://unpkg.com/lucide@1.57.0/dist/umd/lucide.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace'],
-          },
-          colors: {
-            obsidian: {
-              950: '#06070A',
-              900: '#0B0E14',
-              850: '#101520',
-              800: '#171E2D',
-              700: '#222C40',
-            },
-            electric: {
-              cyan: '#38BDF8',
-              indigo: '#6366F1',
-              violet: '#8B5CF6',
-              emerald: '#10B981',
-            }
-          }
-        }
-      }
-    }
-  </script>
 
   <style>
     body {
@@ -178,6 +149,8 @@
       transform: translate3d(0, 0, 0) scale(1);
     }
   </style>
+  <!-- Después del <style> propio: las utilidades de Tailwind deben ganar en la cascada, como con el CDN -->
+  <link rel="stylesheet" href="/assets/app.css?v=0869f6db61">
 </head>
 <body class="overflow-x-hidden selection:bg-indigo-500 selection:text-white">
 
@@ -398,7 +371,8 @@
             </div>
             <div>
               <label for="compra-email" class="block text-xs text-slate-400 mb-1.5">Correo electrónico</label>
-              <input id="compra-email" name="email" type="email" required maxlength="160" autocomplete="email" class="w-full bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500">
+              <input id="compra-email" name="email" type="email" required maxlength="160" autocomplete="email" aria-describedby="compra-email-ayuda" class="w-full bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500">
+              <p id="compra-email-ayuda" class="mt-1.5 text-[11px] text-slate-500">¿Ya eres cliente? Usa el correo de tu cuenta para renovar tu mismo comercio.</p>
             </div>
             <div>
               <label for="compra-telefono" class="block text-xs text-slate-400 mb-1.5">Celular / WhatsApp</label>
@@ -467,7 +441,7 @@
         <ul class="mt-8 flex flex-wrap items-center justify-center md:justify-start gap-x-5 gap-y-2 text-xs text-slate-400">
           <li class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>Sin permanencia</li>
           <li class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>Pago seguro con Wompi</li>
-          <li class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>Desde $49.990 COP al mes</li>
+          <li class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>Desde <span data-precio-desde>$49.990</span> COP al mes</li>
         </ul>
       </div>
 
@@ -811,7 +785,7 @@
             </div>
           </div>
 
-          <div class="bg-obsidian-900/50 p-6 rounded-xl border border-emerald-500/20 bg-emerald-950/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div class="p-6 rounded-xl border border-emerald-500/20 bg-emerald-950/5 flex flex-col sm:flex-row items-center justify-between gap-6">
             <div class="space-y-1.5 text-center sm:text-left">
               <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                 <i data-lucide="check-check" class="w-4 h-4"></i>
@@ -885,7 +859,7 @@
           <p class="mt-2 min-h-[2.5rem] text-xs text-slate-400" data-ahorro-texto>Facturación mensual. Cancela cuando quieras.</p>
         </div>
 
-        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1">
+        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1" data-caracteristicas>
           <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Hasta 10 mesas</li>
           <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Facturación, POS y control de stock simple</li>
           <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Cierre de caja y ventas del día</li>
@@ -922,7 +896,7 @@
           <p class="mt-2 min-h-[2.5rem] text-xs text-slate-400" data-ahorro-texto>Facturación mensual. Cancela cuando quieras.</p>
         </div>
 
-        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1">
+        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1" data-caracteristicas>
           <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Mesas ilimitadas</li>
           <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Facturación y POS</li>
           <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Valoración de inventario y exportaciones</li>
@@ -1220,16 +1194,63 @@
       status.textContent = message;
     }
 
+    // Una sola petición compartida por las tarjetas de precios y el formulario de compra
+    let planesPromesa = null;
+
+    function obtenerPlanes() {
+      planesPromesa ??= fetch(NEXOBAR_COMPRA_API)
+        .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
+        .then(({ planes }) => { if (!planes || !planes.length) throw new Error('Sin planes activos'); return planes; })
+        .catch(err => { planesPromesa = null; throw err; });
+      return planesPromesa;
+    }
+
+    // Las tarjetas traen precios en el HTML (SEO y carga sin JS); aquí se reemplazan por los de la tabla planes,
+    // la misma fuente que cobra el checkout. Así un cambio de precio en Supabase nunca deja la landing desactualizada.
+    function hidratarPlanes(planes) {
+      const fmt = n => Math.round(Number(n)).toLocaleString('es-CO');
+      const check = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+      let anualCompleto = true;
+
+      document.querySelectorAll('[data-plan-card]').forEach(card => {
+        const base = card.dataset.planCard;
+        const mensual = planes.find(p => p.id === base);
+        const anual = planes.find(p => p.id === `${base}_anual`);
+        if (!mensual) return card.classList.add('hidden');
+
+        card.classList.remove('hidden');
+        card.dataset.mensual = fmt(mensual.precio_cop);
+        if (anual) {
+          card.dataset.anual = fmt(anual.precio_cop);
+          card.dataset.ahorro = fmt(Math.max(0, mensual.precio_cop * 12 - anual.precio_cop));
+          card.dataset.equivale = fmt(anual.precio_cop / 12);
+        } else {
+          anualCompleto = false;
+        }
+
+        const lista = card.querySelector('[data-caracteristicas]');
+        if (lista && mensual.caracteristicas?.length) {
+          lista.innerHTML = mensual.caracteristicas.map(c => `<li class="flex gap-2.5">${check}${escapeHtml(c)}</li>`).join('');
+        }
+      });
+
+      const mensuales = planes.filter(p => (p.ciclo || 'mensual') === 'mensual').map(p => p.precio_cop);
+      if (mensuales.length) {
+        document.querySelectorAll('[data-precio-desde]').forEach(el => { el.textContent = `$${fmt(Math.min(...mensuales))}`; });
+      }
+
+      // Sin planes anuales activos no se ofrece el switch anual
+      document.querySelector('[data-ciclo-btn="anual"]')?.classList.toggle('hidden', !anualCompleto);
+      setCicloPlanes(anualCompleto ? cicloPlanes : 'mensual');
+    }
+
     async function cargarPlanes() {
       const container = document.getElementById('compra-planes');
       const submit = document.getElementById('compra-submit');
       submit.disabled = true;
 
       try {
-        const res = await fetch(NEXOBAR_COMPRA_API);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const { planes } = await res.json();
-        if (!planes || !planes.length) throw new Error('Sin planes activos');
+        const planes = await obtenerPlanes();
 
         planesNexobar = planes;
         planesCargados = true;
@@ -1399,6 +1420,7 @@
       lucide.createIcons();
       initCookieBanner();
       goToSlide(0);
+      obtenerPlanes().then(hidratarPlanes).catch(err => console.warn('Precios: se muestran los del HTML', err));
 
       // /pago y el selector de apps de la agencia enlazan a /nexobar?comprar=1
       if (new URLSearchParams(location.search).has('comprar')) openCompra();
