@@ -6,18 +6,6 @@
   <title>Netxpremium | Software a la Medida, Sistemas POS & Desarrollo Web</title>
   <meta name="description" content="Netxpremium - Ingeniería de software, desarrollo web de alto rendimiento y creadores de NexoBar POS.">
 
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      { "@type": "Question", "name": "¿NexoBar funciona sin internet?", "acceptedAnswer": { "@type": "Answer", "text": "Sí. Puedes seguir registrando ventas y operando el punto de venta. Una vez recuperes la conexión, la caja se sincronizará automáticamente en la nube." } },
-      { "@type": "Question", "name": "¿Qué equipos necesito para empezar?", "acceptedAnswer": { "@type": "Answer", "text": "Puedes usar cualquier computador, tablet o celular con navegador web. Opcionalmente, puedes conectar una impresora térmica estándar para los recibos y comandas." } },
-      { "@type": "Question", "name": "¿Hay cláusulas de permanencia?", "acceptedAnswer": { "@type": "Answer", "text": "No. Pagas mes a mes (o el año completo con descuento) y puedes cancelar tu suscripción cuando lo desees, sin penalidades." } },
-      { "@type": "Question", "name": "¿Cuánto tiempo tarda la entrega del sistema?", "acceptedAnswer": { "@type": "Answer", "text": "Al confirmar tu pago recibes de inmediato un correo de confirmación, y te enviamos tus credenciales de acceso por correo y WhatsApp para que empieces a configurar tu negocio el mismo día." } }
-    ]
-  }
-  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -138,11 +126,6 @@
       scrollbar-gutter: stable;
     }
 
-    /* FAQ: acordeón nativo con <details>, sin el triángulo por defecto */
-    .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item[open] { border-color: rgba(99, 102, 241, 0.35); }
-    .faq-item:hover { transform: none; }
-
     /* App Switcher: solo se animan opacity y transform (compositor / GPU) */
     .app-switcher {
       background-color: rgba(6, 7, 10, 0.85);
@@ -200,10 +183,10 @@
 
       <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
         <a href="#soluciones" class="hover:text-white transition-colors">Soluciones</a>
-        <a href="#nexobar" class="hover:text-white transition-colors">Caso NexoBar POS</a>
-        <a href="#planes" class="hover:text-white transition-colors">Planes</a>
+        <a href="#nexobar" class="hover:text-white transition-colors">Caso de éxito</a>
         <a href="#arquitectura" class="hover:text-white transition-colors">Arquitectura</a>
         <a href="#cotizador" class="hover:text-white transition-colors">Cotizador</a>
+        <a href="nexobar.html" class="hover:text-white transition-colors inline-flex items-center gap-1.5">NexoBar POS <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span></a>
       </div>
 
       <div class="hidden md:flex items-center gap-4">
@@ -240,10 +223,10 @@
         </div>
         <div class="flex flex-col gap-5 mt-6 text-slate-300 font-medium">
           <a href="#soluciones" onclick="toggleDrawer()" class="hover:text-white">Soluciones</a>
-          <a href="#nexobar" onclick="toggleDrawer()" class="hover:text-white">Caso NexoBar POS</a>
-          <a href="#planes" onclick="toggleDrawer()" class="hover:text-white">Planes</a>
+          <a href="#nexobar" onclick="toggleDrawer()" class="hover:text-white">Caso de éxito</a>
           <a href="#arquitectura" onclick="toggleDrawer()" class="hover:text-white">Arquitectura</a>
           <a href="#cotizador" onclick="toggleDrawer()" class="hover:text-white">Cotizador</a>
+          <a href="nexobar.html" class="hover:text-white">NexoBar POS</a>
         </div>
       </div>
       <div class="pt-6 border-t border-white/10 flex flex-col gap-4">
@@ -300,10 +283,10 @@
               Ingresar
               <i data-lucide="arrow-up-right" class="w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
             </a>
-            <button type="button" onclick="openCompra()" aria-haspopup="dialog" aria-controls="nexobar-compra" class="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition-all">
+            <a href="nexobar.html?comprar=1" class="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition-all">
               <i data-lucide="shopping-cart" class="w-4 h-4"></i>
               Comprar
-            </button>
+            </a>
           </div>
         </div>
 
@@ -353,99 +336,6 @@
           <span>Soporte técnico: +57 305 248 4278</span>
         </a>
       </div>
-    </div>
-  </div>
-
-  <!-- MODAL: Compra de NexoBar POS (pago con Wompi) -->
-  <div id="nexobar-compra" class="app-switcher fixed inset-0 z-[60] flex items-center justify-center p-4" aria-hidden="true" onclick="if (event.target === this) closeCompra()">
-    <div role="dialog" aria-modal="true" aria-labelledby="compra-title" class="app-switcher-panel w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 md:p-8">
-      <div class="flex items-start justify-between gap-4 mb-6">
-        <div>
-          <span class="text-[10px] text-indigo-400 uppercase tracking-widest font-mono">NexoBar POS</span>
-          <h2 id="compra-title" class="text-xl md:text-2xl font-extrabold tracking-tight text-white mt-1">Adquiere NexoBar para tu bar</h2>
-          <p class="text-sm text-slate-400 mt-1">Elige tu plan, completa los datos de tu comercio y paga en línea. Cuando el pago se confirme crearemos tu comercio y te enviaremos las credenciales de acceso.</p>
-        </div>
-        <button id="compra-close" type="button" onclick="closeCompra()" aria-label="Cerrar formulario de compra" class="shrink-0 p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <form id="compra-form" onsubmit="submitCompra(event)" class="space-y-6">
-        <fieldset class="min-w-0">
-          <legend class="float-left text-xs font-mono text-slate-400 uppercase tracking-wider py-1.5">1. Elige tu plan</legend>
-          <div role="group" aria-label="Ciclo de facturación" class="float-right inline-flex items-center p-0.5 rounded-lg bg-obsidian-900 border border-white/10 text-xs font-semibold">
-            <button type="button" data-compra-ciclo="mensual" aria-pressed="true" onclick="setCicloCompra('mensual')" class="px-3 py-1 rounded-md transition-all bg-indigo-600 text-white shadow-md">Mensual</button>
-            <button type="button" data-compra-ciclo="anual" aria-pressed="false" onclick="setCicloCompra('anual')" class="px-3 py-1 rounded-md transition-all text-slate-400 hover:text-white">Anual <span class="text-emerald-300 font-mono text-[10px]">-2 meses</span></button>
-          </div>
-          <div id="compra-planes" class="clear-both pt-3 grid grid-cols-1 sm:grid-cols-2 gap-3"> class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <p class="sm:col-span-2 text-xs text-slate-500 font-mono">Cargando planes…</p>
-          </div>
-        </fieldset>
-
-        <fieldset class="min-w-0">
-          <legend class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-3">2. Datos del comercio</legend>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label for="compra-comercio" class="block text-xs text-slate-400 mb-1.5">Nombre del bar o comercio</label>
-              <input id="compra-comercio" name="comercio" type="text" required maxlength="120" autocomplete="organization" class="w-full bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500">
-            </div>
-            <div>
-              <label for="compra-ciudad" class="block text-xs text-slate-400 mb-1.5">Ciudad</label>
-              <input id="compra-ciudad" name="ciudad" type="text" required maxlength="80" autocomplete="address-level2" class="w-full bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500">
-            </div>
-            <div>
-              <label for="compra-documento" class="block text-xs text-slate-400 mb-1.5">Documento (para la factura)</label>
-              <div class="flex gap-2">
-                <select id="compra-documento-tipo" name="documento_tipo" aria-label="Tipo de documento" class="bg-obsidian-900 border border-white/10 rounded-xl px-3 py-3 text-sm text-white focus:border-indigo-500">
-                  <option value="NIT">NIT</option>
-                  <option value="CC">CC</option>
-                  <option value="CE">CE</option>
-                </select>
-                <input id="compra-documento" name="documento" type="text" inputmode="numeric" required maxlength="20" class="min-w-0 flex-1 bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500">
-              </div>
-            </div>
-            <div>
-              <label for="compra-responsable" class="block text-xs text-slate-400 mb-1.5">Nombre del responsable</label>
-              <input id="compra-responsable" name="responsable" type="text" required maxlength="120" autocomplete="name" class="w-full bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500">
-            </div>
-            <div>
-              <label for="compra-email" class="block text-xs text-slate-400 mb-1.5">Correo electrónico</label>
-              <input id="compra-email" name="email" type="email" required maxlength="160" autocomplete="email" class="w-full bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:border-indigo-500">
-            </div>
-            <div>
-              <label for="compra-telefono" class="block text-xs text-slate-400 mb-1.5">Celular / WhatsApp</label>
-              <input id="compra-telefono" name="telefono" type="tel" inputmode="numeric" required maxlength="10" pattern="3[0-9]{9}" title="Celular colombiano de 10 dígitos, por ejemplo 3001234567" placeholder="3001234567" autocomplete="tel-national" class="w-full bg-obsidian-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:border-indigo-500">
-            </div>
-          </div>
-        </fieldset>
-
-        <div class="pt-5 border-t border-white/10">
-          <label class="legal-consent mb-3">
-            <input type="checkbox" id="compra-terminos" required>
-            <span>Acepto los <a href="terminos.html" target="_blank" rel="noopener">Términos y Condiciones</a> y autorizo el tratamiento de mis datos según la <a href="privacidad.html" target="_blank" rel="noopener">Política de Privacidad</a>.</span>
-          </label>
-          <label class="legal-consent mb-4">
-            <input type="checkbox" id="compra-marketing">
-            <span>Acepto recibir información comercial, ofertas y novedades de NetxPremium. <span class="text-slate-500">(Opcional)</span></span>
-          </label>
-
-          <div class="mb-4 flex items-start gap-2.5 rounded-xl border border-sky-500/20 bg-sky-500/5 px-3.5 py-3">
-            <i data-lucide="info" class="w-4 h-4 text-sky-400 shrink-0 mt-0.5"></i>
-            <p class="text-[11px] leading-relaxed text-slate-300">
-              <span class="font-semibold text-sky-300">Nota de facturación:</span>
-              El cobro se procesará de forma segura mediante Wompi bajo nuestra razón social operativa <span class="whitespace-nowrap">(<span class="font-semibold text-white">Elites Drinks</span>).</span>
-            </p>
-          </div>
-
-          <p id="compra-status" role="status" aria-live="polite" class="hidden mb-4 text-xs rounded-lg px-3 py-2"></p>
-
-          <button id="compra-submit" type="submit" class="w-full py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold text-sm transition-all shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
-            <i data-lucide="lock" class="w-4 h-4"></i>
-            <span id="compra-submit-label">Ir a pagar</span>
-          </button>
-          <p class="mt-3 text-[11px] text-slate-500 text-center">Pago seguro procesado por Wompi (Bancolombia). NetxPremium no ve ni almacena los datos de tu tarjeta o cuenta.</p>
-        </div>
-      </form>
     </div>
   </div>
 
@@ -514,447 +404,56 @@
   </section>
 
   <section id="nexobar" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-7xl mx-auto">
-    <div class="text-center max-w-3xl mx-auto mb-16">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-mono mb-4">
-        CASO DE ÉXITO INSIGNIA
-      </div>
-      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">NexoBar POS — Sistema Bar</h2>
-      <p class="text-slate-400 text-sm sm:text-base mt-3">Diseñado desde cero para bares que venden por unidad (bebidas, snacks y productos de mostrador): cobro ultra rápido, control estricto de turnos de caja y sincronización móvil multi-dispositivo.</p>
-    </div>
-
-    <div class="glass-panel rounded-2xl p-4 md:p-8 border border-white/10 glow-indigo">
-      <div class="flex flex-wrap items-center justify-between pb-6 mb-6 border-b border-white/5 gap-4">
-        <div class="flex items-center gap-3">
-          <span class="text-lg font-bold text-white tracking-tight">NexoBar POS</span>
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> En línea / Sincronizado
-          </span>
+    <div class="glass-panel rounded-3xl border border-white/10 glow-indigo p-6 sm:p-8 md:p-12 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+      <div class="text-center lg:text-left">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-mono mb-4">
+          CASO DE ÉXITO INSIGNIA
         </div>
-        <div class="flex flex-wrap items-center gap-3 text-xs font-mono">
-          <a href="https://nexobar.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" id="btn-live-demo" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-mono transition-all group">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>Probar Demo en Vivo</span>
-            <i data-lucide="external-link" class="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">NexoBar POS — Sistema Bar</h2>
+        <p class="text-slate-400 text-sm sm:text-base mt-4 leading-relaxed">
+          Diseñamos y desarrollamos desde cero un punto de venta para bares que venden por unidad. Hoy es un producto SaaS propio en producción, construido con la misma arquitectura que usamos en los proyectos de nuestros clientes.
+        </p>
+        <ul class="mt-6 space-y-3 text-sm text-slate-300 text-left max-w-md mx-auto lg:mx-0">
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Offline-first: sigue cobrando sin internet y sincroniza con la nube (Supabase).</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Caja, tablets y celulares sincronizados en tiempo real.</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Suscripciones con pago en línea integrado (Wompi) y alertas automáticas.</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Desplegado en el edge con Cloudflare para cargar rápido en cualquier red.</li>
+        </ul>
+        <div class="mt-8 flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
+          <a href="nexobar.html" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+            <span>Conoce NexoBar</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
           </a>
-          <div class="px-3 py-1.5 rounded-lg bg-obsidian-900 border border-white/5 text-slate-300">
-            Supabase Realtime
-          </div>
-          <div class="px-3 py-1.5 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-300">
-            Turno #04 — Activo
-          </div>
+          <a href="https://nexobar.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-6 py-3 rounded-xl glass-card hover:bg-white/5 text-slate-300 font-semibold text-sm transition-all flex items-center justify-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+            <span>Probar demo en vivo</span>
+          </a>
         </div>
       </div>
 
-      <!-- Barra de navegación del carrusel: Tabs, Flechas y Dots -->
-      <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 pb-5 mb-6 border-b border-white/5">
-        <div class="flex items-center gap-1 p-1 bg-obsidian-900/90 rounded-xl border border-white/5 overflow-x-auto text-xs font-mono">
-          <button onclick="goToSlide(0)" id="nexobar-tab-0" class="nexobar-tab px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 bg-indigo-600 text-white font-medium shadow-sm whitespace-nowrap">
-            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
-            <span>Turnos & Zonas</span>
-          </button>
-          <button onclick="goToSlide(1)" id="nexobar-tab-1" class="nexobar-tab px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 text-slate-400 hover:text-white whitespace-nowrap">
-            <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
-            <span>Comandas & Venta Rápida</span>
-          </button>
-          <button onclick="goToSlide(2)" id="nexobar-tab-2" class="nexobar-tab px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 text-slate-400 hover:text-white whitespace-nowrap">
-            <i data-lucide="receipt" class="w-3.5 h-3.5"></i>
-            <span>Cierre & Arqueo de Caja</span>
-          </button>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="glass-card p-5 rounded-2xl">
+          <div class="w-10 h-10 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center mb-4"><i data-lucide="wifi-off" class="w-5 h-5"></i></div>
+          <div class="text-base font-bold text-white">Offline-first</div>
+          <p class="text-xs text-slate-400 mt-1">Ventas guardadas localmente y sincronizadas al volver la red.</p>
         </div>
-
-        <div class="flex items-center justify-between lg:justify-end gap-4">
-          <div class="flex items-center gap-2" id="nexobar-dots">
-            <button onclick="goToSlide(0)" class="nexobar-dot w-6 h-2 rounded-full bg-indigo-500 transition-all" aria-label="Slide 1"></button>
-            <button onclick="goToSlide(1)" class="nexobar-dot w-2 h-2 rounded-full bg-white/20 hover:bg-white/40 transition-all" aria-label="Slide 2"></button>
-            <button onclick="goToSlide(2)" class="nexobar-dot w-2 h-2 rounded-full bg-white/20 hover:bg-white/40 transition-all" aria-label="Slide 3"></button>
-          </div>
-          <div class="flex items-center gap-1.5">
-            <button onclick="prevSlide()" class="p-2 rounded-lg bg-obsidian-900 border border-white/10 hover:border-white/20 text-slate-300 hover:text-white transition-all shadow-sm" aria-label="Anterior">
-              <i data-lucide="chevron-left" class="w-4 h-4"></i>
-            </button>
-            <button onclick="nextSlide()" class="p-2 rounded-lg bg-obsidian-900 border border-white/10 hover:border-white/20 text-slate-300 hover:text-white transition-all shadow-sm" aria-label="Siguiente">
-              <i data-lucide="chevron-right" class="w-4 h-4"></i>
-            </button>
-          </div>
+        <div class="glass-card p-5 rounded-2xl">
+          <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4"><i data-lucide="refresh-cw" class="w-5 h-5"></i></div>
+          <div class="text-base font-bold text-white">Tiempo real</div>
+          <p class="text-xs text-slate-400 mt-1">Múltiples dispositivos operando el mismo turno.</p>
         </div>
-      </div>
-
-      <div id="nexobar-slides-container" class="relative min-h-[380px] md:min-h-[350px]">
-        <!-- SLIDE 1: Turnos & Zonas -->
-        <div id="slide-0" class="nexobar-slide transition-opacity duration-300 opacity-100 flex flex-col justify-between h-full space-y-6">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-white/5">
-              <span class="text-xs text-slate-400">Ventas del turno</span>
-              <div class="text-xl md:text-2xl font-bold font-mono text-white mt-1">$ 0</div>
-              <span class="text-[10px] text-slate-500">0 cuentas cerradas</span>
-            </div>
-            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-white/5">
-              <span class="text-xs text-slate-400">Mesas activas</span>
-              <div class="text-xl md:text-2xl font-bold font-mono text-sky-400 mt-1">2</div>
-              <span class="text-[10px] text-slate-500">Barra 1, Barra 2</span>
-            </div>
-            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-white/5">
-              <span class="text-xs text-slate-400">Pedidos abiertos</span>
-              <div class="text-xl md:text-2xl font-bold font-mono text-white mt-1">2</div>
-              <span class="text-[10px] text-slate-500">Comandas en proceso</span>
-            </div>
-            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-indigo-500/20 bg-indigo-950/10">
-              <span class="text-xs text-amber-400/90 font-medium">Caja esperada</span>
-              <div class="text-xl md:text-2xl font-bold font-mono text-amber-400 mt-1">$ 70.000</div>
-              <span class="text-[10px] text-slate-400">Base inicial en efectivo</span>
-            </div>
-          </div>
-
-          <div class="bg-obsidian-900/50 p-6 rounded-xl border border-white/5">
-            <div class="flex items-center justify-between mb-4">
-              <span class="text-sm font-semibold text-slate-200">Zonas y Mesas en Operación</span>
-              <span class="text-xs text-slate-400 font-mono">Control táctil instantáneo</span>
-            </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div class="p-4 rounded-xl bg-indigo-600/10 border border-indigo-500/30 flex flex-col justify-between h-24">
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold text-white">Barra 1</span>
-                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                </div>
-                <div class="text-[11px] text-slate-400">3 artículos en consumo</div>
-              </div>
-              <div class="p-4 rounded-xl bg-indigo-600/10 border border-indigo-500/30 flex flex-col justify-between h-24">
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-bold text-white">Barra 2</span>
-                  <span class="w-2 h-2 rounded-full bg-amber-400"></span>
-                </div>
-                <div class="text-[11px] text-slate-400">1 artículo en consumo</div>
-              </div>
-              <div class="p-4 rounded-xl bg-obsidian-850 border border-white/5 flex flex-col justify-between h-24 opacity-60">
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-medium text-slate-300">Mesa Salón 1</span>
-                  <span class="w-2 h-2 rounded-full bg-slate-600"></span>
-                </div>
-                <div class="text-[11px] text-slate-500">Disponible</div>
-              </div>
-              <div class="p-4 rounded-xl bg-obsidian-850 border border-white/5 flex flex-col justify-between h-24 opacity-60">
-                <div class="flex justify-between items-start">
-                  <span class="text-xs font-medium text-slate-300">Terraza VIP</span>
-                  <span class="w-2 h-2 rounded-full bg-slate-600"></span>
-                </div>
-                <div class="text-[11px] text-slate-500">Disponible</div>
-              </div>
-            </div>
-          </div>
+        <div class="glass-card p-5 rounded-2xl">
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4"><i data-lucide="credit-card" class="w-5 h-5"></i></div>
+          <div class="text-base font-bold text-white">Pagos en línea</div>
+          <p class="text-xs text-slate-400 mt-1">Compra y verificación automática del pago con webhooks firmados.</p>
         </div>
-
-        <!-- SLIDE 2: Comandas & Venta Rápida -->
-        <div id="slide-1" class="nexobar-slide transition-opacity duration-300 opacity-0 hidden flex flex-col justify-between h-full space-y-6">
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            <!-- Catálogo Táctil -->
-            <div class="lg:col-span-7 bg-obsidian-900/60 p-5 rounded-xl border border-white/5 flex flex-col justify-between">
-              <div class="flex items-center justify-between pb-3 mb-3 border-b border-white/5">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-semibold text-white">Catálogo de Venta Rápida</span>
-                  <span class="px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">POS Táctil</span>
-                </div>
-                <span class="text-xs text-slate-400 font-mono">1-Tap para añadir</span>
-              </div>
-
-              <div class="grid grid-cols-2 gap-3">
-                <div class="p-3.5 rounded-xl bg-obsidian-850 border border-white/5 hover:border-indigo-500/40 transition-all flex flex-col justify-between cursor-pointer group">
-                  <div class="flex items-start justify-between">
-                    <span class="text-xs font-bold text-white group-hover:text-indigo-300 transition-colors">Cerveza Corona</span>
-                    <i data-lucide="beer" class="w-4 h-4 text-amber-400"></i>
-                  </div>
-                  <div class="flex items-center justify-between mt-3 pt-2 border-t border-white/5 font-mono">
-                    <span class="text-xs font-bold text-white">$ 9.000</span>
-                    <span class="text-[10px] text-indigo-400 bg-indigo-950/60 px-1.5 py-0.5 rounded">+1 Agregar</span>
-                  </div>
-                </div>
-
-                <div class="p-3.5 rounded-xl bg-obsidian-850 border border-white/5 hover:border-indigo-500/40 transition-all flex flex-col justify-between cursor-pointer group">
-                  <div class="flex items-start justify-between">
-                    <span class="text-xs font-bold text-white group-hover:text-indigo-300 transition-colors">Ron Medellín 8A</span>
-                    <i data-lucide="flame" class="w-4 h-4 text-orange-400"></i>
-                  </div>
-                  <div class="flex items-center justify-between mt-3 pt-2 border-t border-white/5 font-mono">
-                    <span class="text-xs font-bold text-white">$ 95.000</span>
-                    <span class="text-[10px] text-indigo-400 bg-indigo-950/60 px-1.5 py-0.5 rounded">+1 Agregar</span>
-                  </div>
-                </div>
-
-                <div class="p-3.5 rounded-xl bg-obsidian-850 border border-white/5 hover:border-indigo-500/40 transition-all flex flex-col justify-between cursor-pointer group">
-                  <div class="flex items-start justify-between">
-                    <span class="text-xs font-bold text-white group-hover:text-indigo-300 transition-colors">Gin Tonic</span>
-                    <i data-lucide="wine" class="w-4 h-4 text-sky-400"></i>
-                  </div>
-                  <div class="flex items-center justify-between mt-3 pt-2 border-t border-white/5 font-mono">
-                    <span class="text-xs font-bold text-white">$ 28.000</span>
-                    <span class="text-[10px] text-indigo-400 bg-indigo-950/60 px-1.5 py-0.5 rounded">+1 Agregar</span>
-                  </div>
-                </div>
-
-                <div class="p-3.5 rounded-xl bg-obsidian-850 border border-white/5 hover:border-indigo-500/40 transition-all flex flex-col justify-between cursor-pointer group">
-                  <div class="flex items-start justify-between">
-                    <span class="text-xs font-bold text-white group-hover:text-indigo-300 transition-colors">Agua con Gas</span>
-                    <i data-lucide="droplet" class="w-4 h-4 text-cyan-400"></i>
-                  </div>
-                  <div class="flex items-center justify-between mt-3 pt-2 border-t border-white/5 font-mono">
-                    <span class="text-xs font-bold text-white">$ 5.000</span>
-                    <span class="text-[10px] text-indigo-400 bg-indigo-950/60 px-1.5 py-0.5 rounded">+1 Agregar</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Panel Lateral de Comanda Activa -->
-            <div class="lg:col-span-5 bg-obsidian-900/80 p-5 rounded-xl border border-indigo-500/30 flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between pb-3 border-b border-white/5">
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-white">Comanda Activa:</span>
-                    <span class="px-2 py-0.5 rounded bg-indigo-600/30 text-indigo-300 text-xs font-mono font-bold">Barra 1</span>
-                  </div>
-                  <span class="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Abierta
-                  </span>
-                </div>
-
-                <div class="space-y-2 mt-3 text-xs font-mono">
-                  <div class="flex justify-between items-center p-2 rounded-lg bg-obsidian-850 border border-white/5">
-                    <div class="flex items-center gap-2">
-                      <span class="text-indigo-400 font-bold">2x</span>
-                      <span class="text-slate-200">Cerveza Corona</span>
-                    </div>
-                    <span class="text-white font-bold">$ 18.000</span>
-                  </div>
-                  <div class="flex justify-between items-center p-2 rounded-lg bg-obsidian-850 border border-white/5">
-                    <div class="flex items-center gap-2">
-                      <span class="text-indigo-400 font-bold">1x</span>
-                      <span class="text-slate-200">Gin Tonic</span>
-                    </div>
-                    <span class="text-white font-bold">$ 28.000</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="pt-4 border-t border-white/10 mt-4">
-                <div class="flex justify-between items-baseline mb-3 font-mono">
-                  <span class="text-xs text-slate-400">Total acumulado:</span>
-                  <span class="text-xl font-black text-white">$ 46.000</span>
-                </div>
-                <button class="w-full py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
-                  <i data-lucide="printer" class="w-4 h-4"></i>
-                  <span>Enviar Comanda / Imprimir Ticket</span>
-                </button>
-              </div>
-            </div>
-          </div>
+        <div class="glass-card p-5 rounded-2xl">
+          <div class="w-10 h-10 rounded-lg bg-purple-500/10 text-purple-300 flex items-center justify-center mb-4"><i data-lucide="layers" class="w-5 h-5"></i></div>
+          <div class="text-base font-bold text-white">SaaS propio</div>
+          <p class="text-xs text-slate-400 mt-1">Planes mensuales y anuales para bares en Colombia.</p>
         </div>
-
-        <!-- SLIDE 3: Cierre & Arqueo de Caja -->
-        <div id="slide-2" class="nexobar-slide transition-opacity duration-300 opacity-0 hidden flex flex-col justify-between h-full space-y-6">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-white/5">
-              <span class="text-xs text-slate-400">Base Efectivo</span>
-              <div class="text-xl md:text-2xl font-bold font-mono text-white mt-1">$ 70.000</div>
-              <span class="text-[10px] text-slate-500">Apertura de turno</span>
-            </div>
-            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-white/5">
-              <span class="text-xs text-slate-400">Cobros Datáfono / QR</span>
-              <div class="text-xl md:text-2xl font-bold font-mono text-sky-400 mt-1">$ 180.000</div>
-              <span class="text-[10px] text-slate-500">Bancolombia, Datafono</span>
-            </div>
-            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-white/5">
-              <span class="text-xs text-slate-400">Efectivo en Gaveta</span>
-              <div class="text-xl md:text-2xl font-bold font-mono text-emerald-400 mt-1">$ 250.000</div>
-              <span class="text-[10px] text-slate-500">Base + Cobros efectivo</span>
-            </div>
-            <div class="bg-obsidian-900/80 p-4 rounded-xl border border-indigo-500/20 bg-indigo-950/10">
-              <span class="text-xs text-indigo-300 font-medium">Total Facturado</span>
-              <div class="text-xl md:text-2xl font-bold font-mono text-white mt-1">$ 180.000</div>
-              <span class="text-[10px] text-slate-400">Ventas netas turno #04</span>
-            </div>
-          </div>
-
-          <div class="bg-obsidian-900/50 p-6 rounded-xl border border-emerald-500/20 bg-emerald-950/5 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div class="space-y-1.5 text-center sm:text-left">
-              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                <i data-lucide="check-check" class="w-4 h-4"></i>
-                <span>Caja Cuadrada — Diferencia $ 0</span>
-              </div>
-              <p class="text-xs text-slate-400 max-w-xl">
-                Arqueo automático verificado en tiempo real con Supabase. Cero faltantes o descuadres detectados frente a las comandas registradas en las terminales.
-              </p>
-            </div>
-
-            <button class="w-full sm:w-auto px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 whitespace-nowrap">
-              <i data-lucide="receipt" class="w-4 h-4"></i>
-              <span>Generar Cierre & Ticket ESC/POS</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pie del carrusel: Acceso directo secundario a la demo -->
-      <div class="mt-8 pt-5 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
-        <div class="flex items-center gap-2 font-mono">
-          <i data-lucide="terminal" class="w-4 h-4 text-emerald-400"></i>
-          <span>¿Quieres probar la velocidad tú mismo?</span>
-        </div>
-        <a href="https://nexobar.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-medium font-mono group transition-colors">
-          <span>Abrir terminal interactivo</span>
-          <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
-        </a>
       </div>
     </div>
-  </section>
-
-  <!-- PLANES Y PRECIOS DE NEXOBAR POS -->
-  <section id="planes" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-5xl mx-auto">
-    <div class="text-center max-w-2xl mx-auto mb-10">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-mono mb-4">
-        PLANES NEXOBAR POS
-      </div>
-      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Planes simples, sin permanencia</h2>
-      <p class="text-slate-400 text-sm sm:text-base mt-3">Elige el plan para tu bar y empieza a vender hoy. Paga mes a mes o ahorra dos meses con el plan anual.</p>
-    </div>
-
-    <div class="flex justify-center mb-10">
-      <div role="group" aria-label="Ciclo de facturación" class="inline-flex items-center p-1 rounded-xl bg-obsidian-900 border border-white/10 text-sm font-semibold">
-        <button type="button" data-ciclo-btn="mensual" aria-pressed="true" onclick="setCicloPlanes('mensual')" class="px-5 py-2 rounded-lg transition-all bg-indigo-600 text-white shadow-md">Mensual</button>
-        <button type="button" data-ciclo-btn="anual" aria-pressed="false" onclick="setCicloPlanes('anual')" class="px-5 py-2 rounded-lg transition-all flex items-center gap-2 text-slate-400 hover:text-white">
-          Anual
-          <span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/25">2 meses gratis</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-      <!-- Plan Básico -->
-      <article data-plan-card="basico" data-mensual="49.990" data-anual="499.900" data-ahorro="99.980" data-equivale="41.658" class="glass-card rounded-2xl p-6 sm:p-8 flex flex-col">
-        <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center">
-            <i data-lucide="store" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h3 class="text-lg font-bold text-white">Plan Básico</h3>
-            <p class="text-xs text-slate-400">Para bares pequeños que están empezando</p>
-          </div>
-        </div>
-
-        <div class="mt-6">
-          <div class="flex items-baseline gap-1.5">
-            <span class="text-4xl font-extrabold font-mono tracking-tight text-white" data-precio>$ 49.990</span>
-            <span class="text-sm text-slate-400" data-periodo>COP / mes</span>
-          </div>
-          <p class="mt-2 min-h-[2.5rem] text-xs text-slate-400" data-ahorro-texto>Facturación mensual. Cancela cuando quieras.</p>
-        </div>
-
-        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1">
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Hasta 10 mesas</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Facturación, POS y control de stock simple</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Cierre de caja y ventas del día</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Interfaz tradicional en lista</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>1 usuario (cajero/administrador)</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Soporte por WhatsApp</li>
-        </ul>
-
-        <button type="button" onclick="elegirPlan('basico')" aria-haspopup="dialog" aria-controls="nexobar-compra" class="mt-8 w-full py-3.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 hover:border-indigo-500/50 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2">
-          Elegir Plan Básico
-          <i data-lucide="arrow-right" class="w-4 h-4"></i>
-        </button>
-      </article>
-
-      <!-- Plan Pro (destacado) -->
-      <article data-plan-card="pro" data-mensual="89.990" data-anual="899.900" data-ahorro="179.980" data-equivale="74.992" class="glass-card relative rounded-2xl p-6 sm:p-8 flex flex-col !border-indigo-500/50 glow-indigo bg-gradient-to-b from-indigo-500/[0.07] to-transparent">
-        <span class="absolute -top-3 left-6 sm:left-8 px-3 py-1 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">Más completo</span>
-
-        <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-xl bg-indigo-500/15 text-indigo-300 flex items-center justify-center">
-            <i data-lucide="crown" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h3 class="text-lg font-bold text-white">Plan Pro</h3>
-            <p class="text-xs text-slate-400">Para bares con más mesas, personal y control</p>
-          </div>
-        </div>
-
-        <div class="mt-6">
-          <div class="flex items-baseline gap-1.5">
-            <span class="text-4xl font-extrabold font-mono tracking-tight text-white" data-precio>$ 89.990</span>
-            <span class="text-sm text-slate-400" data-periodo>COP / mes</span>
-          </div>
-          <p class="mt-2 min-h-[2.5rem] text-xs text-slate-400" data-ahorro-texto>Facturación mensual. Cancela cuando quieras.</p>
-        </div>
-
-        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1">
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Mesas ilimitadas</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Facturación y POS</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Valoración de inventario y exportaciones</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Analítica de ganancias netas y control de gastos</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Mapa de layout de mesas interactivo</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Múltiples roles de usuario</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Soporte prioritario por WhatsApp</li>
-        </ul>
-
-        <button type="button" onclick="elegirPlan('pro')" aria-haspopup="dialog" aria-controls="nexobar-compra" class="mt-8 w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2">
-          Elegir Plan Pro
-          <i data-lucide="arrow-right" class="w-4 h-4"></i>
-        </button>
-      </article>
-    </div>
-
-    <p class="mt-8 text-center text-xs text-slate-500 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-      <span class="inline-flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>Pago seguro con Wompi</span>
-      <span class="inline-flex items-center gap-1.5"><i data-lucide="calendar-x" class="w-3.5 h-3.5 text-sky-400"></i>Sin cláusulas de permanencia</span>
-      <span class="inline-flex items-center gap-1.5"><i data-lucide="wifi-off" class="w-3.5 h-3.5 text-indigo-400"></i>Funciona sin internet</span>
-    </p>
-  </section>
-
-  <!-- PREGUNTAS FRECUENTES -->
-  <section id="faq" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-3xl mx-auto">
-    <div class="text-center mb-10">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-mono mb-4">
-        PREGUNTAS FRECUENTES
-      </div>
-      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Resolvemos tus dudas</h2>
-    </div>
-
-    <div class="space-y-3">
-      <details class="faq-item group glass-card rounded-2xl">
-        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
-          ¿NexoBar funciona sin internet?
-          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-indigo-300"></i>
-        </summary>
-        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Sí. Puedes seguir registrando ventas y operando el punto de venta. Una vez recuperes la conexión, la caja se sincronizará automáticamente en la nube.</p>
-      </details>
-
-      <details class="faq-item group glass-card rounded-2xl">
-        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
-          ¿Qué equipos necesito para empezar?
-          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-indigo-300"></i>
-        </summary>
-        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Puedes usar cualquier computador, tablet o celular con navegador web. Opcionalmente, puedes conectar una impresora térmica estándar para los recibos y comandas.</p>
-      </details>
-
-      <details class="faq-item group glass-card rounded-2xl">
-        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
-          ¿Hay cláusulas de permanencia?
-          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-indigo-300"></i>
-        </summary>
-        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">No. Pagas mes a mes (o el año completo con descuento) y puedes cancelar tu suscripción cuando lo desees, sin penalidades.</p>
-      </details>
-
-      <details class="faq-item group glass-card rounded-2xl">
-        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
-          ¿Cuánto tiempo tarda la entrega del sistema?
-          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-indigo-300"></i>
-        </summary>
-        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Al confirmar tu pago recibes de inmediato un correo de confirmación, y te enviamos tus credenciales de acceso por correo y WhatsApp para que empieces a configurar tu negocio el mismo día.</p>
-      </details>
-    </div>
-
-    <p class="mt-8 text-center text-sm text-slate-400">
-      ¿Tienes otra pregunta?
-      <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="text-emerald-400 hover:text-emerald-300 font-semibold">Escríbenos por WhatsApp</a>
-    </p>
   </section>
 
   <section id="soluciones" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-7xl mx-auto">
@@ -1260,61 +759,6 @@
     let currentCurrency = 'COP';
     const exchangeRate = 4000;
 
-    // Lógica del Carrusel NexoBar POS
-    let currentSlideIndex = 0;
-    const totalSlides = 3;
-
-    function goToSlide(index) {
-      currentSlideIndex = (index + totalSlides) % totalSlides;
-
-      for (let i = 0; i < totalSlides; i++) {
-        const slide = document.getElementById(`slide-${i}`);
-        if (!slide) continue;
-
-        if (i === currentSlideIndex) {
-          slide.classList.remove('hidden');
-          void slide.offsetWidth;
-          slide.classList.remove('opacity-0');
-          slide.classList.add('opacity-100');
-        } else {
-          slide.classList.remove('opacity-100');
-          slide.classList.add('opacity-0');
-          slide.classList.add('hidden');
-        }
-      }
-
-      for (let i = 0; i < totalSlides; i++) {
-        const tab = document.getElementById(`nexobar-tab-${i}`);
-        if (!tab) continue;
-        if (i === currentSlideIndex) {
-          tab.className = 'nexobar-tab px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 bg-indigo-600 text-white font-medium shadow-sm whitespace-nowrap';
-        } else {
-          tab.className = 'nexobar-tab px-3.5 py-2 rounded-lg transition-all flex items-center gap-2 text-slate-400 hover:text-white whitespace-nowrap';
-        }
-      }
-
-      const dots = document.querySelectorAll('.nexobar-dot');
-      dots.forEach((dot, i) => {
-        if (i === currentSlideIndex) {
-          dot.className = 'nexobar-dot w-6 h-2 rounded-full bg-indigo-500 transition-all';
-        } else {
-          dot.className = 'nexobar-dot w-2 h-2 rounded-full bg-white/20 hover:bg-white/40 transition-all';
-        }
-      });
-
-      if (window.lucide) {
-        lucide.createIcons();
-      }
-    }
-
-    function nextSlide() {
-      goToSlide(currentSlideIndex + 1);
-    }
-
-    function prevSlide() {
-      goToSlide(currentSlideIndex - 1);
-    }
-
     const projectData = {
       landing: {
         sliderLabel: "Secciones de la Web",
@@ -1383,229 +827,8 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closeAppSwitcher();
-        closeCompra();
       }
     });
-
-    // Compra de NexoBar POS: los planes y el checkout de Wompi vienen de la Edge Function crear-compra
-    const NEXOBAR_COMPRA_API = 'https://fthjtbhxqqzqpyhtynaa.supabase.co/functions/v1/crear-compra';
-    let compraTrigger = null;
-    let planesCargados = false;
-    let planesNexobar = [];
-    let compraCiclo = 'mensual';
-    let planPreseleccionado = null;
-
-    function escapeHtml(text) {
-      return String(text ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-    }
-
-    // planId opcional ('basico', 'pro_anual'…): llega desde las tarjetas de la sección Planes
-    function openCompra(planId) {
-      const switcher = document.getElementById('app-switcher');
-      // Desde el selector, el foco vuelve al botón que lo abrió, no al "Comprar" que queda oculto
-      compraTrigger = switcher.classList.contains('is-open') ? appSwitcherTrigger : document.activeElement;
-
-      if (planId) {
-        planPreseleccionado = planId;
-        compraCiclo = planId.endsWith('_anual') ? 'anual' : 'mensual';
-      }
-
-      switcher.classList.remove('is-open');
-      switcher.setAttribute('aria-hidden', 'true');
-
-      const modal = document.getElementById('nexobar-compra');
-      modal.classList.add('is-open');
-      modal.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
-      document.getElementById('compra-close').focus({ preventScroll: true });
-
-      if (planesCargados) renderPlanesCompra();
-      else cargarPlanes();
-    }
-
-    function elegirPlan(base) {
-      openCompra(cicloPlanes === 'anual' ? `${base}_anual` : base);
-    }
-
-    function closeCompra() {
-      const modal = document.getElementById('nexobar-compra');
-      if (!modal.classList.contains('is-open')) return;
-
-      modal.classList.remove('is-open');
-      modal.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-
-      if (compraTrigger && document.body.contains(compraTrigger)) {
-        compraTrigger.focus({ preventScroll: true });
-      }
-    }
-
-    function setCompraStatus(message, type) {
-      const status = document.getElementById('compra-status');
-      if (!message) {
-        status.className = 'hidden mb-4 text-xs rounded-lg px-3 py-2';
-        status.textContent = '';
-        return;
-      }
-      const tone = type === 'error'
-        ? 'bg-rose-500/10 border border-rose-500/20 text-rose-300'
-        : 'bg-indigo-500/10 border border-indigo-500/20 text-indigo-200';
-      status.className = `mb-4 text-xs rounded-lg px-3 py-2 ${tone}`;
-      status.textContent = message;
-    }
-
-    async function cargarPlanes() {
-      const container = document.getElementById('compra-planes');
-      const submit = document.getElementById('compra-submit');
-      submit.disabled = true;
-
-      try {
-        const res = await fetch(NEXOBAR_COMPRA_API);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const { planes } = await res.json();
-        if (!planes || !planes.length) throw new Error('Sin planes activos');
-
-        planesNexobar = planes;
-        planesCargados = true;
-        renderPlanesCompra();
-      } catch (err) {
-        console.error('No se pudieron cargar los planes de NexoBar', err);
-        container.innerHTML = `
-          <p class="sm:col-span-2 text-xs text-slate-400 rounded-xl border border-white/10 bg-obsidian-900 p-4">
-            La compra en línea no está disponible en este momento.
-            <a href="https://wa.me/573052484278?text=${encodeURIComponent('Hola Netxpremium! Quiero adquirir NexoBar POS para mi bar.')}" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 font-semibold">Escríbenos por WhatsApp</a>
-            y te ayudamos con la compra.
-          </p>`;
-      }
-    }
-
-    function marcarCiclo(btn, activo) {
-      btn.setAttribute('aria-pressed', String(activo));
-      btn.classList.toggle('bg-indigo-600', activo);
-      btn.classList.toggle('text-white', activo);
-      btn.classList.toggle('shadow-md', activo);
-      btn.classList.toggle('text-slate-400', !activo);
-      btn.classList.toggle('hover:text-white', !activo);
-    }
-
-    function setCicloCompra(ciclo) {
-      // Conserva el plan elegido (Básico o Pro) al cambiar de ciclo
-      const actual = document.querySelector('#compra-planes input[name="plan"]:checked');
-      const base = actual ? actual.value.replace(/_anual$/, '') : null;
-      compraCiclo = ciclo;
-      planPreseleccionado = base ? (ciclo === 'anual' ? `${base}_anual` : base) : null;
-      if (planesCargados) renderPlanesCompra();
-    }
-
-    function renderPlanesCompra() {
-      const container = document.getElementById('compra-planes');
-      const submit = document.getElementById('compra-submit');
-
-      document.querySelectorAll('[data-compra-ciclo]').forEach(btn => {
-        marcarCiclo(btn, btn.dataset.compraCiclo === compraCiclo);
-      });
-
-      const planes = planesNexobar.filter(plan => (plan.ciclo || 'mensual') === compraCiclo);
-      if (!planes.length) {
-        container.innerHTML = `
-          <p class="sm:col-span-2 text-xs text-slate-400 rounded-xl border border-white/10 bg-obsidian-900 p-4">
-            El pago anual aún no está disponible en línea.
-            <a href="https://wa.me/573052484278?text=${encodeURIComponent('Hola Netxpremium! Quiero el plan anual de NexoBar POS.')}" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 font-semibold">Escríbenos por WhatsApp</a>
-            y te ayudamos con la compra.
-          </p>`;
-        submit.disabled = true;
-        actualizarTotalCompra();
-        return;
-      }
-
-      const seleccionado = planes.some(plan => plan.id === planPreseleccionado) ? planPreseleccionado : planes[0].id;
-
-      container.innerHTML = planes.map(plan => `
-          <label class="relative cursor-pointer">
-            <input type="radio" name="plan" value="${escapeHtml(plan.id)}" data-precio="${Number(plan.precio_cop)}" ${plan.id === seleccionado ? 'checked' : ''} required onchange="actualizarTotalCompra()" class="peer sr-only">
-            <div class="h-full p-4 rounded-xl bg-obsidian-900 border border-white/10 peer-checked:border-indigo-500 peer-checked:bg-indigo-500/10 peer-focus-visible:ring-2 peer-focus-visible:ring-sky-400 hover:border-white/20 transition-all">
-              <span class="block text-sm font-bold text-white">${escapeHtml(plan.nombre)}</span>
-              <span class="block text-lg font-mono font-bold text-indigo-300 mt-1">$ ${Number(plan.precio_cop).toLocaleString('es-CO')} <span class="text-[10px] text-slate-500">COP</span></span>
-              ${plan.descripcion ? `<span class="block text-[11px] text-slate-400 mt-1">${escapeHtml(plan.descripcion)}</span>` : ''}
-              <ul class="mt-3 space-y-1 text-[11px] text-slate-400">
-                ${(plan.caracteristicas || []).map(c => `<li class="flex gap-1.5"><span class="text-emerald-400">✓</span><span>${escapeHtml(c)}</span></li>`).join('')}
-              </ul>
-            </div>
-          </label>
-        `).join('');
-
-      submit.disabled = false;
-      actualizarTotalCompra();
-    }
-
-    // Sección Planes: alterna precios entre mensual y anual
-    let cicloPlanes = 'mensual';
-
-    function setCicloPlanes(ciclo) {
-      cicloPlanes = ciclo;
-      const anual = ciclo === 'anual';
-
-      document.querySelectorAll('[data-ciclo-btn]').forEach(btn => {
-        marcarCiclo(btn, btn.dataset.cicloBtn === ciclo);
-      });
-
-      document.querySelectorAll('[data-plan-card]').forEach(card => {
-        card.querySelector('[data-precio]').textContent = `$ ${anual ? card.dataset.anual : card.dataset.mensual}`;
-        card.querySelector('[data-periodo]').textContent = anual ? 'COP / año' : 'COP / mes';
-        card.querySelector('[data-ahorro-texto]').innerHTML = anual
-          ? `<span class="inline-flex flex-wrap items-center gap-x-1.5 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-semibold">Ahorras $${card.dataset.ahorro} COP - ¡2 meses gratis!</span><span class="block mt-1.5">Equivale a $${card.dataset.equivale} COP al mes.</span>`
-          : 'Facturación mensual. Cancela cuando quieras.';
-      });
-    }
-
-    function actualizarTotalCompra() {
-      const plan = document.querySelector('#compra-planes input[name="plan"]:checked');
-      const label = document.getElementById('compra-submit-label');
-      label.textContent = plan
-        ? `Ir a pagar $ ${Number(plan.dataset.precio).toLocaleString('es-CO')} COP`
-        : 'Ir a pagar';
-    }
-
-    async function submitCompra(event) {
-      event.preventDefault();
-      const form = event.target;
-      const submit = document.getElementById('compra-submit');
-      const plan = form.querySelector('input[name="plan"]:checked');
-
-      const payload = {
-        plan_id: plan ? plan.value : '',
-        comercio: form.comercio.value,
-        ciudad: form.ciudad.value,
-        documento_tipo: form.documento_tipo.value,
-        documento: form.documento.value,
-        responsable: form.responsable.value,
-        email: form.email.value,
-        telefono: form.telefono.value,
-        acepta_terminos: document.getElementById('compra-terminos').checked,
-        acepta_marketing: document.getElementById('compra-marketing').checked,
-      };
-
-      submit.disabled = true;
-      setCompraStatus('Preparando tu pago seguro…');
-
-      try {
-        const res = await fetch(NEXOBAR_COMPRA_API, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok || !data.checkout_url) throw new Error(data.error || 'No pudimos iniciar el pago. Intenta de nuevo.');
-
-        setCompraStatus('Te estamos llevando a Wompi para completar el pago…');
-        window.location.href = data.checkout_url;
-      } catch (err) {
-        // TypeError = fallo de red ("Failed to fetch"), mejor un mensaje en español
-        const message = err instanceof TypeError ? 'No pudimos conectarnos. Revisa tu internet e intenta de nuevo.' : err.message;
-        setCompraStatus(message, 'error');
-        submit.disabled = false;
-      }
-    }
 
     function setCurrency(curr) {
       currentCurrency = curr;
@@ -1750,10 +973,9 @@
       lucide.createIcons();
       initCookieBanner();
       onProjectTypeChange();
-      goToSlide(0);
 
-      // pago.html enlaza a index.html?comprar=1 para reintentar una compra rechazada
-      if (new URLSearchParams(location.search).has('comprar')) openCompra();
+      // Enlaces antiguos a index.html?comprar=1 ahora abren la compra en la página de NexoBar
+      if (new URLSearchParams(location.search).has('comprar')) location.replace('nexobar.html?comprar=1');
     });
   </script>
 </body>
