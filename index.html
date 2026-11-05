@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Netxpremium | Software a la Medida, Sistemas POS & Desarrollo Web</title>
-  <meta name="description" content="Netxpremium - Ingeniería de software, desarrollo web de alto rendimiento y creadores de NexoBar POS.">
+  <title>Netxpremium | Sistemas POS para cada tipo de negocio en Colombia</title>
+  <meta name="description" content="Sistemas POS para bares, restaurantes, tiendas y minimercados en Colombia: venden sin internet, con precios en pesos y soporte por WhatsApp. Además, software a la medida con Netxpremium Studio.">
 
   <script defer src="https://unpkg.com/lucide@1.57.0/dist/umd/lucide.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -169,9 +169,18 @@
     .apps-texto { flex: 1; min-width: 0; }
     .apps-movil { padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
     .apps-movil .apps-item { padding: 8px 0; }
+
+    /* «Probar demo» del menú: botón blanco con su propio desplegable alineado a la derecha */
+    .apps-toggle.demo-toggle { background: #fff; color: #06070A; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; letter-spacing: .025em; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, .3); }
+    .apps-toggle.demo-toggle:hover, .apps-toggle.demo-toggle[aria-expanded="true"] { background: #E2E8F0; color: #06070A; }
+    .apps-panel.apps-panel-derecha { left: auto; right: 0; width: 320px; transform: translateY(-6px); }
+    .apps-menu.is-open .apps-panel.apps-panel-derecha { transform: none; }
+
+    /* Tarjetas de NexoPos y Nexo Retail destacadas (acento naranja sin cambiar el CSS compilado) */
+    .np-borde { border-color: rgba(255, 140, 50, 0.5) !important; }
   </style>
   <!-- Después del <style> propio: las utilidades de Tailwind deben ganar en la cascada, como con el CDN -->
-  <link rel="stylesheet" href="/assets/app.css?v=0869f6db61">
+  <link rel="stylesheet" href="/assets/app.css?v=1e6772ea50">
 </head>
 <body class="overflow-x-hidden selection:bg-indigo-500 selection:text-white">
 
@@ -188,17 +197,17 @@
           <span class="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
             Netxpremium <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
           </span>
-          <span class="text-[10px] text-slate-400 uppercase tracking-widest font-mono">Engineering & Systems</span>
+          <span class="text-[10px] text-slate-400 uppercase tracking-widest font-mono">Sistemas para tu negocio</span>
         </div>
       </a>
 
-      <div class="nav-links hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
-        <div class="apps-menu" id="apps-menu">
+      <div class="nav-links hidden md:flex items-center gap-7 text-sm font-medium text-slate-300">
+        <div class="apps-menu" data-menu>
           <button type="button" id="apps-toggle" class="apps-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="apps-panel">
-            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span> Apps para tu negocio <i data-lucide="chevron-down" class="w-4 h-4"></i>
+            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span> Sistemas <i data-lucide="chevron-down" class="w-4 h-4"></i>
           </button>
           <div id="apps-panel" class="apps-panel" role="menu" aria-labelledby="apps-toggle">
-            <div class="apps-titulo">Encuentra la app para tu negocio</div>
+            <div class="apps-titulo">Encuentra el sistema para tu negocio</div>
             <a href="/nexobar" class="apps-item" role="menuitem">
               <span class="apps-ico" style="color:#818CF8;background:rgba(99,102,241,.12)"><i data-lucide="wine" class="w-5 h-5"></i></span>
               <span class="apps-texto">
@@ -232,31 +241,53 @@
             </div>
             <div class="apps-pie">
               <span>¿No ves tu tipo de negocio?</span>
-              <a href="#cotizador">Lo creamos a la medida →</a>
+              <a href="#studio">Lo creamos a la medida →</a>
             </div>
           </div>
         </div>
-        <a href="#soluciones" class="hover:text-white transition-colors">Soluciones</a>
-        <a href="#nexobar" class="hover:text-white transition-colors">Caso de éxito</a>
-        <a href="#arquitectura" class="hover:text-white transition-colors">Arquitectura</a>
-        <a href="#cotizador" class="hover:text-white transition-colors">Cotizador</a>
+        <a href="/planes" class="hover:text-white transition-colors">Planes</a>
+        <a href="#studio" class="hover:text-white transition-colors">Studio</a>
+        <a href="#contacto" class="hover:text-white transition-colors">Contacto</a>
       </div>
 
-      <div class="hidden md:flex items-center gap-4">
-        <div class="flex items-center bg-obsidian-900 border border-white/10 rounded-lg p-1 text-xs font-mono">
-          <button id="btn-cop" onclick="setCurrency('COP')" class="px-2.5 py-1 rounded bg-indigo-600 text-white font-semibold transition-all">COP</button>
-          <button id="btn-usd" onclick="setCurrency('USD')" class="px-2.5 py-1 rounded text-slate-400 hover:text-white transition-all">USD</button>
-        </div>
-
+      <div class="hidden md:flex items-center gap-3">
         <button type="button" onclick="openAppSwitcher()" aria-haspopup="dialog" aria-controls="app-switcher" class="border border-white/10 text-slate-300 hover:text-white hover:border-indigo-500/50 hover:bg-white/5 transition-all px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
           <i data-lucide="layout-grid" class="w-4 h-4"></i>
           <span>Ingresar</span>
         </button>
 
-        <a href="#cotizador" class="px-4 py-2 rounded-lg bg-white text-obsidian-950 font-semibold text-xs tracking-wide hover:bg-slate-200 transition-all shadow-md flex items-center gap-2">
-          <span>Iniciar Proyecto</span>
-          <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
-        </a>
+        <div class="apps-menu" data-menu>
+          <button type="button" id="demo-toggle" class="apps-toggle demo-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="demo-panel">
+            Probar demo <i data-lucide="chevron-down" class="w-4 h-4"></i>
+          </button>
+          <div id="demo-panel" class="apps-panel apps-panel-derecha" role="menu" aria-labelledby="demo-toggle">
+            <div class="apps-titulo">Prueba gratis, sin registrarte</div>
+            <a href="https://nexobar.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="apps-item" role="menuitem">
+              <span class="apps-ico" style="color:#818CF8;background:rgba(99,102,241,.12)"><i data-lucide="wine" class="w-5 h-5"></i></span>
+              <span class="apps-texto">
+                <span class="apps-nombre">Demo de NexoBar</span>
+                <span class="apps-negocio">Un bar de ejemplo</span>
+              </span>
+              <i data-lucide="external-link" class="apps-flecha w-4 h-4"></i>
+            </a>
+            <a href="https://nexopos.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="apps-item" role="menuitem">
+              <img src="/assets/nexopos/logo.svg" alt="" width="40" height="40" class="apps-ico">
+              <span class="apps-texto">
+                <span class="apps-nombre">Demo de NexoPos</span>
+                <span class="apps-negocio">Un restaurante de ejemplo</span>
+              </span>
+              <i data-lucide="external-link" class="apps-flecha w-4 h-4"></i>
+            </a>
+            <a href="https://nexoretail.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="apps-item" role="menuitem">
+              <img src="/assets/nexoretail/logo.svg" alt="" width="40" height="40" class="apps-ico">
+              <span class="apps-texto">
+                <span class="apps-nombre">Demo de Nexo Retail</span>
+                <span class="apps-negocio">Un minimercado de ejemplo</span>
+              </span>
+              <i data-lucide="external-link" class="apps-flecha w-4 h-4"></i>
+            </a>
+          </div>
+        </div>
       </div>
 
       <button onclick="toggleDrawer()" aria-label="Abrir menú" class="md:hidden text-slate-300 hover:text-white p-2">
@@ -266,7 +297,7 @@
   </nav>
 
   <div id="mobile-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden transition-opacity duration-300">
-    <div class="w-4/5 max-w-xs h-full bg-obsidian-900 border-r border-white/10 p-6 flex flex-col justify-between">
+    <div class="w-4/5 max-w-xs h-full overflow-y-auto bg-obsidian-900 border-r border-white/10 p-6 flex flex-col justify-between gap-8">
       <div>
         <div class="flex items-center justify-between pb-6 border-b border-white/10">
           <span class="font-bold text-white text-lg">Netxpremium</span>
@@ -275,12 +306,12 @@
           </button>
         </div>
         <div class="flex flex-col gap-5 mt-6 text-slate-300 font-medium">
-          <a href="#soluciones" onclick="toggleDrawer()" class="hover:text-white">Soluciones</a>
-          <a href="#nexobar" onclick="toggleDrawer()" class="hover:text-white">Caso de éxito</a>
-          <a href="#arquitectura" onclick="toggleDrawer()" class="hover:text-white">Arquitectura</a>
-          <a href="#cotizador" onclick="toggleDrawer()" class="hover:text-white">Cotizador</a>
+          <a href="#sistemas" onclick="toggleDrawer()" class="hover:text-white">Sistemas</a>
+          <a href="/planes" class="hover:text-white">Planes</a>
+          <a href="#studio" onclick="toggleDrawer()" class="hover:text-white">Studio</a>
+          <a href="#contacto" onclick="toggleDrawer()" class="hover:text-white">Contacto</a>
           <div class="apps-movil">
-            <div class="apps-titulo" style="padding:0 0 4px">Apps para tu negocio</div>
+            <div class="apps-titulo" style="padding:0 0 4px">Sistemas</div>
             <a href="/nexobar" class="apps-item" role="menuitem">
               <span class="apps-ico" style="color:#818CF8;background:rgba(99,102,241,.12)"><i data-lucide="wine" class="w-5 h-5"></i></span>
               <span class="apps-texto">
@@ -316,18 +347,14 @@
         </div>
       </div>
       <div class="pt-6 border-t border-white/10 flex flex-col gap-4">
+        <a href="#sistemas" onclick="toggleDrawer()" class="w-full text-center py-2.5 rounded-lg bg-white text-obsidian-950 font-semibold text-xs">
+          Probar demo gratis
+        </a>
         <button type="button" onclick="toggleDrawer(); openAppSwitcher();" aria-haspopup="dialog" aria-controls="app-switcher" class="w-full py-2.5 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:border-indigo-500/50 hover:bg-white/5 transition-all font-medium text-xs flex items-center justify-center gap-2">
           <i data-lucide="layout-grid" class="w-4 h-4"></i>
-          <span>Ingresar a las Apps</span>
+          <span>Ingresar a mi sistema</span>
         </button>
-        <div class="flex items-center justify-between bg-obsidian-850 p-2 rounded-lg text-xs font-mono">
-          <span class="text-slate-400">Moneda:</span>
-          <div class="flex gap-2">
-            <button id="btn-cop-mobile" onclick="setCurrency('COP'); toggleDrawer();" class="px-2 py-1 bg-indigo-600 rounded text-white">COP</button>
-            <button id="btn-usd-mobile" onclick="setCurrency('USD'); toggleDrawer();" class="px-2 py-1 bg-obsidian-700 rounded text-slate-300">USD</button>
-          </div>
-        </div>
-        <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="w-full text-center py-2.5 rounded-lg bg-indigo-600 text-white font-medium text-xs">
+        <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="w-full text-center py-2.5 rounded-lg bg-emerald-600 text-white font-medium text-xs">
           Hablar por WhatsApp
         </a>
       </div>
@@ -475,226 +502,341 @@
     </div>
   </div>
 
-  <section class="relative pt-24 pb-20 px-6 md:px-12 max-w-7xl mx-auto text-center md:text-left">
+  <section class="relative pt-16 sm:pt-24 pb-16 px-6 md:px-12 max-w-7xl mx-auto">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-      <div class="lg:col-span-7">
+      <div class="lg:col-span-7 text-center md:text-left">
         <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 text-xs font-mono mb-6">
-          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-          <span>Desarrollo de Software de Alto Nivel</span>
+          <i data-lucide="store" class="w-3.5 h-3.5"></i>
+          <span>Sistemas POS para comercios en Colombia</span>
         </div>
-        
+
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-6">
-          Sistemas a la medida y software comercial <span class="bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">que no fallan.</span>
+          El sistema hecho para <span class="bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">tu tipo de negocio.</span>
         </h1>
 
-        <p class="text-base sm:text-lg text-slate-400 font-normal leading-relaxed mb-8 max-w-2xl">
-          Creamos sistemas de gestión empresarial, puntos de venta (POS) y landing pages de ultra-alta velocidad. Respaldados por arquitectura moderna, offline-first y sincronización en tiempo real.
+        <p class="text-base sm:text-lg text-slate-400 font-normal leading-relaxed mb-8 max-w-2xl mx-auto md:mx-0">
+          Bares, restaurantes, tiendas y minimercados: vende, cobra y controla tu negocio desde el computador, la tablet o el celular, aunque se caiga el internet.
         </p>
 
         <div class="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
-          <a href="#cotizador" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
-            <span>Cotizar mi Proyecto</span>
-            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          <a href="#sistemas" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
+            <span>Elige tu sistema</span>
+            <i data-lucide="arrow-down" class="w-4 h-4"></i>
           </a>
-          <a href="#nexobar" class="w-full sm:w-auto px-7 py-3.5 rounded-xl glass-card hover:bg-white/5 text-slate-300 font-semibold text-sm transition-all flex items-center justify-center gap-2">
-            <i data-lucide="layers" class="w-4 h-4"></i>
-            <span>Ver Caso Insignia</span>
+          <a href="https://wa.me/573052484278?text=Hola%20Netxpremium!%20Quiero%20saber%20qu%C3%A9%20sistema%20me%20sirve%20para%20mi%20negocio." target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-7 py-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 font-semibold text-sm transition-all flex items-center justify-center gap-2">
+            <i data-lucide="message-circle" class="w-4 h-4"></i>
+            <span>Hablar por WhatsApp</span>
           </a>
         </div>
+
+        <ul class="mt-8 flex flex-wrap items-center justify-center md:justify-start gap-x-5 gap-y-2 text-xs text-slate-400">
+          <li class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>Precios en pesos</li>
+          <li class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>Sin permanencia</li>
+          <li class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>Pago seguro con Wompi</li>
+          <li class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>Demo gratis sin registrarte</li>
+        </ul>
       </div>
 
-      <div class="lg:col-span-5 grid grid-cols-2 gap-4">
-        <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
-          <div class="w-10 h-10 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center mb-4">
-            <i data-lucide="wifi-off" class="w-5 h-5"></i>
-          </div>
+      <div class="lg:col-span-5 grid grid-cols-1 gap-4">
+        <div class="glass-card p-5 rounded-2xl flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center shrink-0"><i data-lucide="wifi-off" class="w-5 h-5"></i></div>
           <div>
-            <div class="text-2xl font-bold font-mono text-white">0% Caídas</div>
-            <p class="text-xs text-slate-400 mt-1">Arquitectura Offline-First que sigue cobrando sin internet.</p>
+            <div class="text-base font-bold text-white">Sigue vendiendo sin internet</div>
+            <p class="text-sm text-slate-400 mt-1">Todo se guarda en tu equipo y se sincroniza solo cuando vuelve la conexión.</p>
           </div>
         </div>
-
-        <div class="glass-card p-6 rounded-2xl flex flex-col justify-between">
-          <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4">
-            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
-          </div>
+        <div class="glass-card p-5 rounded-2xl flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0"><i data-lucide="refresh-cw" class="w-5 h-5"></i></div>
           <div>
-            <div class="text-2xl font-bold font-mono text-white">&lt; 100ms</div>
-            <p class="text-xs text-slate-400 mt-1">Sincronización instantánea entre cajas y celulares.</p>
+            <div class="text-base font-bold text-white">Lo vendido aparece al instante en tus otras cajas</div>
+            <p class="text-sm text-slate-400 mt-1">Varias cajas y celulares trabajando al tiempo.</p>
           </div>
         </div>
-
-        <div class="glass-card p-6 rounded-2xl col-span-2 flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-              <i data-lucide="shield-check" class="w-5 h-5"></i>
-            </div>
-            <div>
-              <div class="text-sm font-semibold text-white">Cero Licenciamiento Forzado</div>
-              <p class="text-xs text-slate-400">Software tuyo, optimizado y sin cargos ocultos.</p>
-            </div>
+        <div class="glass-card p-5 rounded-2xl flex items-start gap-4">
+          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0"><i data-lucide="badge-dollar-sign" class="w-5 h-5"></i></div>
+          <div>
+            <div class="text-base font-bold text-white">Precios en pesos colombianos</div>
+            <p class="text-sm text-slate-400 mt-1">Pagas mes a mes, sin contratos de permanencia.</p>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="nexobar" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-7xl mx-auto">
-    <div class="glass-panel rounded-3xl border border-white/10 glow-indigo p-6 sm:p-8 md:p-12 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-      <div class="text-center lg:text-left">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-mono mb-4">
-          CASO DE ÉXITO INSIGNIA
+  <!-- SELECTOR DE SISTEMAS: para agregar un sistema nuevo, copia una tarjeta (la cuadrícula se acomoda sola) -->
+  <section id="sistemas" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-mono mb-4">
+        SISTEMAS NEXO
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">¿Qué negocio tienes?</h2>
+      <p class="text-slate-400 text-sm sm:text-base mt-3">Elige tu sistema. Cada uno está hecho para la forma en que se vende en tu negocio.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <article id="nexobar" class="scroll-mt-24 glass-card rounded-2xl p-6 sm:p-7 flex flex-col">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0"><i data-lucide="wine" class="w-6 h-6"></i></div>
+          <div>
+            <h3 class="text-xl font-bold text-white">NexoBar</h3>
+            <p class="text-xs sm:text-sm text-slate-400">Para bares, gastrobares y discotecas que venden por unidad</p>
+          </div>
         </div>
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">NexoBar POS — Sistema Bar</h2>
-        <p class="text-slate-400 text-sm sm:text-base mt-4 leading-relaxed">
-          Diseñamos y desarrollamos desde cero un punto de venta para bares que venden por unidad. Hoy es un producto SaaS propio en producción, construido con la misma arquitectura que usamos en los proyectos de nuestros clientes.
-        </p>
-        <ul class="mt-6 space-y-3 text-sm text-slate-300 text-left max-w-md mx-auto lg:mx-0">
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Offline-first: sigue cobrando sin internet y sincroniza con la nube (Supabase).</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Caja, tablets y celulares sincronizados en tiempo real.</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Suscripciones con pago en línea integrado (Wompi) y alertas automáticas.</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Desplegado en el edge con Cloudflare para cargar rápido en cualquier red.</li>
+        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1">
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Cobro rápido por producto y por mesa</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Turnos y cierre de caja con cuadre</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Inventario de bebidas que se descuenta solo</li>
         </ul>
-        <div class="mt-8 flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
-          <a href="/nexobar" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2">
-            <span>Conoce NexoBar</span>
+        <p class="mt-6 text-sm text-slate-400">Desde <span class="font-mono font-bold text-white text-base">$49.990</span> COP al mes</p>
+        <div class="mt-4 grid grid-cols-2 gap-2">
+          <a href="/nexobar" class="bg-indigo-600 hover:bg-indigo-500 text-white inline-flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold transition-all">
+            Conocer
             <i data-lucide="arrow-right" class="w-4 h-4"></i>
           </a>
-          <a href="https://nexobar.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-6 py-3 rounded-xl glass-card hover:bg-white/5 text-slate-300 font-semibold text-sm transition-all flex items-center justify-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>Probar demo en vivo</span>
+          <a href="https://nexobar.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-1.5 py-3 rounded-xl border border-white/10 text-sm font-semibold text-slate-200 hover:bg-white/5 transition-all">
+            Probar demo
           </a>
         </div>
-      </div>
+      </article>
+      <article id="nexopos" class="scroll-mt-24 glass-card rounded-2xl p-6 sm:p-7 flex flex-col">
+        <div class="flex items-center gap-3">
+          <img src="/assets/nexopos/logo.svg" alt="" width="48" height="48" class="w-12 h-12 rounded-xl shrink-0">
+          <div>
+            <h3 class="text-xl font-bold text-white">NexoPos</h3>
+            <p class="text-xs sm:text-sm text-slate-400">Para restaurantes y cafeterías</p>
+          </div>
+        </div>
+        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1">
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Comandas impresas a cocina y barra</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Recetas que descuentan tus insumos</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Propina voluntaria separada en el cierre</li>
+        </ul>
+        <p class="mt-6 text-sm text-slate-400">Desde <span class="font-mono font-bold text-white text-base">$49.990</span> COP al mes</p>
+        <div class="mt-4 grid grid-cols-2 gap-2">
+          <a href="/nexopos" class="np-btn inline-flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold transition-all">
+            Conocer
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+          <a href="https://nexopos.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-1.5 py-3 rounded-xl border border-white/10 text-sm font-semibold text-slate-200 hover:bg-white/5 transition-all">
+            Probar demo
+          </a>
+        </div>
+      </article>
+      <article id="nexoretail" class="scroll-mt-24 glass-card rounded-2xl p-6 sm:p-7 flex flex-col">
+        <div class="flex items-center gap-3">
+          <img src="/assets/nexoretail/logo.svg" alt="" width="48" height="48" class="w-12 h-12 rounded-xl shrink-0">
+          <div>
+            <h3 class="text-xl font-bold text-white">Nexo Retail</h3>
+            <p class="text-xs sm:text-sm text-slate-400">Para tiendas de barrio, minimercados, supermercados, petshops y licoreras</p>
+          </div>
+        </div>
+        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1">
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Lector de código de barras y ventas por peso</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Fiado con cupo por cliente</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Inventario con compras, mermas y conteos</li>
+        </ul>
+        <p class="mt-6 text-sm text-slate-400">Desde <span class="font-mono font-bold text-white text-base">$49.900</span> COP al mes</p>
+        <div class="mt-4 grid grid-cols-2 gap-2">
+          <a href="/nexoretail" class="np-btn inline-flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold transition-all">
+            Conocer
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+          <a href="https://nexoretail.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-1.5 py-3 rounded-xl border border-white/10 text-sm font-semibold text-slate-200 hover:bg-white/5 transition-all">
+            Probar demo
+          </a>
+        </div>
+      </article>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div class="glass-card p-5 rounded-2xl">
-          <div class="w-10 h-10 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center mb-4"><i data-lucide="wifi-off" class="w-5 h-5"></i></div>
-          <div class="text-base font-bold text-white">Offline-first</div>
-          <p class="text-xs text-slate-400 mt-1">Ventas guardadas localmente y sincronizadas al volver la red.</p>
+      <a href="https://wa.me/573052484278?text=Hola%20Netxpremium!%20Mi%20negocio%20no%20est%C3%A1%20en%20la%20lista.%20Vendo%3A%20" target="_blank" rel="noopener noreferrer" class="glass-card rounded-2xl p-6 sm:col-span-2 lg:col-span-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-dashed !border-white/15">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0"><i data-lucide="message-circle" class="w-6 h-6"></i></div>
+          <div>
+            <h3 class="text-base font-bold text-white">¿Tu negocio no está aquí?</h3>
+            <p class="text-sm text-slate-400 mt-0.5">Cuéntanos qué vendes y te decimos cuál te sirve, o si lo construimos.</p>
+          </div>
         </div>
-        <div class="glass-card p-5 rounded-2xl">
-          <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4"><i data-lucide="refresh-cw" class="w-5 h-5"></i></div>
-          <div class="text-base font-bold text-white">Tiempo real</div>
-          <p class="text-xs text-slate-400 mt-1">Múltiples dispositivos operando el mismo turno.</p>
+        <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-400 shrink-0">
+          Escríbenos por WhatsApp
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </span>
+      </a>
+    </div>
+  </section>
+
+  <!-- LO QUE TODOS LOS SISTEMAS TRAEN -->
+  <section id="incluido" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400 text-xs font-mono mb-4">
+        INCLUIDO EN TODOS
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Lo que todos los sistemas Nexo traen</h2>
+      <p class="text-slate-400 text-sm sm:text-base mt-3">Elijas el que elijas, tu negocio queda con lo básico bien resuelto.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="glass-card rounded-2xl p-5 flex items-start gap-4">
+        <div class="w-10 h-10 rounded-lg text-sky-400 bg-sky-500/10 flex items-center justify-center shrink-0"><i data-lucide="wifi-off" class="w-5 h-5"></i></div>
+        <div>
+          <h3 class="text-base font-bold text-white">Sigue vendiendo sin internet</h3>
+          <p class="text-sm text-slate-400 mt-1">Todo se guarda en tu equipo y se sincroniza solo cuando vuelve la conexión.</p>
         </div>
-        <div class="glass-card p-5 rounded-2xl">
-          <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4"><i data-lucide="credit-card" class="w-5 h-5"></i></div>
-          <div class="text-base font-bold text-white">Pagos en línea</div>
-          <p class="text-xs text-slate-400 mt-1">Compra y verificación automática del pago con webhooks firmados.</p>
+      </div>
+      <div class="glass-card rounded-2xl p-5 flex items-start gap-4">
+        <div class="w-10 h-10 rounded-lg text-indigo-400 bg-indigo-500/10 flex items-center justify-center shrink-0"><i data-lucide="monitor-smartphone" class="w-5 h-5"></i></div>
+        <div>
+          <h3 class="text-base font-bold text-white">Varias cajas y celulares al tiempo</h3>
+          <p class="text-sm text-slate-400 mt-1">Lo que vendes en una caja aparece al instante en las demás (según el plan).</p>
         </div>
-        <div class="glass-card p-5 rounded-2xl">
-          <div class="w-10 h-10 rounded-lg bg-purple-500/10 text-purple-300 flex items-center justify-center mb-4"><i data-lucide="layers" class="w-5 h-5"></i></div>
-          <div class="text-base font-bold text-white">SaaS propio</div>
-          <p class="text-xs text-slate-400 mt-1">Planes mensuales y anuales para bares en Colombia.</p>
+      </div>
+      <div class="glass-card rounded-2xl p-5 flex items-start gap-4">
+        <div class="w-10 h-10 rounded-lg text-emerald-400 bg-emerald-500/10 flex items-center justify-center shrink-0"><i data-lucide="smartphone" class="w-5 h-5"></i></div>
+        <div>
+          <h3 class="text-base font-bold text-white">Tus ventas en el celular</h3>
+          <p class="text-sm text-slate-400 mt-1">Revisa cuánto has vendido desde el celular, estés donde estés.</p>
+        </div>
+      </div>
+      <div class="glass-card rounded-2xl p-5 flex items-start gap-4">
+        <div class="w-10 h-10 rounded-lg text-amber-300 bg-amber-500/10 flex items-center justify-center shrink-0"><i data-lucide="boxes" class="w-5 h-5"></i></div>
+        <div>
+          <h3 class="text-base font-bold text-white">Inventario y reportes</h3>
+          <p class="text-sm text-slate-400 mt-1">El stock se descuenta al vender, con cierres de caja y reportes de ventas.</p>
+        </div>
+      </div>
+      <div class="glass-card rounded-2xl p-5 flex items-start gap-4">
+        <div class="w-10 h-10 rounded-lg text-purple-300 bg-purple-500/10 flex items-center justify-center shrink-0"><i data-lucide="user-cog" class="w-5 h-5"></i></div>
+        <div>
+          <h3 class="text-base font-bold text-white">Usuarios con roles y PIN</h3>
+          <p class="text-sm text-slate-400 mt-1">Cada persona entra con su PIN y ve solo lo que le corresponde (según el plan).</p>
+        </div>
+      </div>
+      <div class="glass-card rounded-2xl p-5 flex items-start gap-4">
+        <div class="w-10 h-10 rounded-lg text-sky-400 bg-sky-500/10 flex items-center justify-center shrink-0"><i data-lucide="printer" class="w-5 h-5"></i></div>
+        <div>
+          <h3 class="text-base font-bold text-white">Impresora térmica</h3>
+          <p class="text-sm text-slate-400 mt-1">Imprime tus tickets en la impresora térmica de tu caja.</p>
+        </div>
+      </div>
+      <div class="glass-card rounded-2xl p-5 flex items-start gap-4">
+        <div class="w-10 h-10 rounded-lg text-emerald-400 bg-emerald-500/10 flex items-center justify-center shrink-0"><i data-lucide="badge-dollar-sign" class="w-5 h-5"></i></div>
+        <div>
+          <h3 class="text-base font-bold text-white">Precios en pesos colombianos</h3>
+          <p class="text-sm text-slate-400 mt-1">Pagas mes a mes, sin contratos de permanencia, con pago seguro por Wompi.</p>
+        </div>
+      </div>
+      <div class="glass-card rounded-2xl p-5 flex items-start gap-4">
+        <div class="w-10 h-10 rounded-lg text-emerald-400 bg-emerald-500/10 flex items-center justify-center shrink-0"><i data-lucide="message-circle" class="w-5 h-5"></i></div>
+        <div>
+          <h3 class="text-base font-bold text-white">Soporte en Colombia por WhatsApp</h3>
+          <p class="text-sm text-slate-400 mt-1">Te atiende el mismo equipo que hace el sistema.</p>
+        </div>
+      </div>
+      <div class="glass-card rounded-2xl p-5 flex items-start gap-4">
+        <div class="w-10 h-10 rounded-lg text-amber-300 bg-amber-500/10 flex items-center justify-center shrink-0"><i data-lucide="receipt-text" class="w-5 h-5"></i></div>
+        <div>
+          <h3 class="text-base font-bold text-white flex flex-wrap items-center gap-2">Facturación electrónica DIAN <span class="px-2 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider bg-amber-500/10 text-amber-300 border border-amber-500/25">Próximamente</span></h3>
+          <p class="text-sm text-slate-400 mt-1">Documento equivalente POS y factura electrónica desde la misma caja. Pregúntanos por la fecha.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- SEGUNDO PRODUCTO: NEXOPOS -->
-  <section id="nexopos" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-7xl mx-auto">
-    <div class="glass-panel rounded-3xl border border-white/10 np-glow p-6 sm:p-8 md:p-12 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-      <div class="text-center lg:text-left">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full np-chip text-xs font-mono mb-4">
-          NUEVO PRODUCTO
-        </div>
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">NexoPos — Restaurantes y Cafeterías</h2>
-        <p class="text-slate-400 text-sm sm:text-base mt-4 leading-relaxed">
-          Nuestro punto de venta para negocios que preparan lo que venden. Nació de NexoBar y suma lo que necesita una cocina: comandas por estación, recetas e insumos, adiciones con precio y propina separada.
-        </p>
-        <ul class="mt-6 space-y-3 text-sm text-slate-300 text-left max-w-md mx-auto lg:mx-0">
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Comandas impresas a cocina y barra: envía solo lo nuevo e imprime anulaciones.</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Recetas que descuentan insumos, con costo real por plato y alertas de stock.</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Adiciones y modificadores con precio, y propina del 10 % separada en el cierre.</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Sin internet, varias cajas y meseros, plano del salón, reportes y Ticket Z.</li>
-        </ul>
-        <div class="mt-8 flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
-          <a href="/nexopos" class="w-full sm:w-auto px-6 py-3 rounded-xl np-btn font-semibold text-sm transition-all flex items-center justify-center gap-2">
-            <span>Conoce NexoPos</span>
-            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-          </a>
-          <a href="https://nexopos.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-6 py-3 rounded-xl glass-card hover:bg-white/5 text-slate-300 font-semibold text-sm transition-all flex items-center justify-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>Probar demo en vivo</span>
-          </a>
-        </div>
+  <!-- CÓMO EMPIEZAS -->
+  <section id="como-empiezas" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-6xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-mono mb-4">
+        CÓMO EMPIEZAS
       </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Empieza en tres pasos</h2>
+    </div>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div class="glass-card p-5 rounded-2xl">
-          <div class="w-10 h-10 rounded-lg np-icon flex items-center justify-center mb-4"><i data-lucide="printer" class="w-5 h-5"></i></div>
-          <div class="text-base font-bold text-white">Comandas</div>
-          <p class="text-xs text-slate-400 mt-1">Una por estación: cocina, barra o la que definas.</p>
-        </div>
-        <div class="glass-card p-5 rounded-2xl">
-          <div class="w-10 h-10 rounded-lg np-icon flex items-center justify-center mb-4"><i data-lucide="carrot" class="w-5 h-5"></i></div>
-          <div class="text-base font-bold text-white">Recetas</div>
-          <p class="text-xs text-slate-400 mt-1">Cada venta descuenta sus insumos y calcula el costo.</p>
-        </div>
-        <div class="glass-card p-5 rounded-2xl">
-          <div class="w-10 h-10 rounded-lg np-icon flex items-center justify-center mb-4"><i data-lucide="sliders-horizontal" class="w-5 h-5"></i></div>
-          <div class="text-base font-bold text-white">Adiciones</div>
-          <p class="text-xs text-slate-400 mt-1">Término, extras y «sin…», con su precio.</p>
-        </div>
-        <div class="glass-card p-5 rounded-2xl">
-          <div class="w-10 h-10 rounded-lg np-icon flex items-center justify-center mb-4"><i data-lucide="hand-coins" class="w-5 h-5"></i></div>
-          <div class="text-base font-bold text-white">Propina</div>
-          <p class="text-xs text-slate-400 mt-1">Sugerida al 10 % y separada de las ventas.</p>
-        </div>
+    <ol class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <li class="glass-card rounded-2xl p-6">
+        <span class="inline-flex w-9 h-9 rounded-full bg-indigo-600 text-white font-extrabold font-mono items-center justify-center">1</span>
+        <h3 class="text-base font-bold text-white mt-4">Eliges tu sistema y lo pruebas gratis</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">La demo trae un negocio de ejemplo para que vendas y cobres sin registrarte.</p>
+      </li>
+      <li class="glass-card rounded-2xl p-6">
+        <span class="inline-flex w-9 h-9 rounded-full bg-indigo-600 text-white font-extrabold font-mono items-center justify-center">2</span>
+        <h3 class="text-base font-bold text-white mt-4">Te lo configuramos con tus productos</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Pagas tu plan en línea, recibes tus datos de acceso y te ayudamos por WhatsApp a dejarlo listo.</p>
+      </li>
+      <li class="glass-card rounded-2xl p-6">
+        <span class="inline-flex w-9 h-9 rounded-full bg-indigo-600 text-white font-extrabold font-mono items-center justify-center">3</span>
+        <h3 class="text-base font-bold text-white mt-4">Vendes desde el primer día</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Usa el computador, la tablet o el celular que ya tienes.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- PLANES (resumen; el detalle está en /planes) -->
+  <section id="planes" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-5xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-mono mb-4">
+        PLANES Y PRECIOS
       </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Precios claros, en pesos</h2>
+      <p class="text-slate-400 text-sm sm:text-base mt-3">Pagas mes a mes, sin permanencia, y cambias de plan cuando crezcas.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <a href="/planes#nexobar" class="glass-card rounded-2xl p-6 flex flex-col">
+        <span class="text-sm font-bold text-white">NexoBar</span>
+        <span class="text-xs text-slate-400">Planes Básico y Pro</span>
+        <span class="mt-4 text-sm text-slate-400">Desde <span class="font-mono font-bold text-white text-lg">$49.990</span>/mes</span>
+        <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-300">Ver planes <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+      </a>
+      <a href="/planes#nexopos" class="glass-card rounded-2xl p-6 flex flex-col">
+        <span class="text-sm font-bold text-white">NexoPos</span>
+        <span class="text-xs text-slate-400">Planes Básico y Pro</span>
+        <span class="mt-4 text-sm text-slate-400">Desde <span class="font-mono font-bold text-white text-lg">$49.990</span>/mes</span>
+        <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold np-text">Ver planes <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+      </a>
+      <a href="/planes#nexoretail" class="glass-card rounded-2xl p-6 flex flex-col">
+        <span class="text-sm font-bold text-white">Nexo Retail</span>
+        <span class="text-xs text-slate-400">Planes Básico, Pro y Empresarial</span>
+        <span class="mt-4 text-sm text-slate-400">Desde <span class="font-mono font-bold text-white text-lg">$49.900</span>/mes</span>
+        <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold np-text">Ver planes <i data-lucide="arrow-right" class="w-4 h-4"></i></span>
+      </a>
+    </div>
+
+    <div class="mt-8 text-center">
+      <a href="/planes" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-obsidian-950 font-semibold text-sm hover:bg-slate-200 transition-all">
+        Ver todos los planes
+        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+      </a>
     </div>
   </section>
 
-  <section id="nexoretail" class="scroll-mt-24 pb-20 px-6 md:px-12 max-w-7xl mx-auto">
-    <div class="glass-panel rounded-3xl border border-white/10 np-glow p-6 sm:p-8 md:p-12 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-      <div class="text-center lg:text-left">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full np-chip text-xs font-mono mb-4">
-          NUEVO PRODUCTO
-        </div>
-        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Nexo Retail — Tiendas y Minimercados</h2>
-        <p class="text-slate-400 text-sm sm:text-base mt-4 leading-relaxed">
-          El punto de venta para tiendas de barrio, minimercados, supermercados, petshops y licoreras. Una caja rápida que guarda todo en tu equipo y se sincroniza sola cuando vuelve el internet.
-        </p>
-        <ul class="mt-6 space-y-3 text-sm text-slate-300 text-left max-w-md mx-auto lg:mx-0">
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Caja con lector de código de barras y ventas por peso con etiquetas de balanza.</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Fiado con cupo por cliente, abonos y estado de cuenta.</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Inventario que cuadra: compras, proveedores, mermas y conteos.</li>
-          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Panel del dueño en el celular con ventas, cajas abiertas y alertas.</li>
-        </ul>
-        <div class="mt-8 flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
-          <a href="/nexoretail" class="w-full sm:w-auto px-6 py-3 rounded-xl np-btn font-semibold text-sm transition-all flex items-center justify-center gap-2">
-            <span>Conoce Nexo Retail</span>
-            <i data-lucide="arrow-right" class="w-4 h-4"></i>
-          </a>
-          <a href="https://nexoretail.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-6 py-3 rounded-xl glass-card hover:bg-white/5 text-slate-300 font-semibold text-sm transition-all flex items-center justify-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>Probar demo en vivo</span>
-          </a>
-        </div>
-      </div>
+  <!-- PRUEBA SOCIAL: oculta hasta tener testimonios reales con permiso del cliente. No inventar nombres, cifras ni frases.
+  <section id="clientes" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Negocios que ya venden con Nexo</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <figure class="glass-card rounded-2xl p-6">
+        <blockquote class="text-sm text-slate-300 leading-relaxed">«[Frase real del cliente]»</blockquote>
+        <figcaption class="mt-4 text-xs text-slate-400"><strong class="text-white">[Nombre y cargo]</strong> · [Negocio], [Ciudad] · [Sistema]</figcaption>
+      </figure>
+    </div>
+  </section>
+  -->
 
-      <div class="grid grid-cols-2 gap-4">
-        <div class="glass-card p-5 rounded-2xl">
-          <div class="w-10 h-10 rounded-lg np-icon flex items-center justify-center mb-4"><i data-lucide="scan-barcode" class="w-5 h-5"></i></div>
-          <div class="text-base font-bold text-white">Lector</div>
-          <p class="text-xs text-slate-400 mt-1">Escanea y cobra; si falta el producto, lo creas ahí mismo.</p>
-        </div>
-        <div class="glass-card p-5 rounded-2xl">
-          <div class="w-10 h-10 rounded-lg np-icon flex items-center justify-center mb-4"><i data-lucide="scale" class="w-5 h-5"></i></div>
-          <div class="text-base font-bold text-white">Balanza</div>
-          <p class="text-xs text-slate-400 mt-1">Vende por kilo, libra, gramo o litro.</p>
-        </div>
-        <div class="glass-card p-5 rounded-2xl">
-          <div class="w-10 h-10 rounded-lg np-icon flex items-center justify-center mb-4"><i data-lucide="notebook-pen" class="w-5 h-5"></i></div>
-          <div class="text-base font-bold text-white">Fiado</div>
-          <p class="text-xs text-slate-400 mt-1">Cupo, saldo y abonos de cada cliente.</p>
-        </div>
-        <div class="glass-card p-5 rounded-2xl">
-          <div class="w-10 h-10 rounded-lg np-icon flex items-center justify-center mb-4"><i data-lucide="smartphone" class="w-5 h-5"></i></div>
-          <div class="text-base font-bold text-white">Celular</div>
-          <p class="text-xs text-slate-400 mt-1">Tus ventas en vivo, sin estar en la tienda.</p>
-        </div>
+  <!-- NETXPREMIUM STUDIO: desarrollo a la medida (servicio secundario) -->
+  <section id="studio" class="scroll-mt-24 pt-20 pb-4 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="glass-panel rounded-3xl border border-white/10 glow-indigo p-8 md:p-12 text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono mb-4">
+        NETXPREMIUM STUDIO
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">¿Necesitas algo que ningún sistema trae?</h2>
+      <p class="text-slate-400 text-sm sm:text-base mt-3 max-w-2xl mx-auto">Te lo construimos a la medida: software para tu empresa, sistemas de control y páginas web que convierten visitas en clientes. Lo cotizas en línea y lo hablamos por WhatsApp.</p>
+      <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <a href="#cotizador" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2">
+          <span>Cotizar mi proyecto</span>
+          <i data-lucide="arrow-down" class="w-4 h-4"></i>
+        </a>
+        <a href="#soluciones" class="w-full sm:w-auto px-6 py-3 rounded-xl glass-card hover:bg-white/5 text-slate-300 font-semibold text-sm transition-all flex items-center justify-center gap-2">
+          <span>Qué desarrollamos</span>
+        </a>
       </div>
     </div>
   </section>
@@ -894,6 +1036,13 @@
         </div>
         <h2 class="text-3xl font-extrabold text-white tracking-tight">Cotiza el alcance de tu solución</h2>
         <p class="text-slate-400 text-sm mt-2">Selecciona las funciones que requiere tu negocio para calcular un estimado de inversión inicial.</p>
+        <div class="mt-4 inline-flex items-center gap-2 text-xs font-mono">
+          <span class="text-slate-400">Moneda:</span>
+          <div class="flex items-center bg-obsidian-900 border border-white/10 rounded-lg p-1">
+            <button type="button" id="btn-cop" onclick="setCurrency('COP')" class="px-2.5 py-1 rounded bg-indigo-600 text-white font-semibold transition-all">COP</button>
+            <button type="button" id="btn-usd" onclick="setCurrency('USD')" class="px-2.5 py-1 rounded text-slate-400 hover:text-white transition-all">USD</button>
+          </div>
+        </div>
       </div>
 
       <form id="quote-form" onsubmit="event.preventDefault(); sendToWhatsApp();" class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -951,6 +1100,33 @@
           </div>
         </div>
       </form>
+    </div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section id="contacto" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-5xl mx-auto">
+    <div class="glass-panel rounded-3xl border border-white/10 p-8 md:p-12">
+      <div class="text-center max-w-2xl mx-auto">
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Hablemos</h2>
+        <p class="text-slate-400 text-sm sm:text-base mt-3">¿No sabes qué sistema te sirve o necesitas ayuda con el tuyo? Escríbenos.</p>
+      </div>
+      <div class="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" class="glass-card rounded-2xl p-5 flex flex-col items-center text-center gap-2">
+          <i data-lucide="message-circle" class="w-6 h-6 text-emerald-400"></i>
+          <span class="text-sm font-bold text-white">WhatsApp</span>
+          <span class="text-sm text-slate-400">+57 305 248 4278</span>
+        </a>
+        <a href="mailto:soporte@netxpremium.com" class="glass-card rounded-2xl p-5 flex flex-col items-center text-center gap-2">
+          <i data-lucide="mail" class="w-6 h-6 text-sky-400"></i>
+          <span class="text-sm font-bold text-white">Correo</span>
+          <span class="text-sm text-slate-400 break-all">soporte@netxpremium.com</span>
+        </a>
+        <div class="glass-card rounded-2xl p-5 flex flex-col items-center text-center gap-2">
+          <i data-lucide="map-pin" class="w-6 h-6 text-indigo-400"></i>
+          <span class="text-sm font-bold text-white">Dónde estamos</span>
+          <span class="text-sm text-slate-400">Ibagué, Tolima, Colombia</span>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -1035,16 +1211,16 @@
       }
     };
 
-    (function () {
-      const menu = document.getElementById('apps-menu');
-      const toggle = document.getElementById('apps-toggle');
+    // Menús desplegables (Sistemas y Probar demo): clic abre y cierra; Escape o clic afuera los cierra
+    document.querySelectorAll('[data-menu]').forEach((menu) => {
+      const toggle = menu.querySelector('.apps-toggle');
       const abrir = (si) => { menu.classList.toggle('is-open', si); toggle.setAttribute('aria-expanded', String(si)); };
       toggle.addEventListener('click', () => abrir(!menu.classList.contains('is-open')));
       document.addEventListener('click', (e) => { if (!menu.contains(e.target)) abrir(false); });
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && menu.classList.contains('is-open')) { abrir(false); toggle.focus(); }
       });
-    })();
+    });
 
     function toggleDrawer() {
       const drawer = document.getElementById('mobile-drawer');
@@ -1089,19 +1265,12 @@
       const btnCop = document.getElementById('btn-cop');
       const btnUsd = document.getElementById('btn-usd');
 
-      const btnCopMobile = document.getElementById('btn-cop-mobile');
-      const btnUsdMobile = document.getElementById('btn-usd-mobile');
-
       const activeClass = 'px-2.5 py-1 rounded bg-indigo-600 text-white font-semibold transition-all';
       const inactiveClass = 'px-2.5 py-1 rounded text-slate-400 hover:text-white transition-all';
-      const activeMobileClass = 'px-2 py-1 bg-indigo-600 rounded text-white';
-      const inactiveMobileClass = 'px-2 py-1 bg-obsidian-700 rounded text-slate-300';
 
       const isCop = curr === 'COP';
       btnCop.className = isCop ? activeClass : inactiveClass;
       btnUsd.className = isCop ? inactiveClass : activeClass;
-      btnCopMobile.className = isCop ? activeMobileClass : inactiveMobileClass;
-      btnUsdMobile.className = isCop ? inactiveMobileClass : activeMobileClass;
 
       calculateBudget();
     }

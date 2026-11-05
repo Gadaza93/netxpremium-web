@@ -2,7 +2,7 @@
 // Regenerar assets/app.css después de cambiar clases en los HTML:
 //   npx tailwindcss@3.4.17 -c tailwind.config.js -i src/app.css -o assets/app.css --minify
 module.exports = {
-  content: ['./index.html', './nexobar.html'],
+  content: ['./index.html', './nexobar.html', './planes.html'],
   darkMode: 'class',
   theme: {
     extend: {

@@ -278,7 +278,7 @@
       .foot-col { align-items: flex-start; }
     }
 
-    /* Menú «Apps para tu negocio» (igual al del inicio) */
+    /* Menú «Sistemas» (igual al del inicio) */
     .apps-menu { position: relative; }
     .apps-toggle { display: inline-flex; align-items: center; gap: 6px; color: #CBD5E1; font: inherit; background: none; border: 0; cursor: pointer; padding: 0; white-space: nowrap; transition: color .2s; }
     .apps-toggle:hover, .apps-toggle[aria-expanded="true"] { color: #fff; }
@@ -328,10 +328,10 @@
       <div class="nav-links">
         <div class="apps-menu" id="apps-menu">
           <button type="button" id="apps-toggle" class="apps-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="apps-panel">
-            <span class="apps-punto" aria-hidden="true"></span> Apps para tu negocio <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            <span class="apps-punto" aria-hidden="true"></span> Sistemas <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
           </button>
           <div id="apps-panel" class="apps-panel" role="menu" aria-labelledby="apps-toggle">
-            <div class="apps-titulo">Encuentra la app para tu negocio</div>
+            <div class="apps-titulo">Encuentra el sistema para tu negocio</div>
             <a href="/nexobar" class="apps-item" role="menuitem">
               <span class="apps-ico" style="color:#818CF8;background:rgba(99,102,241,.12)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 22h8"/><path d="M7 10h10"/><path d="M12 15v7"/><path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z"/></svg></span>
               <span class="apps-texto">
@@ -365,18 +365,17 @@
             </div>
             <div class="apps-pie">
               <span>¿No ves tu tipo de negocio?</span>
-              <a href="/#cotizador">Lo creamos a la medida →</a>
+              <a href="/#studio">Lo creamos a la medida →</a>
             </div>
           </div>
         </div>
-        <a href="/#soluciones">Soluciones</a>
-        <a href="/#nexobar">Caso de éxito</a>
-        <a href="/#arquitectura">Arquitectura</a>
-        <a href="/#cotizador">Cotizador</a>
+        <a href="/planes">Planes</a>
+        <a href="/#studio">Studio</a>
+        <a href="/#contacto">Contacto</a>
       </div>
 
-      <a class="nav-cta" href="/#cotizador">
-        <span>Iniciar Proyecto</span>
+      <a class="nav-cta" href="/#sistemas">
+        <span>Probar demo</span>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
       </a>
     </div>
@@ -585,7 +584,7 @@
   </footer>
 
   <script>
-    // Menú «Apps para tu negocio»: clic abre y cierra; Escape, clic afuera o scroll lo cierran
+    // Menú «Sistemas»: clic abre y cierra; Escape, clic afuera o scroll lo cierran
     (function () {
       const menu = document.getElementById('apps-menu');
       const toggle = document.getElementById('apps-toggle');

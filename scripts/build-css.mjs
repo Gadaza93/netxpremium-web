@@ -1,6 +1,6 @@
 // Compila Tailwind y actualiza la versión (?v=hash) en los HTML para que Cloudflare y los
 // navegadores tomen el CSS nuevo aunque lo cacheen por un año.
-//   assets/app.css     → index.html y nexobar.html (agencia y NexoBar)
+//   assets/app.css     → index.html, planes.html y nexobar.html (inicio, planes y NexoBar)
 //   assets/nexopos.css → nexopos.html (NexoPos, paleta propia)
 //   assets/nexoretail.css → nexoretail.html (Nexo Retail, misma paleta que NexoPos)
 // Uso: node scripts/build-css.mjs
@@ -9,7 +9,7 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 
 const hojas = [
-  { config: 'tailwind.config.js', salida: 'assets/app.css', paginas: ['index.html', 'nexobar.html'] },
+  { config: 'tailwind.config.js', salida: 'assets/app.css', paginas: ['index.html', 'nexobar.html', 'planes.html'] },
   { config: 'tailwind.nexopos.config.js', salida: 'assets/nexopos.css', paginas: ['nexopos.html'] },
   { config: 'tailwind.nexoretail.config.js', salida: 'assets/nexoretail.css', paginas: ['nexoretail.html'] },
 ];
