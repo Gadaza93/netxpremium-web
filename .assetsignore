@@ -6,3 +6,4 @@ tailwind.config.js
 src/
 scripts/
 tailwind.nexopos.config.js
+tailwind.nexoretail.config.js

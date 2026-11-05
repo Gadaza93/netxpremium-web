@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nexo Retail · POS para tiendas y minimercados en Colombia | NetxPremium</title>
+  <meta name="description" content="Punto de venta para tiendas de barrio, minimercados, supermercados, petshops y licoreras. Funciona sin internet, con lector de código de barras, fiado, inventario y panel del dueño en el celular.">
+  <link rel="icon" type="image/png" href="/assets/nexoretail/icon-192.png">
+  <link rel="apple-touch-icon" href="/assets/nexoretail/apple-touch-icon.png">
+  <meta property="og:title" content="Nexo Retail · POS para tiendas y minimercados">
+  <meta property="og:description" content="Vende aunque no haya internet, con lector de código de barras, fiado con cupo, inventario y tus ventas en el celular.">
+  <meta property="og:image" content="https://netxpremium.com/assets/nexoretail/logo.png">
+  <meta name="theme-color" content="#181A20">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "¿Qué pasa si se va el internet?", "acceptedAnswer": { "@type": "Answer", "text": "Sigues vendiendo normal. Todo queda guardado en tu equipo y se sincroniza solo cuando vuelve la conexión. La caja te muestra cuántos registros faltan por subir." } },
+      { "@type": "Question", "name": "¿Necesito comprar un computador nuevo?", "acceptedAnswer": { "@type": "Answer", "text": "No. Funciona en el computador que ya tienes, en una tablet o en un celular Android." } },
+      { "@type": "Question", "name": "¿Puedo probarlo antes de pagar?", "acceptedAnswer": { "@type": "Answer", "text": "Sí. La demo trae un minimercado de ejemplo para que vendas, cobres y revises reportes sin registrarte." } },
+      { "@type": "Question", "name": "¿Mis datos están seguros?", "acceptedAnswer": { "@type": "Answer", "text": "Cada negocio ve solo su información. Las contraseñas no se guardan en texto y cada usuario entra con su propio PIN. Desde el sistema puedes descargar un respaldo cuando quieras." } },
+      { "@type": "Question", "name": "¿Puedo ver mis ventas desde la casa?", "acceptedAnswer": { "@type": "Answer", "text": "Sí. Con el panel del dueño ves las ventas, las cajas abiertas y las alertas desde el celular. Es una cuenta solo de consulta: no cambia nada en la tienda." } },
+      { "@type": "Question", "name": "¿Cómo se paga?", "acceptedAnswer": { "@type": "Answer", "text": "Mensualmente, con el link de pago seguro de Wompi (tarjeta, PSE o Nequi). Después del pago activamos o renovamos tu licencia." } },
+      { "@type": "Question", "name": "¿Puedo cambiar de plan?", "acceptedAnswer": { "@type": "Answer", "text": "Sí, cuando quieras. Si bajas de plan no se borra nada: solo quedan bloqueados los usuarios o cajas que pasen el límite del nuevo plan." } },
+      { "@type": "Question", "name": "¿Sirve para varias sedes?", "acceptedAnswer": { "@type": "Answer", "text": "Sí, con el plan Empresarial. Cada sede tiene su inventario y sus cajas, puedes trasladar mercancía entre ellas y ves todo junto en el panel del dueño." } },
+      { "@type": "Question", "name": "¿Puedo cargar mis productos desde Excel?", "acceptedAnswer": { "@type": "Answer", "text": "Sí. Puedes importar tu catálogo con códigos de barras, unidades e impuestos desde una hoja de Excel." } }
+    ]
+  }
+  </script>
+  <script defer src="https://unpkg.com/lucide@1.57.0/dist/umd/lucide.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+
+  <style>
+    body {
+      background-color: #181A20;
+      color: #F1F5F9;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+
+    .glass-panel {
+      background: rgba(32, 35, 43, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .glass-card {
+      background: linear-gradient(180deg, rgba(40, 44, 55, 0.62) 0%, rgba(22, 24, 31, 0.72) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(255, 140, 50, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px -10px rgba(255, 140, 50, 0.15);
+    }
+
+    .glow-brand {
+      box-shadow: 0 0 50px -12px rgba(255, 140, 50, 0.3);
+    }
+
+    .ambient-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.15;
+    }
+
+    /* Foco visible por teclado en todo el sitio (cian sobre fondo oscuro, contraste > 3:1) */
+    :focus-visible {
+      outline: 2px solid #38BDF8;
+      outline-offset: 2px;
+    }
+
+    html {
+      scrollbar-gutter: stable;
+    }
+
+    /* FAQ: acordeón nativo con <details>, sin el triángulo por defecto */
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item[open] { border-color: rgba(255, 140, 50, 0.35); }
+    .faq-item:hover { transform: none; }
+
+    /* Tabla comparativa de planes */
+    .tabla-planes th, .tabla-planes td { padding: 12px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+    .tabla-planes tbody tr:last-child th, .tabla-planes tbody tr:last-child td { border-bottom: 0; }
+  </style>
+  <!-- Después del <style> propio: las utilidades de Tailwind deben ganar en la cascada, como con el CDN -->
+  <link rel="stylesheet" href="/assets/nexoretail.css?v=33b3014b8a">
+</head>
+<body class="overflow-x-hidden selection:bg-brand-500 selection:text-white">
+
+  <div class="ambient-glow bg-brand-600 top-[-100px] left-1/2 -translate-x-1/2"></div>
+  <div class="ambient-glow bg-amber-500 top-[900px] right-[-150px]"></div>
+
+  <nav class="sticky top-0 z-50 glass-panel border-b border-white/5 py-4 px-6 md:px-12">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <a href="/nexoretail" class="flex items-center gap-3" aria-label="Nexo Retail — Ir al inicio">
+        <img src="/assets/nexoretail/logo.svg" alt="" width="36" height="36" class="w-9 h-9 rounded-xl shadow-lg shadow-brand-500/20">
+        <div class="flex flex-col">
+          <span class="text-lg font-bold tracking-tight text-white">Nexo <span class="text-brand-400">Retail</span></span>
+          <span class="text-[10px] text-slate-400 uppercase tracking-widest font-mono">by Netxpremium</span>
+        </div>
+      </a>
+
+      <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+        <a href="#beneficios" class="hover:text-white transition-colors">Beneficios</a>
+        <a href="#como-funciona" class="hover:text-white transition-colors">Cómo funciona</a>
+        <a href="#planes" class="hover:text-white transition-colors">Planes</a>
+        <a href="#faq" class="hover:text-white transition-colors">Preguntas</a>
+      </div>
+
+      <div class="hidden md:flex items-center gap-4">
+        <a href="https://nexoretail.netxpremium.com" target="_blank" rel="noopener noreferrer" class="border border-white/10 text-slate-300 hover:text-white hover:border-brand-500/50 hover:bg-white/5 transition-all px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+          <i data-lucide="log-in" class="w-4 h-4"></i>
+          <span>Ingresar</span>
+        </a>
+
+        <a href="#planes" class="px-4 py-2 rounded-lg bg-white text-grafito-950 font-semibold text-xs tracking-wide hover:bg-slate-200 transition-all shadow-md flex items-center gap-2">
+          <span>Ver planes</span>
+          <i data-lucide="arrow-down" class="w-4 h-4"></i>
+        </a>
+      </div>
+
+      <button onclick="toggleDrawer()" aria-label="Abrir menú" class="md:hidden text-slate-300 hover:text-white p-2">
+        <i data-lucide="menu" class="w-6 h-6"></i>
+      </button>
+    </div>
+  </nav>
+
+  <div id="mobile-drawer" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden transition-opacity duration-300">
+    <div class="w-4/5 max-w-xs h-full bg-grafito-900 border-r border-white/10 p-6 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between pb-6 border-b border-white/10">
+          <span class="font-bold text-white text-lg">Nexo Retail</span>
+          <button onclick="toggleDrawer()" aria-label="Cerrar menú" class="text-slate-400 hover:text-white">
+            <i data-lucide="x" class="w-6 h-6"></i>
+          </button>
+        </div>
+        <div class="flex flex-col gap-5 mt-6 text-slate-300 font-medium">
+          <a href="#beneficios" onclick="toggleDrawer()" class="hover:text-white">Beneficios</a>
+          <a href="#como-funciona" onclick="toggleDrawer()" class="hover:text-white">Cómo funciona</a>
+          <a href="#planes" onclick="toggleDrawer()" class="hover:text-white">Planes</a>
+          <a href="#faq" onclick="toggleDrawer()" class="hover:text-white">Preguntas</a>
+          <a href="/" class="hover:text-white text-slate-400 text-sm">Netxpremium — Desarrollo a la medida</a>
+        </div>
+      </div>
+      <div class="pt-6 border-t border-white/10 flex flex-col gap-4">
+        <a href="https://nexoretail.netxpremium.com" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:border-brand-500/50 hover:bg-white/5 transition-all font-medium text-xs flex items-center justify-center gap-2">
+          <i data-lucide="log-in" class="w-4 h-4"></i>
+          <span>Ingresar</span>
+        </a>
+        <a href="#planes" onclick="toggleDrawer()" class="w-full text-center py-2.5 rounded-lg bg-white text-grafito-950 font-semibold text-xs">
+          Ver planes
+        </a>
+        <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="w-full text-center py-2.5 rounded-lg bg-brand-600 text-white font-medium text-xs">
+          Hablar por WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENCABEZADO -->
+  <section class="relative pt-20 pb-16 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-7 text-center md:text-left">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-brand-500/30 bg-brand-500/10 text-brand-300 text-xs font-mono mb-6">
+          <i data-lucide="store" class="w-3.5 h-3.5"></i>
+          <span>POS para tiendas y minimercados</span>
+        </div>
+
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] mb-6">
+          El punto de venta para tu tienda que no se detiene, <span class="bg-gradient-to-r from-brand-300 via-brand-400 to-orange-500 bg-clip-text text-transparent">ni aunque se vaya el internet.</span>
+        </h1>
+
+        <p class="text-base sm:text-lg text-slate-400 font-normal leading-relaxed mb-8 max-w-2xl mx-auto md:mx-0">
+          Nexo Retail es el POS para tiendas de barrio, minimercados, supermercados, petshops y licoreras en Colombia. Vende con lector de código de barras, controla tu inventario y tu fiado, y mira tus ventas desde el celular.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
+          <a href="https://nexoretail.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-grafito-950 font-semibold text-sm transition-all shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-grafito-950 animate-ping"></span>
+            <span>Probar la demo gratis</span>
+          </a>
+          <a href="#planes" class="w-full sm:w-auto px-7 py-3.5 rounded-xl glass-card hover:bg-white/5 text-slate-200 font-semibold text-sm transition-all flex items-center justify-center gap-2">
+            <span>Ver planes</span>
+            <i data-lucide="arrow-down" class="w-4 h-4"></i>
+          </a>
+        </div>
+
+        <ul class="mt-8 flex flex-wrap items-center justify-center md:justify-start gap-x-5 gap-y-2 text-xs text-slate-400">
+          <li class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>Sin permanencia</li>
+          <li class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>Pago seguro con Wompi</li>
+          <li class="inline-flex items-center gap-1.5"><i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>Desde $49.900 COP al mes</li>
+        </ul>
+      </div>
+
+      <!-- Vista ilustrativa de una venta en Nexo Retail -->
+      <div class="lg:col-span-5">
+        <div class="glass-panel rounded-2xl border border-white/10 glow-brand p-5 sm:p-6" aria-hidden="true">
+          <div class="flex items-center justify-between gap-3 pb-4 mb-4 border-b border-white/5">
+            <span class="text-sm font-bold text-white">Caja 1 · Minimercado</span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 whitespace-nowrap">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Sin internet · guardando
+            </span>
+          </div>
+          <div class="space-y-2 text-xs font-mono">
+            <div class="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-grafito-900/80 border border-white/5">
+              <span class="text-slate-200"><span class="text-brand-400 font-bold">3x</span> Gaseosa 400 ml</span>
+              <span class="shrink-0 px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 text-[10px]">Lleva 3 paga 2</span>
+            </div>
+            <div class="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-grafito-900/80 border border-white/5">
+              <span class="text-slate-200"><span class="text-brand-400 font-bold">0,75 kg</span> Queso campesino</span>
+              <span class="shrink-0 px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 text-[10px]">Balanza</span>
+            </div>
+            <div class="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-grafito-900/80 border border-white/5">
+              <span class="text-slate-200"><span class="text-brand-400 font-bold">1x</span> Arroz Diana 500 g</span>
+              <span class="shrink-0 px-2 py-0.5 rounded bg-brand-500/15 text-brand-300 text-[10px]">Escaneado</span>
+            </div>
+          </div>
+          <div class="mt-4 grid grid-cols-2 gap-3">
+            <div class="bg-grafito-900/80 p-3.5 rounded-xl border border-white/5">
+              <span class="text-[11px] text-slate-400">Total</span>
+              <div class="text-base sm:text-lg font-bold font-mono text-white mt-0.5 whitespace-nowrap">$ 23.600</div>
+            </div>
+            <div class="bg-grafito-900/80 p-3.5 rounded-xl border border-white/5">
+              <span class="text-[11px] text-slate-400">Fiado de Doña Marta · Cupo libre</span>
+              <div class="text-base sm:text-lg font-bold font-mono text-amber-300 mt-0.5 whitespace-nowrap">$ 76.400</div>
+            </div>
+          </div>
+          <div class="mt-4 flex items-center gap-2 rounded-xl border border-brand-500/20 bg-brand-500/5 px-3 py-2.5 text-[11px] text-brand-200">
+            <i data-lucide="refresh-cw" class="w-4 h-4 shrink-0"></i>
+            Cuando vuelve el internet, la venta se sincroniza sola y el dueño la ve en su celular.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EL PROBLEMA -->
+  <section class="py-16 px-6 md:px-12 max-w-5xl mx-auto">
+    <div class="glass-panel rounded-3xl p-8 md:p-12">
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-center">¿Te suena conocido?</h2>
+      <ul class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm sm:text-base text-slate-300">
+        <li class="flex gap-3 rounded-2xl bg-grafito-900/70 border border-white/5 p-4"><i data-lucide="wifi-off" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5"></i>Se cae el internet y la caja se queda quieta, con la fila esperando.</li>
+        <li class="flex gap-3 rounded-2xl bg-grafito-900/70 border border-white/5 p-4"><i data-lucide="notebook-pen" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5"></i>El cuaderno del fiado no cuadra y no sabes quién te debe cuánto.</li>
+        <li class="flex gap-3 rounded-2xl bg-grafito-900/70 border border-white/5 p-4"><i data-lucide="calendar-x" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5"></i>Se vencen productos en la bodega sin que nadie se dé cuenta.</li>
+        <li class="flex gap-3 rounded-2xl bg-grafito-900/70 border border-white/5 p-4"><i data-lucide="circle-help" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5"></i>No sabes cuánto vendió tu tienda hoy hasta que llegas a cerrar.</li>
+      </ul>
+      <p class="mt-8 text-center text-base sm:text-lg text-slate-200 max-w-3xl mx-auto">
+        <span class="font-semibold text-brand-300">Nexo Retail resuelve eso</span> con una caja rápida, que guarda todo en tu equipo y se sincroniza sola cuando vuelve la conexión.
+      </p>
+    </div>
+  </section>
+
+  <!-- BENEFICIOS -->
+  <section id="beneficios" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-mono mb-4">
+        HECHO PARA TIENDAS Y MINIMERCADOS
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Todo lo que tu tienda necesita en una sola caja</h2>
+      <p class="text-slate-400 text-sm sm:text-base mt-3">La venta, el fiado, el inventario y los cierres, conectados y a la vista desde tu celular.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <article class="glass-card rounded-2xl p-6">
+        <div class="w-11 h-11 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center mb-4"><i data-lucide="wifi-off" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Vende aunque no haya internet</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Todo se guarda primero en tu equipo: ventas, cobros, fiado y cierres de caja. Cuando vuelve la conexión, se sincroniza solo. La venta nunca espera a la red.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6">
+        <div class="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-300 flex items-center justify-center mb-4"><i data-lucide="scan-barcode" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Caja rápida con lector de código de barras</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Escanea y listo. Si un producto no está creado, lo creas ahí mismo sin salir de la venta. También funcionan los atajos de teclado y los botones grandes para pantallas táctiles.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6">
+        <div class="w-11 h-11 rounded-xl bg-orange-500/10 text-orange-300 flex items-center justify-center mb-4"><i data-lucide="scale" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Ventas por peso y etiquetas de balanza</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Vende por kilo, libra, gramo o litro. La caja lee las etiquetas que imprime tu balanza con el precio o el peso.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6">
+        <div class="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4"><i data-lucide="notebook-pen" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Fiado bajo control</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Cada cliente tiene su cupo, su saldo y su estado de cuenta. Los abonos entran a la caja y, si alguien quiere fiar por encima del cupo, la caja pide la autorización del administrador.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6">
+        <div class="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-300 flex items-center justify-center mb-4"><i data-lucide="boxes" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Inventario que cuadra</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">El stock se descuenta al cobrar. Además tienes compras a proveedores, cuentas por pagar, mermas y conteos. Vende por unidad o por paca y caja con su propio código y precio.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6">
+        <div class="w-11 h-11 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center mb-4"><i data-lucide="calculator" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Turnos y cierres de caja claros</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Cada cajero abre y cierra su turno con conteo de billetes y monedas. El cierre te dice cuánto debía haber y cuánto hay.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6">
+        <div class="w-11 h-11 rounded-xl bg-orange-500/10 text-orange-300 flex items-center justify-center mb-4"><i data-lucide="smartphone" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Tu negocio en el celular</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Con el panel del dueño ves en vivo cuánto se vendió, si la caja está abierta y quién la abrió. También te avisa de diferencias de caja, productos por agotarse y productos por vencer, sin que tengas que estar en la tienda.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6">
+        <div class="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4"><i data-lucide="user-cog" class="w-5 h-5"></i></div>
+        <h3 class="text-base font-bold text-white">Usuarios con permisos</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Administrador, cajero y bodega, cada uno con su PIN. Para anular una venta o hacer una devolución, el cajero necesita el PIN del administrador, y queda registrado quién autorizó.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- PARA CADA TIPO DE NEGOCIO -->
+  <section class="py-20 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono mb-4">
+        PARA CADA TIPO DE NEGOCIO
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Se adapta a lo que vendes</h2>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <article class="glass-card rounded-2xl p-6">
+        <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center"><i data-lucide="store" class="w-5 h-5"></i></div><h3 class="text-base font-bold text-white">Tienda de barrio</h3></div>
+        <p class="text-sm text-slate-400 mt-3 leading-relaxed">El fiado con cupo por cliente, ventas rápidas con lector y el cierre de caja de cada turno.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6">
+        <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-300 flex items-center justify-center"><i data-lucide="shopping-cart" class="w-5 h-5"></i></div><h3 class="text-base font-bold text-white">Minimercado y supermercado</h3></div>
+        <p class="text-sm text-slate-400 mt-3 leading-relaxed">Muchos productos con código de barras, varias cajas, lotes y vencimientos, y promociones automáticas como 2x1 o precio por cantidad.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6">
+        <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><i data-lucide="paw-print" class="w-5 h-5"></i></div><h3 class="text-base font-bold text-white">Petshop y fruver</h3></div>
+        <p class="text-sm text-slate-400 mt-3 leading-relaxed">Concentrados, granos y frutas por kilo o libra, con etiquetas de balanza.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6">
+        <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-300 flex items-center justify-center"><i data-lucide="wine" class="w-5 h-5"></i></div><h3 class="text-base font-bold text-white">Licorera</h3></div>
+        <p class="text-sm text-slate-400 mt-3 leading-relaxed">La botella suelta y la caja o paca, cada una con su código y su precio, y combos que descuentan cada producto del inventario.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-6 sm:col-span-2 lg:col-span-2">
+        <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center"><i data-lucide="building-2" class="w-5 h-5"></i></div><h3 class="text-base font-bold text-white">Varias sedes</h3></div>
+        <p class="text-sm text-slate-400 mt-3 leading-relaxed">Cada sede con su propio inventario, sus cajas y su turno. Traslados de mercancía entre sedes y el resumen de todas en el panel del dueño.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- CÓMO FUNCIONA -->
+  <section id="como-funciona" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-mono mb-4">
+        CÓMO FUNCIONA
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Empieza a vender hoy mismo</h2>
+    </div>
+
+    <ol class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <li class="glass-card rounded-2xl p-6">
+        <span class="inline-flex w-9 h-9 rounded-full bg-brand-500 text-grafito-950 font-extrabold font-mono items-center justify-center">1</span>
+        <h3 class="text-base font-bold text-white mt-4">Elige tu plan y paga en línea</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Con el link seguro de Wompi, sin contratos ni permanencia.</p>
+      </li>
+      <li class="glass-card rounded-2xl p-6">
+        <span class="inline-flex w-9 h-9 rounded-full bg-brand-500 text-grafito-950 font-extrabold font-mono items-center justify-center">2</span>
+        <h3 class="text-base font-bold text-white mt-4">Activa tu caja</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Te enviamos tus datos de acceso. Entras desde el computador, la tablet o el celular, eliges el tipo de negocio y la caja te sugiere las categorías.</p>
+      </li>
+      <li class="glass-card rounded-2xl p-6">
+        <span class="inline-flex w-9 h-9 rounded-full bg-brand-500 text-grafito-950 font-extrabold font-mono items-center justify-center">3</span>
+        <h3 class="text-base font-bold text-white mt-4">Carga tus productos</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Escanea cada código de barras o importa tu catálogo desde Excel.</p>
+      </li>
+      <li class="glass-card rounded-2xl p-6">
+        <span class="inline-flex w-9 h-9 rounded-full bg-brand-500 text-grafito-950 font-extrabold font-mono items-center justify-center">4</span>
+        <h3 class="text-base font-bold text-white mt-4">Vende y mira tus números</h3>
+        <p class="text-sm text-slate-400 mt-2 leading-relaxed">Cobra con lector o pantalla táctil, cierra el turno y revisa las ventas desde el celular con el panel del dueño.</p>
+      </li>
+    </ol>
+
+    <div class="mt-10 text-center">
+      <a href="https://nexoretail.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-sm font-semibold transition-all">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        Probar la demo gratis, sin registrarte
+        <i data-lucide="external-link" class="w-4 h-4"></i>
+      </a>
+    </div>
+  </section>
+
+  <!-- FUNCIONES AVANZADAS -->
+  <section class="py-20 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="glass-panel rounded-3xl border border-white/10 glow-brand p-8 md:p-12">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-mono mb-4">
+          PLANES PRO Y EMPRESARIAL
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Funciones avanzadas</h2>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div class="flex gap-4 rounded-2xl bg-grafito-900/70 border border-white/5 p-5">
+          <div class="w-10 h-10 rounded-xl bg-brand-500/10 text-brand-400 flex items-center justify-center shrink-0"><i data-lucide="tags" class="w-5 h-5"></i></div>
+          <div><h3 class="text-base font-bold text-white">Listas de precio</h3><p class="text-sm text-slate-400 mt-1 leading-relaxed">Detal, mayorista o la que necesites, asignada a cada cliente.</p></div>
+        </div>
+        <div class="flex gap-4 rounded-2xl bg-grafito-900/70 border border-white/5 p-5">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0"><i data-lucide="percent" class="w-5 h-5"></i></div>
+          <div><h3 class="text-base font-bold text-white">Promociones automáticas</h3><p class="text-sm text-slate-400 mt-1 leading-relaxed">Lleva 3 paga 2, precio especial desde cierta cantidad o descuento por porcentaje, con fechas de inicio y fin. La caja las aplica sola.</p></div>
+        </div>
+        <div class="flex gap-4 rounded-2xl bg-grafito-900/70 border border-white/5 p-5">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-300 flex items-center justify-center shrink-0"><i data-lucide="calendar-clock" class="w-5 h-5"></i></div>
+          <div><h3 class="text-base font-bold text-white">Lotes y vencimientos</h3><p class="text-sm text-slate-400 mt-1 leading-relaxed">La caja vende primero lo que vence antes y te avisa lo que está por vencer.</p></div>
+        </div>
+        <div class="flex gap-4 rounded-2xl bg-grafito-900/70 border border-white/5 p-5">
+          <div class="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-300 flex items-center justify-center shrink-0"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
+          <div><h3 class="text-base font-bold text-white">Utilidad real</h3><p class="text-sm text-slate-400 mt-1 leading-relaxed">Ganancia después de costos y gastos, valor del inventario y reportes en Excel.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLANES Y PRECIOS DE NEXO RETAIL -->
+  <section id="planes" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-6xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-mono mb-4">
+        PLANES NEXO RETAIL
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Elige el plan de tu negocio</h2>
+      <p class="text-slate-400 text-sm sm:text-base mt-3">Sin permanencia. Empiezas con el plan que necesitas y cambias cuando crezcas.</p>
+    </div>
+
+    <!-- «Comprar plan» lleva por ahora a WhatsApp; los links de pago de Wompi se ponen en LINKS_WOMPI (script al final) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+      <!-- Plan Básico -->
+      <article class="glass-card rounded-2xl p-6 sm:p-8 flex flex-col">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-300 flex items-center justify-center"><i data-lucide="store" class="w-5 h-5"></i></div>
+          <div>
+            <h3 class="text-lg font-bold text-white">Básico</h3>
+            <p class="text-xs text-slate-400">Para la tienda con una caja</p>
+          </div>
+        </div>
+        <div class="mt-6 flex items-baseline gap-1.5">
+          <span class="text-4xl font-extrabold font-mono tracking-tight text-white">$ 49.900</span>
+          <span class="text-sm text-slate-400">COP / mes</span>
+        </div>
+        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1">
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>1 caja, 2 usuarios y 1 sede</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Caja con lector, ventas por peso, presentaciones y combos</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Clientes, fiado, abonos y devoluciones</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Compras, proveedores, cuentas por pagar e inventario</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Turnos y cierres de caja</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Panel del dueño: resumen del día</li>
+        </ul>
+        <a data-comprar-plan="basico" href="https://wa.me/573052484278?text=Hola%20Netxpremium!%20Quiero%20comprar%20el%20plan%20B%C3%A1sico%20de%20Nexo%20Retail." target="_blank" rel="noopener noreferrer" class="mt-8 w-full py-3.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 hover:border-brand-500/50 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2">
+          Comprar plan
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </article>
+
+      <!-- Plan Pro (destacado) -->
+      <article class="glass-card relative rounded-2xl p-6 sm:p-8 flex flex-col !border-brand-500/50 glow-brand bg-gradient-to-b from-brand-500/[0.07] to-transparent">
+        <span class="absolute -top-3 left-6 sm:left-8 px-3 py-1 rounded-full text-[10px] font-mono font-semibold uppercase tracking-wider bg-brand-500 text-grafito-950 shadow-lg shadow-brand-500/30">Recomendado</span>
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-brand-500/15 text-brand-300 flex items-center justify-center"><i data-lucide="shopping-cart" class="w-5 h-5"></i></div>
+          <div>
+            <h3 class="text-lg font-bold text-white">Pro</h3>
+            <p class="text-xs text-slate-400">Para minimercados con varias cajas</p>
+          </div>
+        </div>
+        <div class="mt-6 flex items-baseline gap-1.5">
+          <span class="text-4xl font-extrabold font-mono tracking-tight text-white">$ 119.900</span>
+          <span class="text-sm text-slate-400">COP / mes</span>
+        </div>
+        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1">
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Hasta 3 cajas, hasta 6 usuarios y 1 sede</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Todo lo del plan Básico</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Listas de precio y promociones automáticas</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Lotes y vencimientos</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Utilidad neta, gastos, valor del inventario y exportar a Excel</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Panel del dueño completo</li>
+        </ul>
+        <a data-comprar-plan="pro" href="https://wa.me/573052484278?text=Hola%20Netxpremium!%20Quiero%20comprar%20el%20plan%20Pro%20de%20Nexo%20Retail." target="_blank" rel="noopener noreferrer" class="mt-8 w-full py-3.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-grafito-950 font-semibold text-sm transition-all shadow-lg shadow-brand-500/25 flex items-center justify-center gap-2">
+          Comprar plan
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </article>
+
+      <!-- Plan Empresarial -->
+      <article class="glass-card rounded-2xl p-6 sm:p-8 flex flex-col">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-orange-500/10 text-orange-300 flex items-center justify-center"><i data-lucide="building-2" class="w-5 h-5"></i></div>
+          <div>
+            <h3 class="text-lg font-bold text-white">Empresarial</h3>
+            <p class="text-xs text-slate-400">Para supermercados y varias sedes</p>
+          </div>
+        </div>
+        <div class="mt-6 flex items-baseline gap-1.5">
+          <span class="text-4xl font-extrabold font-mono tracking-tight text-white">$ 249.900</span>
+          <span class="text-sm text-slate-400">COP / mes</span>
+        </div>
+        <ul class="mt-6 space-y-3 text-sm text-slate-300 flex-1">
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Cajas y usuarios sin límite, varias sedes</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Todo lo del plan Pro</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Traslados entre sedes</li>
+          <li class="flex gap-2.5"><i data-lucide="check" class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5"></i>Panel del dueño completo, con todas las sedes</li>
+        </ul>
+        <a data-comprar-plan="empresarial" href="https://wa.me/573052484278?text=Hola%20Netxpremium!%20Quiero%20comprar%20el%20plan%20Empresarial%20de%20Nexo%20Retail." target="_blank" rel="noopener noreferrer" class="mt-8 w-full py-3.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 hover:border-brand-500/50 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2">
+          Comprar plan
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </article>
+    </div>
+
+    <!-- Tabla comparativa -->
+    <div class="mt-14">
+      <h3 class="text-xl font-bold text-white text-center mb-6">Compara los planes</h3>
+      <div class="glass-panel rounded-2xl overflow-x-auto">
+        <table class="tabla-planes w-full min-w-[640px] text-sm text-left">
+          <thead>
+            <tr class="text-white">
+              <th scope="col" class="font-semibold text-slate-400 text-xs uppercase tracking-wider font-mono">Función</th>
+              <th scope="col" class="font-bold text-center">Básico</th>
+              <th scope="col" class="font-bold text-center text-brand-300">Pro</th>
+              <th scope="col" class="font-bold text-center">Empresarial</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-300">
+            <tr><th scope="row" class="font-medium">Precio mensual</th><td class="text-center font-mono text-white">$49.900</td><td class="text-center font-mono text-white">$119.900</td><td class="text-center font-mono text-white">$249.900</td></tr>
+            <tr><th scope="row" class="font-medium">Cajas</th><td class="text-center">1</td><td class="text-center">Hasta 3</td><td class="text-center">Sin límite</td></tr>
+            <tr><th scope="row" class="font-medium">Usuarios</th><td class="text-center">2</td><td class="text-center">Hasta 6</td><td class="text-center">Sin límite</td></tr>
+            <tr><th scope="row" class="font-medium">Sedes</th><td class="text-center">1</td><td class="text-center">1</td><td class="text-center">Varias</td></tr>
+            <tr><th scope="row" class="font-medium">Caja, lector, ventas por peso, presentaciones y combos</th><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td></tr>
+            <tr><th scope="row" class="font-medium">Clientes, fiado, abonos y devoluciones</th><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td></tr>
+            <tr><th scope="row" class="font-medium">Compras, proveedores, cuentas por pagar e inventario</th><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td></tr>
+            <tr><th scope="row" class="font-medium">Turnos y cierres de caja</th><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td></tr>
+            <tr><th scope="row" class="font-medium">Listas de precio y promociones automáticas</th><td class="text-center text-slate-500">—</td><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td></tr>
+            <tr><th scope="row" class="font-medium">Lotes y vencimientos</th><td class="text-center text-slate-500">—</td><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td></tr>
+            <tr><th scope="row" class="font-medium">Utilidad neta, gastos, valor del inventario y exportar a Excel</th><td class="text-center text-slate-500">—</td><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td></tr>
+            <tr><th scope="row" class="font-medium">Panel del dueño en el celular</th><td class="text-center">Resumen del día</td><td class="text-center">Completo</td><td class="text-center">Completo, todas las sedes</td></tr>
+            <tr><th scope="row" class="font-medium">Traslados entre sedes</th><td class="text-center text-slate-500">—</td><td class="text-center text-slate-500">—</td><td class="text-center"><i data-lucide="check" class="w-4 h-4 text-emerald-400 inline"></i><span class="sr-only">Incluido</span></td></tr>
+            <tr><th scope="row" class="font-medium">Facturación electrónica DIAN <span class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono bg-amber-500/10 text-amber-300 border border-amber-500/25 whitespace-nowrap">Próximamente</span></th><td class="text-center">Complemento</td><td class="text-center">300 documentos al mes</td><td class="text-center">1.000 documentos al mes</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="mt-8 text-center text-sm text-slate-400 max-w-2xl mx-auto">
+      Después del pago te enviamos por WhatsApp o correo los datos para activar tu caja. ¿Dudas sobre qué plan te sirve?
+      <a href="https://wa.me/573052484278?text=Hola%20Netxpremium!%20Quiero%20saber%20qu%C3%A9%20plan%20de%20Nexo%20Retail%20me%20sirve." target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 font-semibold">Escríbenos.</a>
+    </p>
+    <p class="mt-4 text-center text-xs text-slate-500 flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+      <span class="inline-flex items-center gap-1.5"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>Pago seguro con Wompi</span>
+      <span class="inline-flex items-center gap-1.5"><i data-lucide="calendar-x" class="w-3.5 h-3.5 text-amber-400"></i>Sin cláusulas de permanencia</span>
+      <span class="inline-flex items-center gap-1.5"><i data-lucide="wifi-off" class="w-3.5 h-3.5 text-brand-400"></i>Funciona sin internet</span>
+    </p>
+  </section>
+
+  <!-- FACTURACIÓN ELECTRÓNICA DIAN (próximamente) -->
+  <section class="py-12 px-6 md:px-12 max-w-5xl mx-auto">
+    <div class="glass-panel rounded-3xl border border-amber-500/20 p-8 md:p-10 flex flex-col md:flex-row gap-6 items-start">
+      <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-300 flex items-center justify-center shrink-0"><i data-lucide="receipt-text" class="w-6 h-6"></i></div>
+      <div>
+        <span class="inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-mono uppercase tracking-wider bg-amber-500/10 text-amber-300 border border-amber-500/25">Próximamente</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mt-3">Facturación electrónica DIAN, próximamente</h2>
+        <p class="text-sm sm:text-base text-slate-400 mt-3 leading-relaxed">Nexo Retail emitirá el documento equivalente POS electrónico y la factura electrónica desde la misma caja, sin trabajo extra para tu cajero. Estará incluida en los planes Pro y Empresarial.</p>
+        <a href="https://wa.me/573052484278?text=Hola%20Netxpremium!%20Quiero%20saber%20la%20fecha%20de%20activaci%C3%B3n%20de%20la%20facturaci%C3%B3n%20electr%C3%B3nica%20en%20Nexo%20Retail." target="_blank" rel="noopener noreferrer" class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-amber-300 hover:text-white transition-colors">
+          Pregúntanos por la fecha de activación
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FUNCIONA EN TUS EQUIPOS -->
+  <section class="py-20 px-6 md:px-12 max-w-7xl mx-auto">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-mono mb-4">
+        SIN COMPRAR EQUIPOS NUEVOS
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Funciona en tus equipos</h2>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+      <article class="glass-card rounded-2xl p-5">
+        <i data-lucide="monitor" class="w-6 h-6 text-brand-400"></i>
+        <p class="text-sm text-slate-300 mt-3 leading-relaxed"><strong class="text-white">Computador con Windows:</strong> programa instalable que usa la impresora térmica de tu caja.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-5">
+        <i data-lucide="tablet-smartphone" class="w-6 h-6 text-amber-300"></i>
+        <p class="text-sm text-slate-300 mt-3 leading-relaxed"><strong class="text-white">Celular o tablet Android y cualquier navegador:</strong> se instala como app desde Chrome, sin tiendas ni descargas pesadas.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-5">
+        <i data-lucide="printer" class="w-6 h-6 text-orange-300"></i>
+        <p class="text-sm text-slate-300 mt-3 leading-relaxed">Impresoras térmicas de 58 y 80 mm, cajón monedero y lector de código de barras USB.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-5">
+        <i data-lucide="bluetooth" class="w-6 h-6 text-sky-300"></i>
+        <p class="text-sm text-slate-300 mt-3 leading-relaxed">Impresoras Bluetooth desde Android.</p>
+      </article>
+      <article class="glass-card rounded-2xl p-5">
+        <i data-lucide="camera" class="w-6 h-6 text-emerald-400"></i>
+        <p class="text-sm text-slate-300 mt-3 leading-relaxed">Cámara del celular como lector de código de barras en Android.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- PREGUNTAS FRECUENTES -->
+  <section id="faq" class="scroll-mt-24 py-20 px-6 md:px-12 max-w-3xl mx-auto">
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-300 text-xs font-mono mb-4">
+        PREGUNTAS FRECUENTES
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Resolvemos tus dudas</h2>
+    </div>
+
+    <div class="space-y-3">
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿Qué pasa si se va el internet?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-brand-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Sigues vendiendo normal. Todo queda guardado en tu equipo y se sincroniza solo cuando vuelve la conexión. La caja te muestra cuántos registros faltan por subir.</p>
+      </details>
+
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿Necesito comprar un computador nuevo?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-brand-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">No. Funciona en el computador que ya tienes, en una tablet o en un celular Android.</p>
+      </details>
+
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿Puedo probarlo antes de pagar?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-brand-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Sí. La <a href="https://nexoretail.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="text-brand-300 hover:text-white underline underline-offset-2">demo</a> trae un minimercado de ejemplo para que vendas, cobres y revises reportes sin registrarte.</p>
+      </details>
+
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿Mis datos están seguros?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-brand-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Cada negocio ve solo su información. Las contraseñas no se guardan en texto y cada usuario entra con su propio PIN. Desde el sistema puedes descargar un respaldo cuando quieras.</p>
+      </details>
+
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿Puedo ver mis ventas desde la casa?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-brand-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Sí. Con el panel del dueño ves las ventas, las cajas abiertas y las alertas desde el celular. Es una cuenta solo de consulta: no cambia nada en la tienda.</p>
+      </details>
+
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿Cómo se paga?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-brand-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Mensualmente, con el link de pago seguro de Wompi (tarjeta, PSE o Nequi). Después del pago activamos o renovamos tu licencia.</p>
+      </details>
+
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿Puedo cambiar de plan?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-brand-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Sí, cuando quieras. Si bajas de plan no se borra nada: solo quedan bloqueados los usuarios o cajas que pasen el límite del nuevo plan.</p>
+      </details>
+
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿Sirve para varias sedes?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-brand-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Sí, con el plan Empresarial. Cada sede tiene su inventario y sus cajas, puedes trasladar mercancía entre ellas y ves todo junto en el panel del dueño.</p>
+      </details>
+
+      <details class="faq-item group glass-card rounded-2xl">
+        <summary class="flex items-center justify-between gap-4 cursor-pointer list-none p-5 sm:p-6 text-sm sm:text-base font-semibold text-white">
+          ¿Puedo cargar mis productos desde Excel?
+          <i data-lucide="chevron-down" class="w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 group-open:rotate-180 group-open:text-brand-300"></i>
+        </summary>
+        <p class="px-5 sm:px-6 pb-5 sm:pb-6 -mt-1 text-sm text-slate-400 leading-relaxed">Sí. Puedes importar tu catálogo con códigos de barras, unidades e impuestos desde una hoja de Excel.</p>
+      </details>
+    </div>
+
+    <p class="mt-8 text-center text-sm text-slate-400">
+      ¿Tienes otra pregunta?
+      <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="text-emerald-400 hover:text-emerald-300 font-semibold">Escríbenos por WhatsApp</a>
+    </p>
+  </section>
+
+  <!-- CIERRE -->
+  <section class="py-20 px-6 md:px-12 max-w-5xl mx-auto">
+    <div class="glass-panel rounded-3xl border border-brand-500/30 glow-brand p-8 md:p-12 text-center">
+      <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">Tu tienda, en orden desde hoy.</h2>
+      <p class="text-slate-400 text-sm sm:text-base mt-3 max-w-xl mx-auto">Prueba la demo en dos minutos o escríbenos y te ayudamos a escoger el plan.</p>
+      <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="https://nexoretail.netxpremium.com/?demo=true" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-brand-500 hover:bg-brand-400 text-grafito-950 font-semibold text-sm transition-all shadow-lg shadow-brand-500/30 flex items-center justify-center gap-2">
+          <span>Probar la demo</span>
+          <i data-lucide="external-link" class="w-4 h-4"></i>
+        </a>
+        <a href="https://wa.me/573052484278?text=Hola%20Netxpremium!%20Quiero%20saber%20m%C3%A1s%20de%20Nexo%20Retail%20para%20mi%20tienda." target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="w-full sm:w-auto px-7 py-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 font-semibold text-sm transition-all flex items-center justify-center gap-2">
+          <i data-lucide="message-circle" class="w-4 h-4"></i>
+          <span>Hablar por WhatsApp</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="border-t border-white/5 py-12 px-6 md:px-12 text-sm text-slate-400">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+      <div>
+        <p class="font-bold text-white">Nexo Retail</p>
+        <p class="text-xs text-slate-400 mt-1">Un producto de <a href="/" class="text-slate-300 hover:text-white underline underline-offset-2">NetxPremium</a>, soluciones de software a la medida.</p>
+      </div>
+
+      <address class="not-italic flex flex-col gap-2 text-xs items-center md:items-start">
+        <span class="inline-flex items-center gap-2">
+          <i data-lucide="map-pin" class="w-4 h-4 text-slate-500" aria-hidden="true"></i>
+          Ibagué, Tolima, Colombia
+        </span>
+        <a href="mailto:soporte@netxpremium.com" class="inline-flex items-center gap-2 hover:text-white transition-colors">
+          <i data-lucide="mail" class="w-4 h-4 text-slate-500" aria-hidden="true"></i>
+          soporte@netxpremium.com
+        </a>
+        <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 hover:text-white transition-colors">
+          <i data-lucide="message-circle" class="w-4 h-4 text-slate-500" aria-hidden="true"></i>
+          WhatsApp +57 305 248 4278
+        </a>
+      </address>
+
+      <nav aria-label="Enlaces legales" class="flex flex-col gap-2 text-xs items-center md:items-start">
+        <a href="/terminos" class="hover:text-white transition-colors">Términos y Condiciones</a>
+        <a href="/privacidad" class="hover:text-white transition-colors">Política de Privacidad</a>
+      </nav>
+    </div>
+
+    <div class="max-w-7xl mx-auto mt-10 pt-6 border-t border-white/5 text-center text-xs text-slate-500 font-mono">
+      © 2026 NetxPremium. Todos los derechos reservados.
+    </div>
+  </footer>
+
+  <!-- Aviso de cookies y almacenamiento local -->
+  <div id="cookie-banner" role="region" aria-label="Aviso de cookies" class="hidden fixed bottom-4 left-4 right-20 md:right-auto md:max-w-md z-[45] rounded-2xl border border-white/10 bg-grafito-850 p-4 shadow-2xl shadow-black/50">
+    <p class="text-xs text-slate-300 leading-relaxed">
+      Utilizamos cookies y almacenamiento local estrictamente necesarios para mejorar tu experiencia. Al continuar navegando, aceptas nuestra
+      <a href="/privacidad#almacenamiento" class="text-brand-300 underline underline-offset-2 hover:text-white">Política de Cookies y Privacidad</a>.
+    </p>
+    <button type="button" onclick="acceptCookies()" class="mt-3 px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs transition-colors">
+      Aceptar
+    </button>
+  </div>
+
+  <a href="https://wa.me/573052484278" target="_blank" rel="noopener noreferrer" aria-label="Contactar por WhatsApp" class="fixed bottom-6 right-6 z-40 w-12 h-12 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 transition-transform hover:scale-110">
+    <i data-lucide="message-circle" class="w-6 h-6"></i>
+  </a>
+
+  <script>
+    // Links de pago de Wompi de cada plan. Mientras estén vacíos, «Comprar plan» abre WhatsApp.
+    const LINKS_WOMPI = {
+      basico: '',
+      pro: '',
+      empresarial: '',
+    };
+
+    function conectarBotonesDeCompra() {
+      document.querySelectorAll('[data-comprar-plan]').forEach((boton) => {
+        const link = LINKS_WOMPI[boton.dataset.comprarPlan];
+        if (link) boton.href = link;
+      });
+    }
+
+    function toggleDrawer() {
+      document.getElementById('mobile-drawer').classList.toggle('hidden');
+    }
+
+    // Aviso de cookies: la aceptación se recuerda en localStorage (sin cookies de terceros)
+    const COOKIE_CONSENT_KEY = 'netx-cookie-consent';
+
+    function initCookieBanner() {
+      let accepted = false;
+      try {
+        accepted = localStorage.getItem(COOKIE_CONSENT_KEY) === 'accepted';
+      } catch (e) {}
+
+      if (!accepted) {
+        document.getElementById('cookie-banner').classList.remove('hidden');
+      }
+    }
+
+    function acceptCookies() {
+      try {
+        localStorage.setItem(COOKIE_CONSENT_KEY, 'accepted');
+      } catch (e) {}
+
+      document.getElementById('cookie-banner').classList.add('hidden');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      const drawer = document.getElementById('mobile-drawer');
+      if (e.key === 'Escape' && !drawer.classList.contains('hidden')) toggleDrawer();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      initCookieBanner();
+      conectarBotonesDeCompra();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Nexo Retail">
+  <title>Nexo Retail</title>
+  <defs>
+    <linearGradient id="nr-naranja" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFA552"/>
+      <stop offset="1" stop-color="#E6731B"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#16181F"/>
+  <!-- Asa de la bolsa -->
+  <path d="M196 200v-34a60 60 0 0 1 120 0v34" fill="none" stroke="url(#nr-naranja)" stroke-width="26" stroke-linecap="round"/>
+  <!-- Bolsa -->
+  <path d="M132 196h248a16 16 0 0 1 16 17l-13 195a36 36 0 0 1-36 33H165a36 36 0 0 1-36-33l-13-195a16 16 0 0 1 16-17z" fill="url(#nr-naranja)"/>
+  <!-- N de Nexo: un solo trazo que conecta dos nodos -->
+  <path d="M206 380V262l100 114V258" fill="none" stroke="#16181F" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="206" cy="262" r="9" fill="#FFA552"/>
+  <circle cx="306" cy="376" r="9" fill="#FFA552"/>
+</svg>
