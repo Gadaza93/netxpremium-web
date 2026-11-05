@@ -23,7 +23,7 @@ insert into public.planes (id, nombre, descripcion, precio_cop, caracteristicas,
     89990,
     array[
       'Mesas ilimitadas',
-      'Facturación y POS',
+      'Cobro y tickets',
       'Valoración de inventario y exportaciones',
       'Analítica de ganancias netas y control de gastos',
       'Mapa de layout de mesas interactivo',
