@@ -8,7 +8,7 @@ insert into public.planes (id, nombre, descripcion, precio_cop, caracteristicas,
     49990,
     array[
       'Hasta 10 mesas',
-      'Facturación, POS y control de stock simple',
+      'Cobro, tickets y control de stock simple',
       'Cierre de caja y ventas del día',
       'Interfaz tradicional en lista',
       '1 usuario (cajero/administrador)',
