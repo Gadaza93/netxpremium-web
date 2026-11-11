@@ -109,11 +109,13 @@ a:focus-visible, .btn:focus-visible { outline: 2px solid var(--pos); outline-off
 <div class="login" id="vista-login">
   <form id="form-login">
     <div class="marca" style="color:var(--text)"><i>N</i><b style="font-weight:700">netx<span>premium</span> Central</b></div>
-    <p class="muted" style="margin:0">Entra con tu usuario superadmin. Se conecta a NexoBar y NexoPos con el mismo correo y contraseña.</p>
+    <p class="muted" style="margin:0">Entra con tu usuario superadmin. Si NexoBar y NexoPos tienen correos distintos, entra primero con uno y luego con el otro.</p>
+    <div id="estado-login" style="display:flex; gap:14px; font-size:13px"></div>
     <label>Correo<input id="correo" type="email" autocomplete="username" required></label>
     <label>Contraseña<input id="clave" type="password" autocomplete="current-password" required></label>
     <button class="btn pri" type="submit" id="btn-entrar">Entrar</button>
     <div class="error" id="error-login" role="alert"></div>
+    <button class="btn" type="button" id="btn-continuar" hidden>Continuar</button>
   </form>
 </div>
 
@@ -209,8 +211,10 @@ function cliente(s) {
 const esSuperadmin = u => u?.app_metadata?.role === 'superadmin';
 
 // ---------- Sesión ----------
+// Solo intenta los sistemas que aún no tienen sesión: cada uno puede tener su propio correo de superadmin.
 async function entrar(correo, clave) {
-  const res = await Promise.all(SISTEMAS.map(async s => {
+  const conectados = await sesionesActivas();
+  const res = await Promise.all(SISTEMAS.filter(s => !conectados.includes(s.id)).map(async s => {
     const { data, error } = await cliente(s).auth.signInWithPassword({ email: correo, password: clave });
     if (error) return { s, ok: false, motivo: error.message === 'Invalid login credentials' ? 'correo o contraseña no válidos' : error.message };
     if (!esSuperadmin(data.user)) { await cliente(s).auth.signOut(); return { s, ok: false, motivo: 'la cuenta no es superadmin' }; }
@@ -270,7 +274,7 @@ function waRecordatorio(n) {
 function pintar() {
   const { negocios, compras, estado } = datos;
   // Conexiones
-  $('#conexiones').innerHTML = SISTEMAS.map(s => `<div><span class="punto" style="background:${estado[s.id]?.startsWith('Conectado') ? 'var(--ok)' : 'var(--bad)'}"></span>${s.id} · ${esc(estado[s.id] || '…')}</div>`).join('') + '<div><span class="punto" style="background:var(--ink-muted)"></span>Nexo Retail · sin base</div>';
+  $('#conexiones').innerHTML = SISTEMAS.map(s => `<div><span class="punto" style="background:${estado[s.id]?.startsWith('Conectado') ? 'var(--ok)' : 'var(--bad)'}"></span>${s.id} · ${esc(estado[s.id] || '…')}${estado[s.id] === 'Sin sesión' ? ' <button class="salir" data-conectar type="button">Conectar</button>' : ''}</div>`).join('') + '<div><span class="punto" style="background:var(--ink-muted)"></span>Nexo Retail · sin base</div>';
   $('#fecha-hoy').textContent = new Intl.DateTimeFormat('es-CO', { timeZone: ZONA, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date()) + ' · todos tus sistemas en un solo lugar';
 
   const conEstado = negocios.map(n => ({ ...n, est: estadoNegocio(n) }));
@@ -364,20 +368,34 @@ window.addEventListener('hashchange', () => mostrar(location.hash.slice(1)));
 async function abrirApp() { $('#vista-login').hidden = true; $('#vista-app').hidden = false; mostrar(location.hash.slice(1)); await cargar(); }
 window.addEventListener('DOMContentLoaded', async () => {
   if (!window.supabase?.createClient) { $('#error-login').textContent = 'No se pudo cargar la conexión con Supabase. Recarga la página.'; return; }
-  if ((await sesionesActivas()).length) return abrirApp();
+  const pintarLogin = async () => {
+    const con = await sesionesActivas(), faltan = SISTEMAS.filter(s => !con.includes(s.id)).map(s => s.id);
+    $('#estado-login').innerHTML = SISTEMAS.map(s => `<div>${con.includes(s.id) ? '<span class="ok">✓</span>' : '<span class="muted">○</span>'} ${s.id}${con.includes(s.id) ? ' conectado' : ''}</div>`).join('');
+    $('#btn-continuar').hidden = !con.length;
+    if (con.length && faltan.length) $('#btn-continuar').textContent = `Continuar sin ${faltan.join(' y ')}`;
+    return faltan;
+  };
+  const faltan = await pintarLogin();
+  if (!faltan.length || (sessionStorage.getItem('netx-central-parcial') === '1' && faltan.length < SISTEMAS.length)) return abrirApp();
   $('#form-login').addEventListener('submit', async e => {
     e.preventDefault();
     const btn = $('#btn-entrar'); btn.disabled = true; btn.textContent = 'Entrando…'; $('#error-login').textContent = '';
     const res = await entrar($('#correo').value.trim(), $('#clave').value);
     btn.disabled = false; btn.textContent = 'Entrar';
-    if (!res.some(r => r.ok)) { $('#error-login').textContent = res.map(r => `${r.s.id}: ${r.motivo}`).join(' · '); return; }
+    const pendientes = await pintarLogin();
+    if (!pendientes.length) { $('#clave').value = ''; return abrirApp(); }
+    const fallos = res.filter(r => !r.ok);
+    $('#error-login').textContent = (res.some(r => r.ok) ? `Listo: ${res.filter(r => r.ok).map(r => r.s.id).join(' y ')}. ` : '') +
+      `${pendientes.join(' y ')}: ${fallos.map(r => r.motivo)[0] || 'falta conectar'}. Escribe el correo y la contraseña de superadmin de ${pendientes.join(' y ')}.`;
     $('#clave').value = '';
-    abrirApp();
   });
+  $('#btn-continuar').addEventListener('click', () => { try { sessionStorage.setItem('netx-central-parcial', '1'); } catch {} abrirApp(); });
 });
 $('#btn-actualizar').addEventListener('click', cargar);
 ['#f-buscar', '#f-sistema', '#f-estado'].forEach(s => $(s).addEventListener('input', pintarClientes));
-$('#btn-salir').addEventListener('click', async () => { await Promise.all(SISTEMAS.map(s => cliente(s).auth.signOut())); location.hash = ''; location.reload(); });
+$('#btn-salir').addEventListener('click', async () => { try { sessionStorage.removeItem('netx-central-parcial'); } catch {} await Promise.all(SISTEMAS.map(s => cliente(s).auth.signOut())); location.hash = ''; location.reload(); });
+// Un sistema «Sin sesión» en la barra lateral vuelve al inicio de sesión para conectarlo (sin cerrar el otro)
+$('#conexiones').addEventListener('click', e => { if (!e.target.closest('[data-conectar]')) return; try { sessionStorage.removeItem('netx-central-parcial'); } catch {} location.reload(); });
 </script>
 </body>
 </html>
