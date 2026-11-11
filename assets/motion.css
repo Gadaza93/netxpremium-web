@@ -166,40 +166,46 @@
   #cookie-banner:not(.hidden) { animation: m-banner .6s cubic-bezier(.16, 1, .3, 1) .6s backwards; }
   @keyframes m-banner { from { opacity: 0; transform: translate3d(0, 120%, 0); } }
 
-  /* 14. Fondo vivo: luces difusas y rejilla de puntos detrás de todo el contenido (lo crea motion.js).
-         Cada luz tiene dos capas: la de afuera la mueve el scroll (profundidad) y la de adentro
-         flota sola, despacio. Para quitarlo: borra este bloque y la línea «fondoVivo()» de motion.js. */
+  /* 14. Fondo vivo (lo crea motion.js), detrás de todo el contenido:
+         a) aurora: manchas de color grandes que flotan, se mezclan y se desplazan con el scroll;
+         b) constelación: partículas unidas por líneas (canvas), reaccionan al scroll y al mouse;
+         c) foco de luz que sigue al mouse (solo computador).
+         Para quitarlo: borra este bloque y la línea «fondoVivo()» de motion.js.
+         Intensidad: el último número de cada --m-color (aurora), el velo (.m-velo) y FONDO al inicio de motion.js. */
   .m-fondo { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; contain: strict; }
-  .m-orbe { position: absolute; width: 55vmax; height: 55vmax; will-change: transform, opacity; }
+  .m-aurora { position: absolute; inset: -20%; animation: m-gira 90s linear infinite; will-change: transform; }
+  .m-orbe { position: absolute; width: 60vmax; height: 60vmax; will-change: transform, opacity; mix-blend-mode: screen; }
   .m-orbe > i {
     position: absolute; inset: 0; border-radius: 50%;
-    background: radial-gradient(closest-side, var(--m-color), transparent 72%);
-    animation: m-deriva var(--m-dura, 26s) ease-in-out infinite alternate; will-change: transform;
+    background: radial-gradient(closest-side, var(--m-color), transparent 70%);
+    animation: m-deriva var(--m-dura, 22s) ease-in-out infinite alternate; will-change: transform;
   }
-  .m-orbe:nth-child(1) { left: -15vmax; top: -10vmax; --m-color: rgba(99, 102, 241, .38); }
-  .m-orbe:nth-child(2) { right: -18vmax; top: 25vh;  --m-color: rgba(56, 189, 248, .26); }
-  .m-orbe:nth-child(3) { left: 20vw;  bottom: -25vmax; --m-color: rgba(168, 85, 247, .30); }
-  .m-orbe:nth-child(4) { right: 10vw; top: -20vmax; --m-color: rgba(16, 185, 129, .16); width: 40vmax; height: 40vmax; }
-  .m-orbe:nth-child(2) > i { --m-dura: 31s; animation-delay: -7s; }
-  .m-orbe:nth-child(3) > i { --m-dura: 23s; animation-delay: -15s; }
-  .m-orbe:nth-child(4) > i { --m-dura: 35s; animation-delay: -4s; }
+  .m-orbe:nth-child(1) { left: 0;    top: 0;    --m-color: rgba(99, 102, 241, .55); }
+  .m-orbe:nth-child(2) { right: 0;   top: 30%;  --m-color: rgba(56, 189, 248, .40); }
+  .m-orbe:nth-child(3) { left: 25%;  bottom: 0; --m-color: rgba(168, 85, 247, .45); }
+  .m-orbe:nth-child(4) { right: 20%; top: 5%;   --m-color: rgba(16, 185, 129, .22); width: 45vmax; height: 45vmax; }
+  .m-orbe:nth-child(2) > i { --m-dura: 27s; animation-delay: -7s; }
+  .m-orbe:nth-child(3) > i { --m-dura: 19s; animation-delay: -12s; }
+  .m-orbe:nth-child(4) > i { --m-dura: 31s; animation-delay: -4s; }
   @keyframes m-deriva {
     0%   { transform: translate3d(0, 0, 0) scale(1); }
-    33%  { transform: translate3d(6vmax, -4vmax, 0) scale(1.12); }
-    66%  { transform: translate3d(-5vmax, 5vmax, 0) scale(.92); }
-    100% { transform: translate3d(3vmax, 2vmax, 0) scale(1.05); }
+    33%  { transform: translate3d(10vmax, -7vmax, 0) scale(1.2); }
+    66%  { transform: translate3d(-8vmax, 8vmax, 0) scale(.85); }
+    100% { transform: translate3d(5vmax, 3vmax, 0) scale(1.1); }
   }
-  .m-rejilla {
-    position: absolute; left: 0; right: 0; top: -32px; height: calc(100% + 64px); opacity: .7;
-    background-image: radial-gradient(rgba(148, 163, 184, .30) 1px, transparent 1.6px);
-    background-size: 32px 32px;
-    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000, transparent);
-            mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000, transparent);
-    will-change: transform;
+  @keyframes m-gira { to { transform: rotate(360deg); } }
+  /* Velo oscuro encima de la aurora para que el texto siempre se lea bien */
+  .m-velo { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 70% at 50% 45%, rgba(6, 7, 10, .5), rgba(6, 7, 10, .1)); }
+  .m-constelacion { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1.2s ease; }
+  .m-constelacion.m-lista { opacity: 1; }
+  .m-foco {
+    position: absolute; left: 0; top: 0; width: 640px; height: 640px; border-radius: 50%; opacity: 0;
+    background: radial-gradient(closest-side, rgba(129, 140, 248, .22), transparent);
+    transition: opacity .4s; will-change: transform;
   }
-  /* En celular, luces un poco más pequeñas y sin la cuarta para ahorrar batería */
+  .m-foco.m-lista { opacity: 1; }
   @media (max-width: 640px) {
-    .m-orbe { width: 80vmax; height: 80vmax; }
+    .m-orbe { width: 85vmax; height: 85vmax; }
     .m-orbe:nth-child(4) { display: none; }
   }
 }

@@ -338,34 +338,133 @@
     }
   }
 
-  /* 11. Fondo vivo: luces y rejilla que se mueven a distinta velocidad al hacer scroll */
+  /* 11. Fondo vivo: aurora de color, constelación de partículas y foco que sigue al mouse */
+  const FONDO = {
+    particulasPorPantalla: conMouse ? 90 : 60, // cantidad de puntos (menos en celular)
+    distanciaLinea: 140,                       // px máximos para unir dos puntos con una línea
+    velocidad: 0.25,                           // px por cuadro
+    parallax: 0.35,                            // cuánto se desplazan los puntos al hacer scroll
+    colores: ['129,140,248', '56,189,248', '192,132,252', '52,211,153'],
+  };
+
   function fondoVivo() {
     const fondo = document.createElement('div');
     fondo.className = 'm-fondo';
     fondo.setAttribute('aria-hidden', 'true');
-    fondo.innerHTML = '<div class="m-rejilla"></div>' + '<div class="m-orbe"><i></i></div>'.repeat(4);
+    fondo.innerHTML = '<div class="m-aurora">' + '<div class="m-orbe"><i></i></div>'.repeat(4) + '</div>'
+      + '<div class="m-velo"></div><canvas class="m-constelacion"></canvas><div class="m-foco"></div>';
     document.body.prepend(fondo);
-    const rejilla = fondo.firstElementChild;
     const orbes = Array.from(fondo.querySelectorAll('.m-orbe'));
-    // Cada luz: cuánto se mueve (en % de la pantalla), qué tan rápido responde al scroll y su desfase.
-    // Se usa seno/coseno para que, por larga que sea la página, las luces nunca se salgan de la pantalla.
+    const lienzo = fondo.querySelector('canvas');
+    const foco = fondo.querySelector('.m-foco');
+
+    // a) Aurora: cada mancha se desplaza con el scroll a su propio ritmo (seno/coseno: nunca se sale)
     const conf = [
-      { ax: 0.10, ay: 0.22, vel: 1.0, fase: 0 },
-      { ax: 0.14, ay: 0.25, vel: 0.7, fase: 2.1 },
-      { ax: 0.12, ay: 0.20, vel: 1.3, fase: 4.2 },
-      { ax: 0.08, ay: 0.18, vel: 0.5, fase: 1.0 },
+      { ax: 0.18, ay: 0.30, vel: 1.0, fase: 0 },
+      { ax: 0.22, ay: 0.28, vel: 0.7, fase: 2.1 },
+      { ax: 0.20, ay: 0.26, vel: 1.3, fase: 4.2 },
+      { ax: 0.15, ay: 0.22, vel: 0.5, fase: 1.0 },
     ];
     alScroll.push(() => {
-      const y = scrollY;
-      const w = innerWidth, h = innerHeight;
+      const y = scrollY, w = innerWidth, h = innerHeight;
       orbes.forEach((o, i) => {
         const c = conf[i];
-        const t = (y / 1400) * c.vel + c.fase;
+        const t = (y / 1100) * c.vel + c.fase;
         o.style.transform = `translate3d(${(Math.cos(t) * c.ax * w).toFixed(1)}px, ${(Math.sin(t) * c.ay * h).toFixed(1)}px, 0)`;
-        o.style.opacity = (0.65 + 0.35 * Math.sin(t * 1.3)).toFixed(3);
+        o.style.opacity = (0.6 + 0.4 * Math.sin(t * 1.3)).toFixed(3);
       });
-      rejilla.style.transform = `translate3d(0, ${(-(y * 0.12) % 32).toFixed(1)}px, 0)`;
     });
+
+    // c) Foco que sigue al mouse (solo computador)
+    let mouse = null;
+    if (conMouse) {
+      let pendiente = false;
+      addEventListener('pointermove', (e) => {
+        mouse = { x: e.clientX, y: e.clientY };
+        if (pendiente) return;
+        pendiente = true;
+        requestAnimationFrame(() => {
+          pendiente = false;
+          foco.style.transform = `translate3d(${mouse.x - 320}px, ${mouse.y - 320}px, 0)`;
+          foco.classList.add('m-lista');
+        });
+      }, { passive: true });
+      document.addEventListener('pointerleave', () => { mouse = null; foco.classList.remove('m-lista'); });
+    }
+
+    // b) Constelación en canvas. Arranca cuando la página ya cargó para no afectar la carga inicial.
+    const ctx = lienzo.getContext('2d');
+    if (!ctx) return;
+    let ancho = 0, alto = 0, dpr = 1, puntos = [], corriendo = false, ultimoScroll = scrollY;
+
+    const crear = () => {
+      dpr = Math.min(devicePixelRatio || 1, 1.5);
+      ancho = innerWidth; alto = innerHeight;
+      lienzo.width = Math.round(ancho * dpr); lienzo.height = Math.round(alto * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const n = Math.round(FONDO.particulasPorPantalla * Math.min(1.4, Math.max(0.7, (ancho * alto) / (1280 * 800))));
+      puntos = Array.from({ length: Math.max(24, n) }, () => ({
+        x: Math.random() * ancho, y: Math.random() * alto,
+        vx: (Math.random() - 0.5) * FONDO.velocidad * 2, vy: (Math.random() - 0.5) * FONDO.velocidad * 2,
+        r: Math.random() * 1.6 + 0.8, c: FONDO.colores[Math.floor(Math.random() * FONDO.colores.length)],
+        prof: Math.random() * 0.7 + 0.3, // los más «cercanos» se mueven más con el scroll
+      }));
+    };
+
+    const cuadro = () => {
+      if (!corriendo) return;
+      const dy = (scrollY - ultimoScroll) * FONDO.parallax;
+      ultimoScroll = scrollY;
+      ctx.clearRect(0, 0, ancho, alto);
+      const D = FONDO.distanciaLinea, D2 = D * D;
+      for (const p of puntos) {
+        p.x += p.vx; p.y += p.vy - dy * p.prof;
+        if (p.x < -20) p.x = ancho + 20; else if (p.x > ancho + 20) p.x = -20;
+        if (p.y < -20) p.y = alto + 20; else if (p.y > alto + 20) p.y = -20;
+        // El mouse los atrae un poco
+        if (mouse) {
+          const mx = mouse.x - p.x, my = mouse.y - p.y, m2 = mx * mx + my * my;
+          if (m2 < 40000) { p.x += mx * 0.004; p.y += my * 0.004; }
+        }
+      }
+      ctx.lineWidth = 1;
+      for (let i = 0; i < puntos.length; i++) {
+        const a = puntos[i];
+        for (let j = i + 1; j < puntos.length; j++) {
+          const b = puntos[j];
+          const dx = a.x - b.x, dyy = a.y - b.y, d2 = dx * dx + dyy * dyy;
+          if (d2 < D2) {
+            ctx.strokeStyle = `rgba(${a.c},${(0.22 * (1 - d2 / D2)).toFixed(3)})`;
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          }
+        }
+        if (mouse) {
+          const dx = a.x - mouse.x, dyy = a.y - mouse.y, d2 = dx * dx + dyy * dyy;
+          if (d2 < D2 * 1.6) {
+            ctx.strokeStyle = `rgba(${a.c},${(0.45 * (1 - d2 / (D2 * 1.6))).toFixed(3)})`;
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
+          }
+        }
+      }
+      for (const p of puntos) {
+        ctx.fillStyle = `rgba(${p.c},0.85)`;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill();
+      }
+      requestAnimationFrame(cuadro);
+    };
+
+    const iniciar = () => { if (corriendo || document.hidden) return; corriendo = true; ultimoScroll = scrollY; requestAnimationFrame(cuadro); };
+    const empezar = () => {
+      crear();
+      lienzo.classList.add('m-lista');
+      iniciar();
+      let espera;
+      addEventListener('resize', () => { clearTimeout(espera); espera = setTimeout(crear, 200); }, { passive: true });
+      // Se pausa cuando la pestaña no se ve (ahorra batería)
+      document.addEventListener('visibilitychange', () => { if (document.hidden) corriendo = false; else iniciar(); });
+    };
+    const despuesDeCargar = () => ('requestIdleCallback' in window ? requestIdleCallback(empezar, { timeout: 2000 }) : setTimeout(empezar, 600));
+    if (document.readyState === 'complete') despuesDeCargar(); else addEventListener('load', despuesDeCargar);
   }
 
   function arrancar() {
