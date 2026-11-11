@@ -314,6 +314,14 @@
       .apps-panel { position: fixed; top: var(--apps-top, 120px); left: 16px; right: 16px; width: auto; max-width: 400px; transform: translateY(-6px); }
       .apps-menu.is-open .apps-panel { transform: none; }
     }
+    /* Íconos de redes sociales en el pie de página */
+    .redes { display: flex; gap: 10px; margin-top: 14px; justify-content: center; }
+    .redes a { width: 36px; height: 36px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center;
+      color: #94A3B8; border: 1px solid rgba(255, 255, 255, .1); background: rgba(255, 255, 255, .03);
+      transition: color .2s, border-color .2s, transform .2s; }
+    .redes a:hover, .redes a:focus-visible { color: #fff; border-color: rgba(129, 140, 248, .55); transform: translateY(-2px); }
+    .redes svg { width: 18px; height: 18px; fill: none; stroke: currentColor; flex-shrink: 0; }
+    @media (min-width: 768px) { .redes { justify-content: flex-start; } }
   </style>
 </head>
 <body>
@@ -563,6 +571,14 @@
       <div>
         <p class="foot-name">NetxPremium</p>
         <p class="foot-tag">Soluciones de Software y Punto de Venta</p>
+        <div class="redes" aria-label="Redes sociales de Netxpremium">
+          <a href="https://www.instagram.com/netxpremium/" target="_blank" rel="noopener noreferrer me" aria-label="Netxpremium en Instagram">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+          </a>
+          <a href="https://www.facebook.com/profile.php?id=61577096870495" target="_blank" rel="noopener noreferrer me" aria-label="Netxpremium en Facebook">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+        </div>
       </div>
 
       <address class="foot-col">
