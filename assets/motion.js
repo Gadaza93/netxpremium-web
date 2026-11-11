@@ -338,7 +338,38 @@
     }
   }
 
+  /* 11. Fondo vivo: luces y rejilla que se mueven a distinta velocidad al hacer scroll */
+  function fondoVivo() {
+    const fondo = document.createElement('div');
+    fondo.className = 'm-fondo';
+    fondo.setAttribute('aria-hidden', 'true');
+    fondo.innerHTML = '<div class="m-rejilla"></div>' + '<div class="m-orbe"><i></i></div>'.repeat(4);
+    document.body.prepend(fondo);
+    const rejilla = fondo.firstElementChild;
+    const orbes = Array.from(fondo.querySelectorAll('.m-orbe'));
+    // Cada luz: cuánto se mueve (en % de la pantalla), qué tan rápido responde al scroll y su desfase.
+    // Se usa seno/coseno para que, por larga que sea la página, las luces nunca se salgan de la pantalla.
+    const conf = [
+      { ax: 0.10, ay: 0.22, vel: 1.0, fase: 0 },
+      { ax: 0.14, ay: 0.25, vel: 0.7, fase: 2.1 },
+      { ax: 0.12, ay: 0.20, vel: 1.3, fase: 4.2 },
+      { ax: 0.08, ay: 0.18, vel: 0.5, fase: 1.0 },
+    ];
+    alScroll.push(() => {
+      const y = scrollY;
+      const w = innerWidth, h = innerHeight;
+      orbes.forEach((o, i) => {
+        const c = conf[i];
+        const t = (y / 1400) * c.vel + c.fase;
+        o.style.transform = `translate3d(${(Math.cos(t) * c.ax * w).toFixed(1)}px, ${(Math.sin(t) * c.ay * h).toFixed(1)}px, 0)`;
+        o.style.opacity = (0.65 + 0.35 * Math.sin(t * 1.3)).toFixed(3);
+      });
+      rejilla.style.transform = `translate3d(0, ${(-(y * 0.12) % 32).toFixed(1)}px, 0)`;
+    });
+  }
+
   function arrancar() {
+    fondoVivo();
     apariciones();
     subrayado();
     menuSuperior();
