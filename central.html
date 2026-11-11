@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="es-CO">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Netxpremium Central</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Inter:wght@400;500;600&display=swap">
+<script defer src="/assets/vendor/supabase-2.117.3.min.js"></script>
+<style>
+:root {
+  --bg: #F5F3F0; --surface: #FFFFFF; --surface-2: #EEEBE7; --line: #E0DBD4;
+  --text: #1B1C21; --muted: #696870; --accent: #E6731B; --accent-soft: rgba(230,115,27,.12);
+  --ink: #12141A; --ink-2: #1B1E26; --ink-text: #E9EAEE; --ink-muted: #8E93A0;
+  --ok: #0E9F6E; --warn: #B7791F; --bad: #D03B3B; --bar: #E6731B; --pos: #2F6FDB; --retail: #8B5CF6;
+  --font-display: "Barlow Semi Condensed", Bahnschrift, "Segoe UI", sans-serif;
+  --font-ui: Inter, "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #181A20; --surface: #20232B; --surface-2: #282C37; --line: #323745; --text: #F3F4F6; --muted: #9CA3AF;
+  --accent: #FF8C32; --accent-soft: rgba(255,140,50,.14); --ok: #10B981; --warn: #F59E0B; --bad: #EF4444;
+  --bar: #FF8C32; --pos: #60A5FA; --retail: #A78BFA; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #181A20; --surface: #20232B; --surface-2: #282C37; --line: #323745; --text: #F3F4F6; --muted: #9CA3AF;
+  --accent: #FF8C32; --accent-soft: rgba(255,140,50,.14); --ok: #10B981; --warn: #F59E0B; --bad: #EF4444;
+  --bar: #FF8C32; --pos: #60A5FA; --retail: #A78BFA; color-scheme: dark }
+* { box-sizing: border-box }
+html, body { margin: 0 }
+body { background: var(--bg); color: var(--text); font: 14px/1.5 var(--font-ui) }
+.app { display: grid; grid-template-columns: 220px minmax(0, 1fr); min-height: 100vh }
+aside { background: var(--ink); color: var(--ink-text); padding: 20px 14px; display: flex; flex-direction: column; gap: 18px; position: sticky; top: 0; height: 100vh }
+.marca { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 20px; font-weight: 700 }
+.marca i { width: 32px; height: 32px; border-radius: 9px; background: linear-gradient(135deg, #FFA552, #E6731B); display: grid; place-items: center; font-style: normal; color: var(--ink) }
+.marca span { color: #FF8C32 }
+nav { display: grid; gap: 2px }
+nav a { color: var(--ink-muted); text-decoration: none; padding: 8px 10px; border-radius: 9px; font-weight: 500 }
+nav a.on, nav a:hover { background: var(--ink-2); color: var(--ink-text) }
+.conexiones { margin-top: auto; display: grid; gap: 6px; font-size: 12px; color: var(--ink-muted) }
+.conexiones div { display: flex; align-items: center; gap: 8px }
+.punto { width: 8px; height: 8px; border-radius: 50%; flex: none }
+main { padding-block: 22px 48px; padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); display: grid; gap: 22px; align-content: start; min-width: 0 }
+.borrador { background: var(--accent-soft); border: 1px dashed var(--accent); border-radius: 12px; padding: 10px 14px; font-size: 13px }
+.cab { display: flex; justify-content: space-between; align-items: end; gap: 12px; flex-wrap: wrap }
+h1 { font-family: var(--font-display); font-size: 30px; margin: 0; line-height: 1.1 }
+h2 { font-family: var(--font-display); font-size: 21px; margin: 0 0 10px }
+.muted { color: var(--muted) }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; min-width: 0; color: var(--text); text-decoration: none; display: block }
+a.kpi:hover { border-color: var(--accent) }
+.panel { display: grid; gap: 22px; align-content: start; min-width: 0 }
+nav a { display: flex; justify-content: space-between; align-items: center; gap: 8px }
+.cuenta { background: var(--bad); color: #fff; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 0 7px; line-height: 18px }
+.kpi small { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .06em }
+.kpi b { display: block; font-family: var(--font-display); font-size: 32px; font-variant-numeric: tabular-nums; line-height: 1.15 }
+.kpi .det { font-size: 12px; color: var(--muted) }
+.sistemas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px }
+.sis { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: grid; gap: 8px; border-top: 3px solid var(--c) }
+.sis h3 { margin: 0; font-family: var(--font-display); font-size: 19px; display: flex; justify-content: space-between; align-items: center }
+.sis dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; font-variant-numeric: tabular-nums }
+.sis dt { color: var(--muted) } .sis dd { margin: 0; font-weight: 600; text-align: right }
+.sis.pendiente { border-style: dashed; border-top-style: solid }
+.pill { font-size: 11px; font-weight: 600; border-radius: 999px; padding: 2px 9px; border: 1px solid currentColor; white-space: nowrap; font-family: var(--font-ui) }
+.dos { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; align-items: start }
+.bloque { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; min-width: 0 }
+.fila { display: flex; justify-content: space-between; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); align-items: center }
+.fila:first-of-type { border-top: 0 }
+.fila .n { font-weight: 600 } .fila .s { font-size: 12px; color: var(--muted) }
+.btn { font: inherit; font-size: 12px; font-weight: 600; border: 1px solid var(--line); background: var(--surface-2); color: var(--text); border-radius: 8px; padding: 5px 10px; cursor: pointer; white-space: nowrap }
+.btn.pri { background: var(--accent); border-color: var(--accent); color: #16181F }
+.sistema { font-size: 11px; font-weight: 700; border-radius: 6px; padding: 2px 7px; color: #fff; white-space: nowrap }
+.s-bar { background: var(--bar); color: #16181F } .s-pos { background: var(--pos) } .s-retail { background: var(--retail) }
+.ok { color: var(--ok) } .warn { color: var(--warn) } .bad { color: var(--bad) }
+.filtros { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px }
+.filtros input, .filtros select { font: inherit; color: var(--text); background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px; min-width: 0 }
+.filtros input { flex: 1 1 200px }
+.tabla { overflow-x: auto }
+table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; min-width: 760px }
+th { text-align: left; font-size: 12px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding: 8px 10px; border-bottom: 1px solid var(--line) }
+td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle }
+td.num { text-align: right }
+.embudo { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px }
+.etapa { background: var(--surface-2); border-radius: 10px; padding: 10px; text-align: center }
+.etapa b { display: block; font-family: var(--font-display); font-size: 24px }
+.etapa small { font-size: 11px; color: var(--muted) }
+.barra { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; margin-top: 6px }
+.barra i { display: block; height: 100%; background: var(--accent); border-radius: 99px }
+a:focus-visible, .btn:focus-visible { outline: 2px solid var(--pos); outline-offset: 2px }
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr } aside { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+  nav { grid-auto-flow: column; overflow-x: auto } .conexiones { display: none }
+  main { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)) } .sistemas, .dos { grid-template-columns: 1fr }
+  .embudo { grid-template-columns: repeat(3, minmax(0, 1fr)) }
+}
+
+[hidden] { display: none !important }
+.login { min-height: 100vh; display: grid; place-items: center; padding: 24px max(16px, env(safe-area-inset-left, 0px)) }
+.login form { width: min(380px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 26px; display: grid; gap: 12px }
+.login label { display: grid; gap: 4px; font-size: 13px; color: var(--muted) }
+.login input { font: inherit; color: var(--text); background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px }
+.login .btn { padding: 10px; font-size: 14px }
+.error { color: var(--bad); font-size: 13px; min-height: 1.2em }
+.vacio { color: var(--muted); padding: 10px 0 }
+.salir { background: none; border: 1px solid #2c303b; color: var(--ink-muted); border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 12px; cursor: pointer }
+</style>
+</head>
+<body>
+
+<div class="login" id="vista-login">
+  <form id="form-login">
+    <div class="marca" style="color:var(--text)"><i>N</i><b style="font-weight:700">netx<span>premium</span> Central</b></div>
+    <p class="muted" style="margin:0">Entra con tu usuario superadmin. Se conecta a NexoBar y NexoPos con el mismo correo y contraseña.</p>
+    <label>Correo<input id="correo" type="email" autocomplete="username" required></label>
+    <label>Contraseña<input id="clave" type="password" autocomplete="current-password" required></label>
+    <button class="btn pri" type="submit" id="btn-entrar">Entrar</button>
+    <div class="error" id="error-login" role="alert"></div>
+  </form>
+</div>
+
+<div class="app" id="vista-app" hidden>
+  <aside>
+    <div class="marca"><i>N</i><b style="font-weight:700">netx<span>premium</span></b></div>
+    <nav aria-label="Secciones">
+      <a href="#resumen" data-tab="resumen">Resumen</a>
+      <a href="#atencion" data-tab="atencion">Requieren atención <span class="cuenta" id="cuenta-atencion" hidden></span></a>
+      <a href="#clientes" data-tab="clientes">Clientes</a>
+      <a href="#ventas" data-tab="ventas">Ventas</a>
+      <a href="#pagos" data-tab="pagos">Pagos</a>
+    </nav>
+    <div class="conexiones" aria-label="Conexiones" id="conexiones"></div>
+    <button class="salir" id="btn-salir" type="button">Cerrar sesión</button>
+  </aside>
+
+  <main>
+    <div class="panel" data-panel="resumen">
+      <section class="cab">
+        <div><h1 id="saludo">Resumen</h1><p class="muted" style="margin:2px 0 0" id="fecha-hoy"></p></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap"><button class="btn" id="btn-actualizar" type="button">Actualizar</button></div>
+      </section>
+      <div class="kpis">
+        <a class="kpi" href="#clientes"><small>Clientes activos</small><b id="k-activos">—</b><span class="det" id="k-activos-det"></span></a>
+        <a class="kpi" href="#pagos"><small>Ingresos del mes</small><b id="k-ingresos">—</b><span class="det" id="k-ingresos-det"></span></a>
+        <a class="kpi" href="#atencion"><small>Vencen en 7 días</small><b class="warn" id="k-vencen">—</b><span class="det" id="k-vencen-det"></span></a>
+        <a class="kpi" href="#atencion"><small>Suspendidos o vencidos</small><b class="bad" id="k-suspendidos">—</b><span class="det">Hay que renovar o dar de baja</span></a>
+      </div>
+      <div class="sistemas" id="sistemas"></div>
+    </div>
+
+    <div class="panel" data-panel="atencion" hidden>
+      <section class="bloque"><h2>Requieren atención</h2><div id="lista-atencion"></div></section>
+    </div>
+
+    <section class="bloque panel" data-panel="clientes" hidden>
+      <h2>Clientes de todos los sistemas</h2>
+      <div class="filtros">
+        <input type="search" id="f-buscar" placeholder="Buscar negocio o ID" aria-label="Buscar negocio">
+        <select id="f-sistema" aria-label="Sistema"><option value="">Todos los sistemas</option><option>NexoBar</option><option>NexoPos</option></select>
+        <select id="f-estado" aria-label="Estado"><option value="">Todos los estados</option><option value="activo">Activos</option><option value="vence">Por vencer (7 días)</option><option value="suspendido">Suspendidos o vencidos</option></select>
+      </div>
+      <div class="tabla"><table><thead><tr><th>Negocio</th><th>Sistema</th><th>Plan</th><th>Vence</th><th class="num">Ventas</th><th class="num">Productos</th><th>Contacto</th></tr></thead><tbody id="tabla-clientes"></tbody></table></div>
+    </section>
+
+    <div class="panel" data-panel="ventas" hidden>
+      <section class="bloque">
+        <h2>Ventas del mes</h2>
+        <div class="embudo" id="embudo-ventas"></div>
+        <div style="margin-top:14px" id="ventas-detalle"></div>
+      </section>
+      <section class="bloque">
+        <h2>Prospectos</h2>
+        <p class="muted" style="margin:0 0 10px">El tablero de prospectos sigue en Claude por ahora. En la fase 3 pasa a tu base de datos y aparece aquí con su embudo.</p>
+        <a class="btn" href="https://claude.ai/artifact/N8jetGU1czC75rh7GK6L2k" target="_blank" rel="noopener" style="text-decoration:none">Abrir tablero de prospectos</a>
+      </section>
+    </div>
+
+    <section class="bloque panel" data-panel="pagos" hidden>
+      <h2>Últimos pagos</h2>
+      <div class="tabla"><table><thead><tr><th>Fecha</th><th>Negocio</th><th>Sistema</th><th>Plan</th><th class="num">Valor</th><th>Estado</th></tr></thead><tbody id="tabla-pagos"></tbody></table></div>
+    </section>
+  </main>
+</div>
+
+<script>
+// Netxpremium Central (fase 1, solo lectura): reúne los negocios y pagos de NexoBar y NexoPos.
+// Cada sistema sigue en su propio proyecto de Supabase; aquí se inicia sesión de superadmin en cada uno y se leen
+// las mismas funciones que usan sus paneles (admin_get_all_negocios) y la tabla compras (política superadmin).
+const SISTEMAS = [
+  { id: 'NexoBar', clase: 's-bar', url: 'https://fthjtbhxqqzqpyhtynaa.supabase.co', key: 'sb_publishable_qg2FVUMhBsIshhIRCOGISg_vLF1PLuy', panel: 'https://nexobar.netxpremium.com/admin.html', compra: 'https://netxpremium.com/nexobar', color: 'var(--bar)' },
+  { id: 'NexoPos', clase: 's-pos', url: 'https://voesyutyotonbktndrum.supabase.co', key: 'sb_publishable_FCYyjpjy8SOBzQkEcYAfjA_N6hzP3bh', panel: 'https://nexopos.netxpremium.com/admin.html', compra: 'https://netxpremium.com/nexopos', color: 'var(--pos)' },
+];
+const ZONA = 'America/Bogota';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pesos = n => '$' + Math.round(Number(n) || 0).toLocaleString('es-CO');
+const fFecha = new Intl.DateTimeFormat('es-CO', { timeZone: ZONA, day: 'numeric', month: 'short', year: 'numeric' });
+const fFechaHora = new Intl.DateTimeFormat('es-CO', { timeZone: ZONA, day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+const planNombre = p => ({ basico: 'Básico', pro: 'Pro', prueba: 'Prueba' }[String(p || '').toLowerCase().replace(/_anual$/, '')] || p || '—');
+
+let datos = { negocios: [], compras: [], estado: {} };
+const clientes = {};
+
+function cliente(s) {
+  if (!clientes[s.id]) {
+    let storage; try { storage = sessionStorage; } catch { storage = undefined; }
+    clientes[s.id] = window.supabase.createClient(s.url, s.key, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: 'netx-central-' + s.id.toLowerCase(), ...(storage ? { storage } : {}) } });
+  }
+  return clientes[s.id];
+}
+const esSuperadmin = u => u?.app_metadata?.role === 'superadmin';
+
+// ---------- Sesión ----------
+async function entrar(correo, clave) {
+  const res = await Promise.all(SISTEMAS.map(async s => {
+    const { data, error } = await cliente(s).auth.signInWithPassword({ email: correo, password: clave });
+    if (error) return { s, ok: false, motivo: error.message === 'Invalid login credentials' ? 'correo o contraseña no válidos' : error.message };
+    if (!esSuperadmin(data.user)) { await cliente(s).auth.signOut(); return { s, ok: false, motivo: 'la cuenta no es superadmin' }; }
+    return { s, ok: true };
+  }));
+  return res;
+}
+async function sesionesActivas() {
+  const res = await Promise.all(SISTEMAS.map(async s => { const { data } = await cliente(s).auth.getSession(); return esSuperadmin(data.session?.user) ? s.id : null; }));
+  return res.filter(Boolean);
+}
+
+// ---------- Datos ----------
+async function cargar() {
+  $('#btn-actualizar').disabled = true;
+  const negocios = [], compras = [], estado = {};
+  await Promise.all(SISTEMAS.map(async s => {
+    const sb = cliente(s);
+    const { data: sesion } = await sb.auth.getSession();
+    if (!esSuperadmin(sesion.session?.user)) { estado[s.id] = 'Sin sesión'; return; }
+    const [neg, com] = await Promise.all([
+      sb.rpc('admin_get_all_negocios'),
+      sb.from('compras').select('*').order('created_at', { ascending: false }).limit(500),
+    ]);
+    if (neg.error) { estado[s.id] = 'Error: ' + neg.error.message; return; }
+    estado[s.id] = com.error ? 'Conectado (sin acceso a pagos)' : 'Conectado';
+    (neg.data || []).forEach(n => negocios.push({ ...n, sistema: s.id }));
+    (com.data || []).forEach(c => compras.push({ ...c, sistema: s.id }));
+  }));
+  datos = { negocios, compras, estado };
+  pintar();
+  $('#btn-actualizar').disabled = false;
+}
+
+// ---------- Cálculos ----------
+const DIA = 86400000;
+function diasPara(fecha) { if (!fecha) return null; const t = new Date(fecha).getTime(); return Number.isNaN(t) ? null : Math.ceil((t - Date.now()) / DIA); }
+function estadoNegocio(n) {
+  const d = diasPara(n.fecha_vencimiento);
+  if (n.activo === false) return { clave: 'suspendido', texto: 'Suspendido', tono: 'bad' };
+  if (d !== null && d < 0) return { clave: 'suspendido', texto: `Vencido hace ${-d} d`, tono: 'bad' };
+  if (d !== null && d <= 7) return { clave: 'vence', texto: d === 0 ? 'Vence hoy' : `Vence en ${d} d`, tono: 'warn' };
+  return { clave: 'activo', texto: d === null ? 'Sin fecha' : `En ${d} días`, tono: 'ok' };
+}
+function inicioMes() { const p = new Intl.DateTimeFormat('en-CA', { timeZone: ZONA, year: 'numeric', month: '2-digit' }).format(new Date()); return new Date(p + '-01T00:00:00-05:00').getTime(); }
+const pagada = c => ['pagado', 'entregado'].includes(c.estado) && !c.duplicado_de;
+function contactoDe(n) { return datos.compras.find(c => c.sistema === n.sistema && c.negocio_id === n.id && c.telefono) || null; }
+function waRecordatorio(n) {
+  const c = contactoDe(n); if (!c?.telefono) return '';
+  const s = SISTEMAS.find(x => x.id === n.sistema);
+  const fecha = n.fecha_vencimiento ? fFecha.format(new Date(n.fecha_vencimiento)) : '';
+  const txt = `Hola ${c.responsable ? c.responsable.split(' ')[0] : ''}, le escribe Andrés de Netxpremium. El plan ${planNombre(n.plan)} de ${n.sistema} de ${n.nombre} vence el ${fecha}. Puede renovarlo aquí con el mismo correo (${c.email}): ${s.compra} ¡Gracias por confiar en nosotros!`;
+  return `https://wa.me/57${c.telefono}?text=${encodeURIComponent(txt)}`;
+}
+
+// ---------- Pintar ----------
+function pintar() {
+  const { negocios, compras, estado } = datos;
+  // Conexiones
+  $('#conexiones').innerHTML = SISTEMAS.map(s => `<div><span class="punto" style="background:${estado[s.id]?.startsWith('Conectado') ? 'var(--ok)' : 'var(--bad)'}"></span>${s.id} · ${esc(estado[s.id] || '…')}</div>`).join('') + '<div><span class="punto" style="background:var(--ink-muted)"></span>Nexo Retail · sin base</div>';
+  $('#fecha-hoy').textContent = new Intl.DateTimeFormat('es-CO', { timeZone: ZONA, weekday: 'long', day: 'numeric', month: 'long' }).format(new Date()) + ' · todos tus sistemas en un solo lugar';
+
+  const conEstado = negocios.map(n => ({ ...n, est: estadoNegocio(n) }));
+  const activos = conEstado.filter(n => n.est.clave !== 'suspendido');
+  const vencen = conEstado.filter(n => n.est.clave === 'vence');
+  const suspendidos = conEstado.filter(n => n.est.clave === 'suspendido');
+  const desde = inicioMes();
+  const delMes = compras.filter(c => pagada(c) && new Date(c.pagado_at || c.created_at).getTime() >= desde);
+  const porSis = id => activos.filter(n => n.sistema === id).length;
+
+  $('#k-activos').textContent = activos.length;
+  $('#k-activos-det').textContent = SISTEMAS.map(s => `${porSis(s.id)} ${s.id}`).join(' · ');
+  $('#k-ingresos').textContent = pesos(delMes.reduce((a, c) => a + (c.monto_cop || 0), 0));
+  $('#k-ingresos-det').textContent = `${delMes.length} pago${delMes.length === 1 ? '' : 's'} por Wompi`;
+  $('#k-vencen').textContent = vencen.length;
+  $('#k-vencen-det').textContent = vencen.length ? 'Toca recordarles la renovación' : 'Nadie vence esta semana';
+  $('#k-suspendidos').textContent = suspendidos.length;
+
+  // Tarjetas por sistema
+  $('#sistemas').innerHTML = SISTEMAS.map(s => {
+    const ns = conEstado.filter(n => n.sistema === s.id), act = ns.filter(n => n.est.clave !== 'suspendido');
+    const cs = delMes.filter(c => c.sistema === s.id);
+    const fundadores = new Set(compras.filter(c => c.sistema === s.id && c.precio_fundador && pagada(c)).map(c => c.email)).size;
+    const ok = estado[s.id]?.startsWith('Conectado');
+    return `<article class="sis" style="--c:${s.color}">
+      <h3>${s.id} <span class="pill ${ok ? 'ok' : 'bad'}">${ok ? 'En línea' : 'Sin conexión'}</span></h3>
+      <dl><dt>Activos</dt><dd>${act.length} de ${ns.length}</dd>
+      <dt>Plan Básico / Pro</dt><dd>${act.filter(n => planNombre(n.plan) === 'Básico').length} / ${act.filter(n => planNombre(n.plan) === 'Pro').length}</dd>
+      ${s.id === 'NexoBar' ? `<dt>Precio fundador</dt><dd>${fundadores} de 20 cupos</dd>` : ''}
+      <dt>Pagos del mes</dt><dd>${pesos(cs.reduce((a, c) => a + (c.monto_cop || 0), 0))}</dd></dl>
+      <a class="btn" href="${s.panel}" target="_blank" rel="noopener" style="justify-self:start; text-decoration:none">Abrir panel de ${s.id}</a>
+    </article>`;
+  }).join('') + `<article class="sis pendiente" style="--c:var(--retail)"><h3>Nexo Retail <span class="pill" style="color:var(--muted)">Sin base de datos</span></h3><p class="muted" style="margin:0">Aparecerá aquí cuando tenga su proyecto de Supabase (requiere el plan Pro).</p></article>`;
+
+  // Atención
+  const fallidas = compras.filter(c => c.estado === 'pagado' && c.provision_error && !c.duplicado_de);
+  const items = [
+    ...fallidas.map(c => ({ orden: -1, html: `<div class="fila"><div><div class="n">Pago sin entregar <span class="sistema ${SISTEMAS.find(s => s.id === c.sistema).clase}">${c.sistema}</span></div><div class="s bad">${esc(c.referencia)} · ${esc(c.comercio)} · ${esc(c.provision_error)}</div></div><a class="btn" href="${SISTEMAS.find(s => s.id === c.sistema).panel}" target="_blank" rel="noopener" style="text-decoration:none">Abrir panel</a></div>` })),
+    ...[...vencen, ...suspendidos].map(n => {
+      const wa = waRecordatorio(n);
+      return { orden: diasPara(n.fecha_vencimiento) ?? 0, html: `<div class="fila"><div><div class="n">${esc(n.nombre)} <span class="sistema ${SISTEMAS.find(s => s.id === n.sistema).clase}">${n.sistema}</span></div><div class="s ${n.est.tono}">${esc(n.est.texto)} · ${esc(planNombre(n.plan))}</div></div>${wa ? `<a class="btn" href="${wa}" target="_blank" rel="noopener" style="text-decoration:none">Recordar por WhatsApp</a>` : '<span class="s">Sin teléfono</span>'}</div>` };
+    }),
+  ].sort((a, b) => a.orden - b.orden);
+  $('#lista-atencion').innerHTML = items.map(i => i.html).join('') || '<p class="vacio">Todo en orden: nadie vence esta semana y no hay pagos con problemas.</p>';
+  const cuenta = $('#cuenta-atencion'); cuenta.hidden = !items.length; cuenta.textContent = items.length;
+
+  pintarClientes();
+
+  // Ventas del mes
+  const nuevos = delMes.filter(c => !c.es_renovacion).length, renov = delMes.filter(c => c.es_renovacion).length;
+  const iniciadas = compras.filter(c => new Date(c.created_at).getTime() >= desde && !c.duplicado_de);
+  const abandonadas = iniciadas.filter(c => c.estado === 'pendiente').length;
+  $('#embudo-ventas').innerHTML = [['Compras iniciadas', iniciadas.length], ['Pagadas', delMes.length], ['Clientes nuevos', nuevos], ['Renovaciones', renov], ['Sin terminar', abandonadas]]
+    .map(([t, v]) => `<div class="etapa"><b>${v}</b><small>${t}</small></div>`).join('');
+  const meta = 10;
+  $('#ventas-detalle').innerHTML = `<div class="fila"><div style="flex:1"><div class="n">Meta del mes: ${meta} clientes nuevos</div><div class="barra"><i style="width:${Math.min(100, nuevos / meta * 100)}%"></i></div><div class="s">${nuevos} de ${meta}</div></div></div>
+    <div class="fila"><div><div class="n">Compras sin terminar</div><div class="s">${abandonadas} personas llenaron el formulario y no pagaron este mes: vale la pena escribirles.</div></div></div>`;
+
+  // Pagos
+  const ultimos = compras.filter(c => !c.duplicado_de && c.estado !== 'pendiente').slice().sort((a, b) => new Date(b.pagado_at || b.created_at) - new Date(a.pagado_at || a.created_at)).slice(0, 60);
+  $('#tabla-pagos').innerHTML = ultimos.map(c => {
+    const s = SISTEMAS.find(x => x.id === c.sistema);
+    const tono = c.estado === 'entregado' ? 'ok' : c.estado === 'pagado' ? (c.provision_error ? 'bad' : 'warn') : 'bad';
+    const txt = c.estado === 'entregado' ? `Entregado${c.es_renovacion ? ' (renovación)' : ''}` : c.estado === 'pagado' ? (c.provision_error ? 'Pagado · falló la creación' : 'Pagado') : esc(c.estado);
+    return `<tr><td>${fFechaHora.format(new Date(c.pagado_at || c.created_at))}</td><td>${esc(c.comercio)}</td><td><span class="sistema ${s.clase}">${s.id}</span></td><td>${esc(planNombre(c.plan_id))}${c.plan_id?.endsWith('_anual') ? ' anual' : ' mensual'}${c.precio_fundador ? ' · fundador' : ''}</td><td class="num">${pesos(c.monto_cop)}</td><td class="${tono}">${txt}</td></tr>`;
+  }).join('') || '<tr><td colspan="6" class="vacio">Todavía no hay pagos registrados.</td></tr>';
+}
+
+function pintarClientes() {
+  const q = $('#f-buscar').value.trim().toLowerCase(), sis = $('#f-sistema').value, est = $('#f-estado').value;
+  const filas = datos.negocios.map(n => ({ ...n, est: estadoNegocio(n) }))
+    .filter(n => (!sis || n.sistema === sis) && (!est || n.est.clave === est) && (!q || `${n.nombre} ${n.id}`.toLowerCase().includes(q)))
+    .sort((a, b) => (diasPara(a.fecha_vencimiento) ?? 9999) - (diasPara(b.fecha_vencimiento) ?? 9999));
+  $('#tabla-clientes').innerHTML = filas.map(n => {
+    const s = SISTEMAS.find(x => x.id === n.sistema), c = contactoDe(n), wa = waRecordatorio(n);
+    return `<tr><td><b>${esc(n.nombre)}</b><div class="muted" style="font-size:12px">${esc(n.id)}</div></td><td><span class="sistema ${s.clase}">${s.id}</span></td><td>${esc(planNombre(n.plan))}</td><td class="${n.est.tono}">${esc(n.est.texto)}</td><td class="num">${(Number(n.total_ventas) || 0).toLocaleString('es-CO')}</td><td class="num">${(Number(n.total_productos) || 0).toLocaleString('es-CO')}</td><td>${c ? `<span style="user-select:all">${esc(c.telefono)}</span>${wa ? ` · <a href="${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ''}` : '<span class="muted">—</span>'}</td></tr>`;
+  }).join('') || '<tr><td colspan="7" class="vacio">Ningún negocio coincide con los filtros.</td></tr>';
+}
+
+// ---------- Pestañas ----------
+const PESTANAS = ['resumen', 'atencion', 'clientes', 'ventas', 'pagos'];
+function mostrar(nombre) {
+  const p = PESTANAS.includes(nombre) ? nombre : 'resumen';
+  document.querySelectorAll('[data-panel]').forEach(el => { el.hidden = el.dataset.panel !== p; });
+  document.querySelectorAll('[data-tab]').forEach(a => { const on = a.dataset.tab === p; a.classList.toggle('on', on); if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', () => mostrar(location.hash.slice(1)));
+
+// ---------- Arranque ----------
+async function abrirApp() { $('#vista-login').hidden = true; $('#vista-app').hidden = false; mostrar(location.hash.slice(1)); await cargar(); }
+window.addEventListener('DOMContentLoaded', async () => {
+  if (!window.supabase?.createClient) { $('#error-login').textContent = 'No se pudo cargar la conexión con Supabase. Recarga la página.'; return; }
+  if ((await sesionesActivas()).length) return abrirApp();
+  $('#form-login').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = $('#btn-entrar'); btn.disabled = true; btn.textContent = 'Entrando…'; $('#error-login').textContent = '';
+    const res = await entrar($('#correo').value.trim(), $('#clave').value);
+    btn.disabled = false; btn.textContent = 'Entrar';
+    if (!res.some(r => r.ok)) { $('#error-login').textContent = res.map(r => `${r.s.id}: ${r.motivo}`).join(' · '); return; }
+    $('#clave').value = '';
+    abrirApp();
+  });
+});
+$('#btn-actualizar').addEventListener('click', cargar);
+['#f-buscar', '#f-sistema', '#f-estado'].forEach(s => $(s).addEventListener('input', pintarClientes));
+$('#btn-salir').addEventListener('click', async () => { await Promise.all(SISTEMAS.map(s => cliente(s).auth.signOut())); location.hash = ''; location.reload(); });
+</script>
+</body>
+</html>
