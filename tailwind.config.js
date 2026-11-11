@@ -7,8 +7,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
+        sans: ['"Plus Jakarta Sans"', '"Plus Jakarta Fallback"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', '"JetBrains Mono Fallback"', 'monospace'],
       },
       colors: {
         obsidian: {
@@ -27,4 +27,16 @@ module.exports = {
       },
     },
   },
+  // Letras de reemplazo ajustadas a las medidas de Plus Jakarta Sans y JetBrains Mono.
+  // Mientras carga la fuente de Google se usa Arial / Courier New con el mismo ancho y alto,
+  // así el texto no cambia de tamaño al llegar la fuente y la página no «salta» (CLS).
+  // Medidas tomadas con canvas (ancho de texto real) para cada grosor.
+  plugins: [
+    ({ addBase }) => addBase([
+      { '@font-face': { fontFamily: '"Plus Jakarta Fallback"', src: 'local("Arial"), local("ArialMT")', fontWeight: '100 500', sizeAdjust: '105.7%', ascentOverride: '98.4%', descentOverride: '20.8%', lineGapOverride: '0%' } },
+      { '@font-face': { fontFamily: '"Plus Jakarta Fallback"', src: 'local("Arial Bold"), local("Arial-BoldMT")', fontWeight: '600 700', sizeAdjust: '100.2%', ascentOverride: '103.8%', descentOverride: '22%', lineGapOverride: '0%' } },
+      { '@font-face': { fontFamily: '"Plus Jakarta Fallback"', src: 'local("Arial Bold"), local("Arial-BoldMT")', fontWeight: '800 900', sizeAdjust: '88.5%', ascentOverride: '117.5%', descentOverride: '24.9%', lineGapOverride: '0%' } },
+      { '@font-face': { fontFamily: '"JetBrains Mono Fallback"', src: 'local("Courier New"), local("CourierNewPSMT")', sizeAdjust: '100%', ascentOverride: '102%', descentOverride: '30%', lineGapOverride: '0%' } },
+    ]),
+  ],
 };
