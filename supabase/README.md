@@ -46,6 +46,8 @@ Ejecuta las migraciones en orden. Puedes hacerlo con `supabase db push` o pegán
    Antes de aplicarla, guarda el secreto del barrido en Vault con el mismo valor de `BARRIDO_SECRET`:
    `select vault.create_secret('<BARRIDO_SECRET>', 'barrido_secret');`
 
+6. `migrations/20261111120000_precio_fundador.sql` agrega `planes.precio_fundador_cop` (Básico $ 39.990, Pro $ 69.990, anuales $ 399.900 y $ 699.900) y `compras.precio_fundador`. `crear-compra` cobra el precio fundador a los primeros 20 correos (secreto opcional `CUPOS_FUNDADOR`, por defecto 20) y a quien ya lo pagó, también al renovar. Una compra pendiente reserva su cupo 30 minutos. Para cerrar la promoción antes de tiempo: `update planes set precio_fundador_cop = null;` (los fundadores también pasarían al precio normal) o `CUPOS_FUNDADOR=0` (los fundadores conservan su precio).
+
 Los precios se cambian en la tabla `planes` y la landing los toma de ahí. Para ocultar un plan, pon `activo = false`.
 
 ## Publicación en Cloudflare

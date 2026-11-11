@@ -2,7 +2,8 @@
 //   GET  → planes activos de NexoBar POS (la landing los muestra en el formulario).
 //   POST → valida el formulario, registra la compra como "pendiente" y devuelve la URL
 //          del Web Checkout de Wompi firmada con el secreto de integridad.
-// El precio siempre sale de la tabla planes: el navegador solo envía el id del plan.
+// El precio siempre sale de la tabla planes (precio_cop o, para fundadores, precio_fundador_cop): el navegador
+// solo envía el id del plan.
 import { createClient } from 'npm:@supabase/supabase-js@2.49.4';
 
 const WOMPI_CHECKOUT_URL = 'https://checkout.wompi.co/p/';
@@ -10,6 +11,11 @@ const WOMPI_CHECKOUT_URL = 'https://checkout.wompi.co/p/';
 // Máximo de compras que una misma IP puede iniciar en la ventana (frena bots que llenan la tabla)
 const LIMITE_POR_IP = 5;
 const VENTANA_MIN = 10;
+
+// Precio fundador: los primeros CUPOS_FUNDADOR bares pagan planes.precio_fundador_cop y lo conservan al renovar
+// (mismo correo). Una compra pendiente reserva su cupo por RESERVA_FUNDADOR_MIN mientras paga en Wompi.
+const CUPOS_FUNDADOR = Number(Deno.env.get('CUPOS_FUNDADOR') ?? 20);
+const RESERVA_FUNDADOR_MIN = 30;
 
 const supabase = createClient(Deno.env.get('SUPABASE_URL')!, getSecretKey(), {
   auth: { persistSession: false },
@@ -96,6 +102,30 @@ function validar(body: Record<string, unknown>): { data?: CompraInput; error?: s
   return { data };
 }
 
+// Correos distintos que ya tienen precio fundador (pagado o entregado) o lo están pagando ahora mismo
+async function cuposFundadorUsados(): Promise<Set<string>> {
+  const desde = new Date(Date.now() - RESERVA_FUNDADOR_MIN * 60_000).toISOString();
+  const { data, error } = await supabase
+    .from('compras')
+    .select('email')
+    .eq('precio_fundador', true)
+    .is('duplicado_de', null)
+    .or(`estado.in.(pagado,entregado),and(estado.eq.pendiente,created_at.gte.${desde})`);
+  if (error) throw error;
+  return new Set((data ?? []).map((c) => c.email));
+}
+
+async function esFundador(email: string): Promise<boolean> {
+  const { count, error } = await supabase
+    .from('compras')
+    .select('id', { count: 'exact', head: true })
+    .eq('email', email)
+    .eq('precio_fundador', true)
+    .in('estado', ['pagado', 'entregado']);
+  if (error) throw error;
+  return (count ?? 0) > 0;
+}
+
 function nuevaReferencia(): string {
   const fecha = new Date().toISOString().slice(0, 10).replace(/-/g, '');
   return `NXB-${fecha}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
@@ -109,7 +139,7 @@ Deno.serve(async (req) => {
   if (req.method === 'GET') {
     const { data, error } = await supabase
       .from('planes')
-      .select('id, nombre, descripcion, precio_cop, caracteristicas, ciclo')
+      .select('id, nombre, descripcion, precio_cop, precio_fundador_cop, caracteristicas, ciclo')
       .eq('activo', true)
       .order('orden');
 
@@ -117,8 +147,22 @@ Deno.serve(async (req) => {
       console.error('planes', error);
       return json({ error: 'No pudimos cargar los planes.' }, 500, cors);
     }
-    // Un cambio de precio en la tabla se ve en la landing en máximo 60 s
-    return json({ planes: data }, 200, cors, { 'Cache-Control': 'public, max-age=60' });
+
+    let restantes = 0;
+    try {
+      restantes = Math.max(0, CUPOS_FUNDADOR - (await cuposFundadorUsados()).size);
+    } catch (err) {
+      console.error('cupos fundador', err);
+    }
+    // Con cupos, precio_cop es el precio fundador y precio_regular_cop el tachado
+    const planes = (data ?? []).map(({ precio_fundador_cop, ...p }) =>
+      restantes > 0 && precio_fundador_cop && precio_fundador_cop < p.precio_cop
+        ? { ...p, precio_cop: precio_fundador_cop, precio_regular_cop: p.precio_cop }
+        : p
+    );
+    const fundador = { cupos_total: CUPOS_FUNDADOR, cupos_restantes: restantes };
+    // Un cambio de precio o de cupos se ve en la landing en máximo 60 s
+    return json({ planes, fundador }, 200, cors, { 'Cache-Control': 'public, max-age=60' });
   }
 
   if (req.method !== 'POST') return json({ error: 'Método no permitido.' }, 405, cors);
@@ -135,7 +179,7 @@ Deno.serve(async (req) => {
 
   const { data: plan, error: planError } = await supabase
     .from('planes')
-    .select('id, nombre, precio_cop')
+    .select('id, nombre, precio_cop, precio_fundador_cop')
     .eq('id', input.plan_id)
     .eq('activo', true)
     .maybeSingle();
@@ -155,11 +199,28 @@ Deno.serve(async (req) => {
     }
   }
 
+  // Precio fundador: quien ya lo tiene lo conserva al renovar; uno nuevo lo recibe si quedan cupos
+  let fundador = false;
+  if (plan.precio_fundador_cop && plan.precio_fundador_cop < plan.precio_cop) {
+    try {
+      if (await esFundador(input.email)) {
+        fundador = true;
+      } else {
+        const usados = await cuposFundadorUsados();
+        fundador = usados.has(input.email) || usados.size < CUPOS_FUNDADOR;
+      }
+    } catch (err) {
+      console.error('precio fundador', err);
+    }
+  }
+  const monto = fundador ? plan.precio_fundador_cop! : plan.precio_cop;
+
   const referencia = nuevaReferencia();
   const { error: insertError } = await supabase.from('compras').insert({
     ...input,
     referencia,
-    monto_cop: plan.precio_cop,
+    monto_cop: monto,
+    precio_fundador: fundador,
     ip: ip || null,
   });
 
@@ -168,7 +229,7 @@ Deno.serve(async (req) => {
     return json({ error: 'No pudimos registrar la compra. Intenta de nuevo.' }, 500, cors);
   }
 
-  const amountInCents = String(plan.precio_cop * 100);
+  const amountInCents = String(monto * 100);
   const signature = await sha256Hex(`${referencia}${amountInCents}COP${Deno.env.get('WOMPI_INTEGRITY_SECRET')}`);
 
   const params = new URLSearchParams({
@@ -186,5 +247,5 @@ Deno.serve(async (req) => {
     'customer-data:legal-id-type': input.documento_tipo,
   });
 
-  return json({ referencia, checkout_url: `${WOMPI_CHECKOUT_URL}?${params}` }, 200, cors);
+  return json({ referencia, monto_cop: monto, precio_fundador: fundador, checkout_url: `${WOMPI_CHECKOUT_URL}?${params}` }, 200, cors);
 });

@@ -894,6 +894,12 @@
       </div>
     </div>
 
+    <!-- Precio fundador: lo muestra hidratarPlanes() solo mientras queden cupos -->
+    <div data-fundador class="hidden mb-8 mx-auto max-w-2xl rounded-2xl border border-amber-400/30 bg-amber-400/10 px-5 py-4 text-center">
+      <p class="text-sm font-bold text-amber-300">Precio fundador para los primeros <span data-fundador-total>20</span> bares</p>
+      <p class="mt-1 text-xs text-slate-300">Quedan <b class="text-white" data-fundador-cupos></b> cupos. Pagas el precio fundador y lo conservas mientras sigas renovando.</p>
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
       <!-- Plan Básico -->
       <article data-plan-card="basico" data-mensual="49.990" data-anual="499.900" data-ahorro="99.980" data-equivale="41.658" class="glass-card rounded-2xl p-6 sm:p-8 flex flex-col">
@@ -909,6 +915,7 @@
 
         <div class="mt-6">
           <div class="flex items-baseline gap-1.5">
+            <span class="hidden text-lg font-mono text-slate-500 line-through" data-precio-regular></span>
             <span class="text-4xl font-extrabold font-mono tracking-tight text-white" data-precio>$ 49.990</span>
             <span class="text-sm text-slate-400" data-periodo>COP / mes</span>
           </div>
@@ -946,6 +953,7 @@
 
         <div class="mt-6">
           <div class="flex items-baseline gap-1.5">
+            <span class="hidden text-lg font-mono text-slate-500 line-through" data-precio-regular></span>
             <span class="text-4xl font-extrabold font-mono tracking-tight text-white" data-precio>$ 89.990</span>
             <span class="text-sm text-slate-400" data-periodo>COP / mes</span>
           </div>
@@ -1252,11 +1260,16 @@
 
     // Una sola petición compartida por las tarjetas de precios y el formulario de compra
     let planesPromesa = null;
+    let fundadorInfo = null;
 
     function obtenerPlanes() {
       planesPromesa ??= fetch(NEXOBAR_COMPRA_API)
         .then(res => { if (!res.ok) throw new Error(`HTTP ${res.status}`); return res.json(); })
-        .then(({ planes }) => { if (!planes || !planes.length) throw new Error('Sin planes activos'); return planes; })
+        .then(({ planes, fundador }) => {
+          if (!planes || !planes.length) throw new Error('Sin planes activos');
+          fundadorInfo = fundador || null;
+          return planes;
+        })
         .catch(err => { planesPromesa = null; throw err; });
       return planesPromesa;
     }
@@ -1276,8 +1289,10 @@
 
         card.classList.remove('hidden');
         card.dataset.mensual = fmt(mensual.precio_cop);
+        card.dataset.mensualRegular = mensual.precio_regular_cop ? fmt(mensual.precio_regular_cop) : '';
         if (anual) {
           card.dataset.anual = fmt(anual.precio_cop);
+          card.dataset.anualRegular = anual.precio_regular_cop ? fmt(anual.precio_regular_cop) : '';
           card.dataset.ahorro = fmt(Math.max(0, mensual.precio_cop * 12 - anual.precio_cop));
           card.dataset.equivale = fmt(anual.precio_cop / 12);
         } else {
@@ -1289,6 +1304,17 @@
           lista.innerHTML = mensual.caracteristicas.map(c => `<li class="flex gap-2.5">${check}${escapeHtml(c)}</li>`).join('');
         }
       });
+
+      // Banner del precio fundador (solo si algún plan trae precio tachado)
+      const banner = document.querySelector('[data-fundador]');
+      if (banner) {
+        const conFundador = planes.some(p => p.precio_regular_cop) && fundadorInfo && fundadorInfo.cupos_restantes > 0;
+        banner.classList.toggle('hidden', !conFundador);
+        if (conFundador) {
+          banner.querySelector('[data-fundador-total]').textContent = fundadorInfo.cupos_total;
+          banner.querySelector('[data-fundador-cupos]').textContent = fundadorInfo.cupos_restantes;
+        }
+      }
 
       const mensuales = planes.filter(p => (p.ciclo || 'mensual') === 'mensual').map(p => p.precio_cop);
       if (mensuales.length) {
@@ -1368,7 +1394,9 @@
             <input type="radio" name="plan" value="${escapeHtml(plan.id)}" data-precio="${Number(plan.precio_cop)}" ${plan.id === seleccionado ? 'checked' : ''} required onchange="actualizarTotalCompra()" class="peer sr-only">
             <div class="h-full p-4 rounded-xl bg-obsidian-900 border border-white/10 peer-checked:border-indigo-500 peer-checked:bg-indigo-500/10 peer-focus-visible:ring-2 peer-focus-visible:ring-sky-400 hover:border-white/20 transition-all">
               <span class="block text-sm font-bold text-white">${escapeHtml(plan.nombre)}</span>
-              <span class="block text-lg font-mono font-bold text-indigo-300 mt-1">$ ${Number(plan.precio_cop).toLocaleString('es-CO')} <span class="text-[10px] text-slate-500">COP</span></span>
+              ${plan.precio_regular_cop ? `<span class="block text-xs font-mono text-slate-500 line-through mt-1">$ ${Number(plan.precio_regular_cop).toLocaleString('es-CO')}</span>` : ''}
+              <span class="block text-lg font-mono font-bold text-indigo-300 ${plan.precio_regular_cop ? '' : 'mt-1'}">$ ${Number(plan.precio_cop).toLocaleString('es-CO')} <span class="text-[10px] text-slate-500">COP</span></span>
+              ${plan.precio_regular_cop ? '<span class="inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-400/15 text-amber-300">Precio fundador</span>' : ''}
               ${plan.descripcion ? `<span class="block text-[11px] text-slate-400 mt-1">${escapeHtml(plan.descripcion)}</span>` : ''}
               <ul class="mt-3 space-y-1 text-[11px] text-slate-400">
                 ${(plan.caracteristicas || []).map(c => `<li class="flex gap-1.5"><span class="text-emerald-400">✓</span><span>${escapeHtml(c)}</span></li>`).join('')}
@@ -1394,6 +1422,12 @@
 
       document.querySelectorAll('[data-plan-card]').forEach(card => {
         card.querySelector('[data-precio]').textContent = `$ ${anual ? card.dataset.anual : card.dataset.mensual}`;
+        const regular = anual ? card.dataset.anualRegular : card.dataset.mensualRegular;
+        const tachado = card.querySelector('[data-precio-regular]');
+        if (tachado) {
+          tachado.textContent = regular ? `$ ${regular}` : '';
+          tachado.classList.toggle('hidden', !regular);
+        }
         card.querySelector('[data-periodo]').textContent = anual ? 'COP / año' : 'COP / mes';
         card.querySelector('[data-ahorro-texto]').innerHTML = anual
           ? `<span class="inline-flex flex-wrap items-center gap-x-1.5 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 font-semibold">Ahorras $${card.dataset.ahorro} COP - ¡2 meses gratis!</span><span class="block mt-1.5">Equivale a $${card.dataset.equivale} COP al mes.</span>`
