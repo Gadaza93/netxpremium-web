@@ -14,10 +14,7 @@ const hojas = [
   { config: 'tailwind.nexoretail.config.js', salida: 'assets/nexoretail.css', paginas: ['nexoretail.html'] },
 ];
 
-for (const { config, salida, paginas } of hojas) {
-  if (!paginas.every((p) => fs.existsSync(p))) continue;
-  execSync(`npx --yes tailwindcss@3.4.17 -c ${config} -i src/app.css -o ${salida} --minify`, { stdio: 'inherit' });
-
+function versionar(salida, paginas) {
   const version = createHash('sha256').update(fs.readFileSync(salida)).digest('hex').slice(0, 10);
   const escapada = salida.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
   const ruta = new RegExp(`/${escapada}(\\?v=[0-9a-f]+)?`, 'g');
@@ -27,4 +24,23 @@ for (const { config, salida, paginas } of hojas) {
     if (nuevo !== html) fs.writeFileSync(pagina, nuevo);
   }
   console.log(`${salida} v=${version}`);
+}
+
+const soloVersion = process.argv.includes('--solo-version');
+for (const { config, salida, paginas } of hojas) {
+  if (soloVersion || !paginas.every((p) => fs.existsSync(p))) continue;
+  execSync(`npx --yes tailwindcss@3.4.17 -c ${config} -i src/app.css -o ${salida} --minify`, { stdio: 'inherit' });
+  versionar(salida, paginas);
+}
+
+// Archivos que no se compilan pero también se cachean por un año: solo se les actualiza la versión.
+//   assets/motion.css y assets/motion.js → animaciones del inicio
+// Uso solo de esta parte: node scripts/build-css.mjs --solo-version
+const estaticos = [
+  { salida: 'assets/motion.css', paginas: ['index.html'] },
+  { salida: 'assets/motion.js', paginas: ['index.html'] },
+];
+for (const { salida, paginas } of estaticos) {
+  if (!fs.existsSync(salida)) continue;
+  versionar(salida, paginas);
 }
