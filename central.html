@@ -101,6 +101,19 @@ a:focus-visible, .btn:focus-visible { outline: 2px solid var(--pos); outline-off
 .login .btn { padding: 10px; font-size: 14px }
 .error { color: var(--bad); font-size: 13px; min-height: 1.2em }
 .vacio { color: var(--muted); padding: 10px 0 }
+.acciones { display: flex; gap: 6px; flex-wrap: wrap }
+.btn.peligro { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 40%, transparent) }
+.btn:disabled { opacity: .5; cursor: wait }
+dialog { border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--text); padding: 0; width: min(460px, calc(100vw - 32px)) }
+dialog::backdrop { background: rgba(0,0,0,.55) }
+dialog form { padding: 22px; display: grid; gap: 12px }
+dialog h3 { margin: 0; font-family: var(--font-display); font-size: 22px }
+dialog label { display: grid; gap: 4px; font-size: 13px; color: var(--muted) }
+dialog input, dialog select, dialog textarea { font: inherit; color: var(--text); background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; width: 100%; min-width: 0 }
+dialog .pie { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap }
+dialog .dos-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
+dialog textarea { min-height: 170px; font-family: ui-monospace, Consolas, monospace; font-size: 13px }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--text); color: var(--bg); padding: 9px 18px; border-radius: 999px; font-weight: 600; z-index: 50 }
 .salir { background: none; border: 1px solid #2c303b; color: var(--ink-muted); border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 12px; cursor: pointer }
 </style>
 </head>
@@ -137,7 +150,7 @@ a:focus-visible, .btn:focus-visible { outline: 2px solid var(--pos); outline-off
     <div class="panel" data-panel="resumen">
       <section class="cab">
         <div><h1 id="saludo">Resumen</h1><p class="muted" style="margin:2px 0 0" id="fecha-hoy"></p></div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap"><button class="btn" id="btn-actualizar" type="button">Actualizar</button></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap"><button class="btn" id="btn-actualizar" type="button">Actualizar</button><button class="btn pri" type="button" data-nuevo>+ Nuevo negocio</button></div>
       </section>
       <div class="kpis">
         <a class="kpi" href="#clientes"><small>Clientes activos</small><b id="k-activos">—</b><span class="det" id="k-activos-det"></span></a>
@@ -153,13 +166,13 @@ a:focus-visible, .btn:focus-visible { outline: 2px solid var(--pos); outline-off
     </div>
 
     <section class="bloque panel" data-panel="clientes" hidden>
-      <h2>Clientes de todos los sistemas</h2>
+      <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center"><h2>Clientes de todos los sistemas</h2><button class="btn pri" type="button" data-nuevo>+ Nuevo negocio</button></div>
       <div class="filtros">
         <input type="search" id="f-buscar" placeholder="Buscar negocio o ID" aria-label="Buscar negocio">
         <select id="f-sistema" aria-label="Sistema"><option value="">Todos los sistemas</option><option>NexoBar</option><option>NexoPos</option></select>
         <select id="f-estado" aria-label="Estado"><option value="">Todos los estados</option><option value="activo">Activos</option><option value="vence">Por vencer (7 días)</option><option value="suspendido">Suspendidos o vencidos</option></select>
       </div>
-      <div class="tabla"><table><thead><tr><th>Negocio</th><th>Sistema</th><th>Plan</th><th>Vence</th><th class="num">Ventas</th><th class="num">Productos</th><th>Contacto</th></tr></thead><tbody id="tabla-clientes"></tbody></table></div>
+      <div class="tabla"><table><thead><tr><th>Negocio</th><th>Sistema</th><th>Plan</th><th>Vence</th><th class="num">Ventas</th><th class="num">Productos</th><th>Contacto</th><th>Acciones</th></tr></thead><tbody id="tabla-clientes"></tbody></table></div>
     </section>
 
     <div class="panel" data-panel="ventas" hidden>
@@ -182,8 +195,46 @@ a:focus-visible, .btn:focus-visible { outline: 2px solid var(--pos); outline-off
   </main>
 </div>
 
+<dialog id="dlg-nuevo" aria-labelledby="dlg-nuevo-t">
+  <form id="form-nuevo" method="dialog">
+    <h3 id="dlg-nuevo-t">Nuevo negocio</h3>
+    <label>Sistema<select id="n-sistema"><option>NexoBar</option><option>NexoPos</option></select></label>
+    <label>Nombre del negocio<input id="n-nombre" required autocomplete="off"></label>
+    <label>ID del negocio<input id="n-id" required pattern="[a-z0-9_]{3,40}" autocomplete="off"></label>
+    <label>Correo de la terminal<input id="n-correo" type="email" required autocomplete="off"></label>
+    <label>Contraseña temporal<span style="display:flex; gap:6px"><input id="n-clave" required minlength="8" autocomplete="off"><button class="btn" type="button" id="n-generar">Otra</button></span></label>
+    <div class="dos-col">
+      <label>Plan<select id="n-plan"><option value="pro">Pro</option><option value="basico">Básico</option></select></label>
+      <label>Días de vigencia<input id="n-dias" type="number" min="1" max="3650" value="30" required></label>
+    </div>
+    <p class="muted" style="margin:0; font-size:12px">El cliente deberá cambiar la contraseña la primera vez que vincule su caja.</p>
+    <div class="error" id="n-error" role="alert"></div>
+    <div class="pie"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn pri" type="submit" id="n-crear">Crear negocio</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlg-creado" aria-labelledby="dlg-creado-t">
+  <form method="dialog">
+    <h3 id="dlg-creado-t">Negocio creado</h3>
+    <p class="muted" style="margin:0">Envía estos datos al cliente por WhatsApp. La contraseña no se vuelve a mostrar.</p>
+    <textarea id="creado-texto" readonly></textarea>
+    <div class="pie"><button class="btn" type="button" id="btn-copiar-creado">Copiar</button><button class="btn pri" type="submit">Listo</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlg-confirmar" aria-labelledby="dlg-confirmar-t">
+  <form id="form-confirmar" method="dialog">
+    <h3 id="dlg-confirmar-t">Confirmar</h3>
+    <p id="confirmar-texto" style="margin:0"></p>
+    <label id="confirmar-id-label" hidden>Escribe el ID <b id="confirmar-id"></b> para confirmar<input id="confirmar-input" autocomplete="off"></label>
+    <div class="error" id="confirmar-error" role="alert"></div>
+    <div class="pie"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn pri" type="submit" id="confirmar-ok">Confirmar</button></div>
+  </form>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
 <script>
-// Netxpremium Central (fase 1, solo lectura): reúne los negocios y pagos de NexoBar y NexoPos.
+// Netxpremium Central (fase 2): reúne y administra los negocios y pagos de NexoBar y NexoPos: reúne los negocios y pagos de NexoBar y NexoPos.
 // Cada sistema sigue en su propio proyecto de Supabase; aquí se inicia sesión de superadmin en cada uno y se leen
 // las mismas funciones que usan sus paneles (admin_get_all_negocios) y la tabla compras (política superadmin).
 const SISTEMAS = [
@@ -350,9 +401,133 @@ function pintarClientes() {
     .sort((a, b) => (diasPara(a.fecha_vencimiento) ?? 9999) - (diasPara(b.fecha_vencimiento) ?? 9999));
   $('#tabla-clientes').innerHTML = filas.map(n => {
     const s = SISTEMAS.find(x => x.id === n.sistema), c = contactoDe(n), wa = waRecordatorio(n);
-    return `<tr><td><b>${esc(n.nombre)}</b><div class="muted" style="font-size:12px">${esc(n.id)}</div></td><td><span class="sistema ${s.clase}">${s.id}</span></td><td>${esc(planNombre(n.plan))}</td><td class="${n.est.tono}">${esc(n.est.texto)}</td><td class="num">${(Number(n.total_ventas) || 0).toLocaleString('es-CO')}</td><td class="num">${(Number(n.total_productos) || 0).toLocaleString('es-CO')}</td><td>${c ? `<span style="user-select:all">${esc(c.telefono)}</span>${wa ? ` · <a href="${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ''}` : '<span class="muted">—</span>'}</td></tr>`;
-  }).join('') || '<tr><td colspan="7" class="vacio">Ningún negocio coincide con los filtros.</td></tr>';
+    return `<tr><td><b>${esc(n.nombre)}</b><div class="muted" style="font-size:12px">${esc(n.id)}</div></td><td><span class="sistema ${s.clase}">${s.id}</span></td><td>${esc(planNombre(n.plan))}</td><td class="${n.est.tono}">${esc(n.est.texto)}</td><td class="num">${(Number(n.total_ventas) || 0).toLocaleString('es-CO')}</td><td class="num">${(Number(n.total_productos) || 0).toLocaleString('es-CO')}</td><td>${c ? `<span style="user-select:all">${esc(c.telefono)}</span>${wa ? ` · <a href="${wa}" target="_blank" rel="noopener">WhatsApp</a>` : ''}` : '<span class="muted">—</span>'}</td>
+      <td><div class="acciones" data-sis="${esc(n.sistema)}" data-id="${esc(n.id)}">
+        <button class="btn" type="button" data-accion="extender">+30 días</button>
+        <button class="btn" type="button" data-accion="plan">→ ${planNombre(n.plan) === 'Básico' ? 'Pro' : 'Básico'}</button>
+        <button class="btn" type="button" data-accion="estado">${n.activo === false ? 'Reactivar' : 'Suspender'}</button>
+        <button class="btn peligro" type="button" data-accion="eliminar">Eliminar</button>
+      </div></td></tr>`;
+  }).join('') || '<tr><td colspan="8" class="vacio">Ningún negocio coincide con los filtros.</td></tr>';
 }
+
+// ---------- Acciones (las mismas funciones que usaban los paneles de cada sistema) ----------
+const DIAS_EXTENDER = 30;
+const sistemaPor = id => SISTEMAS.find(s => s.id === id);
+function toast(t) { const el = $('#toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { el.hidden = true; }, 2600); }
+
+// Confirmación en página: resuelve true/false. Con `escribirId`, exige teclear el ID (borrado definitivo).
+function confirmar({ titulo, texto, boton = 'Confirmar', peligro = false, escribirId = '' }) {
+  return new Promise(resolve => {
+    const d = $('#dlg-confirmar');
+    $('#dlg-confirmar-t').textContent = titulo; $('#confirmar-texto').textContent = texto;
+    $('#confirmar-ok').textContent = boton; $('#confirmar-ok').className = 'btn ' + (peligro ? 'peligro' : 'pri');
+    $('#confirmar-id-label').hidden = !escribirId; $('#confirmar-id').textContent = escribirId; $('#confirmar-input').value = ''; $('#confirmar-error').textContent = '';
+    const alEnviar = e => {
+      e.preventDefault();
+      if (escribirId && $('#confirmar-input').value.trim() !== escribirId) { $('#confirmar-error').textContent = 'El ID escrito no coincide.'; return; }
+      terminar(true);
+    };
+    const alCerrar = () => terminar(false);
+    function terminar(v) { $('#form-confirmar').removeEventListener('submit', alEnviar); d.removeEventListener('close', alCerrar); if (d.open) d.close(); resolve(v); }
+    $('#form-confirmar').addEventListener('submit', alEnviar); d.addEventListener('close', alCerrar);
+    d.showModal(); (escribirId ? $('#confirmar-input') : $('#confirmar-ok')).focus();
+  });
+}
+
+async function accionNegocio(sisId, id, accion, boton) {
+  const s = sistemaPor(sisId), n = datos.negocios.find(x => x.sistema === sisId && x.id === id); if (!s || !n) return;
+  const nombre = n.nombre || n.id, sb = cliente(s);
+  const base = { p_negocio_id: String(n.id), p_activo: n.activo !== false, p_plan: n.plan || null, p_extender_dias: 0 };
+  let params = null, texto = '';
+  if (accion === 'extender') { params = { ...base, p_activo: true, p_extender_dias: DIAS_EXTENDER }; texto = `Se suman ${DIAS_EXTENDER} días a «${nombre}» (${s.id})${n.activo === false ? ' y se reactiva' : ''}.`; }
+  if (accion === 'plan') { const nuevo = planNombre(n.plan) === 'Básico' ? 'pro' : 'basico'; params = { ...base, p_plan: nuevo }; texto = `«${nombre}» pasa al plan ${planNombre(nuevo)}.${nuevo === 'basico' ? ' Quedará con 10 mesas, 2 usuarios y sin reportes avanzados.' : ''}`; }
+  if (accion === 'estado') { params = { ...base, p_activo: n.activo === false }; texto = n.activo === false ? `Se reactiva «${nombre}» (${s.id}).` : `Se suspende «${nombre}» (${s.id}): su caja quedará bloqueada hasta reactivarlo.`; }
+  if (accion === 'eliminar') {
+    const ok = await confirmar({ titulo: 'Eliminar negocio', texto: `Se borran para siempre «${nombre}» (${s.id}), sus ventas, productos y cuentas de acceso. No se puede deshacer.`, boton: 'Eliminar definitivamente', peligro: true, escribirId: String(n.id) });
+    if (!ok) return;
+    boton.disabled = true;
+    const { error } = await sb.rpc('admin_delete_negocio', { p_negocio_id: String(n.id), p_confirmacion: String(n.id) });
+    boton.disabled = false;
+    if (error) return toast('No se pudo eliminar: ' + (error.message || 'error'));
+    toast(`«${nombre}» eliminado`); return cargar();
+  }
+  if (!params) return;
+  if (!(await confirmar({ titulo: s.id + ' · ' + nombre, texto, peligro: accion === 'estado' && n.activo !== false }))) return;
+  boton.disabled = true;
+  const { error } = await sb.rpc('admin_update_negocio_status', params);
+  boton.disabled = false;
+  if (error) return toast('No se pudo guardar: ' + (error.message || 'error'));
+  toast('Guardado'); cargar();
+}
+
+// Nuevo negocio: Edge Function admin-crear-negocio de cada proyecto (la contraseña viaja por HTTPS, nunca en SQL)
+const CLAVE_SETS = ['ABCDEFGHJKLMNPQRSTUVWXYZ', 'abcdefghijkmnpqrstuvwxyz', '23456789'];
+function indiceAzar(max) { const lim = 256 - (256 % max), b = new Uint8Array(1); do { crypto.getRandomValues(b); } while (b[0] >= lim); return b[0] % max; }
+function generarClave(largo = 10) {
+  const todos = CLAVE_SETS.join(''), c = CLAVE_SETS.map(s => s[indiceAzar(s.length)]);
+  while (c.length < largo) c.push(todos[indiceAzar(todos.length)]);
+  for (let i = c.length - 1; i > 0; i--) { const j = indiceAzar(i + 1); [c[i], c[j]] = [c[j], c[i]]; }
+  return c.join('');
+}
+function sugerirId(nombre, sisId) {
+  const base = String(nombre || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  if (!base) return '';
+  if (sisId === 'NexoBar') { const core = base.replace(/^(?:(?:gastro)?bar|restobar|pub|taberna|cantina|discoteca|licorera|estadero)_+/, '') || base; return `bar_${core}`.slice(0, 40).replace(/_+$/, ''); }
+  return (base.length < 3 ? `negocio_${base}` : base).slice(0, 40).replace(/_+$/, '');
+}
+let idEditado = false;
+function abrirNuevo() {
+  $('#form-nuevo').reset(); idEditado = false; $('#n-error').textContent = ''; $('#n-clave').value = generarClave(); $('#n-dias').value = 30;
+  $('#dlg-nuevo').showModal(); $('#n-nombre').focus();
+}
+async function crearNegocio(e) {
+  e.preventDefault();
+  const s = sistemaPor($('#n-sistema').value);
+  const p = { p_id: $('#n-id').value.trim().toLowerCase(), p_nombre: $('#n-nombre').value.trim(), p_email: $('#n-correo').value.trim().toLowerCase(), p_password: $('#n-clave').value, p_plan: $('#n-plan').value, p_dias_vigencia: Number($('#n-dias').value) };
+  if (!/^[a-z0-9_]{3,40}$/.test(p.p_id)) { $('#n-error').textContent = 'El ID debe tener entre 3 y 40 caracteres: minúsculas, números o guion bajo.'; return; }
+  if (p.p_password.length < 8 || /\s/.test(p.p_password)) { $('#n-error').textContent = 'La contraseña debe tener al menos 8 caracteres y sin espacios.'; return; }
+  if (!Number.isInteger(p.p_dias_vigencia) || p.p_dias_vigencia < 1 || p.p_dias_vigencia > 3650) { $('#n-error').textContent = 'Los días deben ser un número entero entre 1 y 3650.'; return; }
+  const btn = $('#n-crear'); btn.disabled = true; btn.textContent = 'Creando…'; $('#n-error').textContent = '';
+  let res;
+  try { res = await cliente(s).functions.invoke('admin-crear-negocio', { body: p }); } catch { res = { error: { message: 'No se pudo conectar con el servidor.' } }; }
+  btn.disabled = false; btn.textContent = 'Crear negocio';
+  const err = res.error || (!res.data?.ok && (res.data?.error || { message: 'Respuesta inesperada' }));
+  if (err) {
+    const t = `${err.message || ''} ${err.details || ''}`.toLowerCase();
+    $('#n-error').textContent = /already registered|users_email|correo|email/.test(t) ? 'Ya existe una cuenta con ese correo. Usa otro correo para la terminal.'
+      : /duplicate|already|ya existe|unique|23505/.test(t) ? 'Ese ID de negocio ya está en uso. Elige otro.' : 'No se pudo crear el negocio: ' + (err.message || 'error');
+    return;
+  }
+  $('#dlg-nuevo').close();
+  $('#creado-texto').value = [
+    `¡Bienvenido a ${s.id === 'NexoBar' ? 'NexoBar POS' : 'NexoPos'}, ${p.p_nombre}!`, '',
+    'Datos para vincular tu caja (pantalla «Vincular Terminal»):',
+    `• Enlace: ${s.id === 'NexoBar' ? 'https://nexobar.netxpremium.com' : 'https://nexopos.netxpremium.com'}`,
+    `• Correo: ${p.p_email}`, `• Contraseña temporal: ${p.p_password}`, '',
+    'La primera vez te pedirá crear tu propia contraseña.',
+    `Plan ${planNombre(p.p_plan)} · Vigencia inicial: ${p.p_dias_vigencia} ${p.p_dias_vigencia === 1 ? 'día' : 'días'}`,
+    `ID de negocio: ${p.p_id}`,
+  ].join('\n');
+  $('#dlg-creado').showModal();
+  cargar();
+}
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.accion) { const a = b.closest('.acciones'); return accionNegocio(a.dataset.sis, a.dataset.id, b.dataset.accion, b); }
+  if ('nuevo' in b.dataset) return abrirNuevo();
+  if ('cerrar' in b.dataset) return b.closest('dialog').close();
+});
+$('#n-nombre').addEventListener('input', () => { if (!idEditado) $('#n-id').value = sugerirId($('#n-nombre').value, $('#n-sistema').value); });
+$('#n-sistema').addEventListener('change', () => { if (!idEditado) $('#n-id').value = sugerirId($('#n-nombre').value, $('#n-sistema').value); });
+$('#n-id').addEventListener('input', () => { idEditado = true; });
+$('#n-generar').addEventListener('click', () => { $('#n-clave').value = generarClave(); });
+$('#form-nuevo').addEventListener('submit', crearNegocio);
+$('#dlg-creado').addEventListener('close', () => { $('#creado-texto').value = ''; });
+$('#btn-copiar-creado').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText($('#creado-texto').value); toast('Copiado'); } catch { $('#creado-texto').select(); toast('Selecciona y copia el texto'); }
+});
 
 // ---------- Pestañas ----------
 const PESTANAS = ['resumen', 'atencion', 'clientes', 'ventas', 'pagos'];
