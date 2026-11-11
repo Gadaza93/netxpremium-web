@@ -114,6 +114,15 @@ dialog .pie { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wra
 dialog .dos-col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
 dialog textarea { min-height: 170px; font-family: ui-monospace, Consolas, monospace; font-size: 13px }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); background: var(--text); color: var(--bg); padding: 9px 18px; border-radius: 999px; font-weight: 600; z-index: 50 }
+.prospecto { border-top: 1px solid var(--line); padding: 12px 0; display: grid; gap: 8px }
+.prospecto:first-child { border-top: 0 }
+.prospecto .top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: flex-start }
+.prospecto .ctl { display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 8px }
+.prospecto .ctl select, .prospecto .ctl input { font: inherit; font-size: 13px; color: var(--text); background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; width: 100%; min-width: 0 }
+.chip { font-size: 11px; font-weight: 600; border-radius: 999px; padding: 1px 8px; border: 1px solid currentColor; white-space: nowrap }
+.etapa.click { cursor: pointer; border: 1px solid transparent; font: inherit; color: var(--text) }
+.etapa.click[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft) }
+@media (max-width: 700px) { .prospecto .ctl { grid-template-columns: 1fr 1fr } .prospecto .ctl input.notas { grid-column: 1 / -1 } }
 .salir { background: none; border: 1px solid #2c303b; color: var(--ink-muted); border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 12px; cursor: pointer }
 </style>
 </head>
@@ -182,9 +191,21 @@ dialog textarea { min-height: 170px; font-family: ui-monospace, Consolas, monosp
         <div style="margin-top:14px" id="ventas-detalle"></div>
       </section>
       <section class="bloque">
-        <h2>Prospectos</h2>
-        <p class="muted" style="margin:0 0 10px">El tablero de prospectos sigue en Claude por ahora. En la fase 3 pasa a tu base de datos y aparece aquí con su embudo.</p>
-        <a class="btn" href="https://claude.ai/artifact/N8jetGU1czC75rh7GK6L2k" target="_blank" rel="noopener" style="text-decoration:none">Abrir tablero de prospectos</a>
+        <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center"><h2>Prospectos</h2><button class="btn pri" type="button" id="btn-nuevo-prospecto">+ Prospecto</button></div>
+        <div class="embudo" id="embudo-prospectos" style="grid-template-columns:repeat(6, minmax(0,1fr))"></div>
+        <div class="filtros" style="margin-top:12px">
+          <select id="p-vista" aria-label="Vista"><option value="hoy">Para hoy</option><option value="todos">Todos</option></select>
+          <input type="search" id="p-buscar" placeholder="Buscar bar, barrio o teléfono" aria-label="Buscar prospecto">
+          <select id="p-ciudad" aria-label="Ciudad"><option value="">Todas las ciudades</option></select>
+          <select id="p-prioridad" aria-label="Prioridad"><option value="">Toda prioridad</option><option>Alta</option><option>Media</option><option>Baja</option></select>
+        </div>
+        <div id="lista-prospectos"></div>
+      </section>
+      <section class="bloque">
+        <h2>Guion rápido</h2>
+        <p style="margin:0 0 6px"><b>Ibagué (visita, 15 min):</b> preguntar con qué cobran hoy, cuántas barras, cómo cuadran la caja y qué pasa si se va el internet → mostrar venta en 2 toques, cierre de caja, inventario por botella y el celular del dueño → cerrar con el precio fundador.</p>
+        <p style="margin:0 0 6px"><b>Fuera (Zoom o Meet):</b> mismo orden con la demo (nexobar.netxpremium.com/?demo=true) abierta en su celular; al final enviar netxpremium.com/nexobar por el chat de la llamada.</p>
+        <p class="muted" style="margin:0">No envíes más de 20 a 30 mensajes nuevos al día desde tu WhatsApp, para evitar bloqueos.</p>
       </section>
     </div>
 
@@ -231,6 +252,24 @@ dialog textarea { min-height: 170px; font-family: ui-monospace, Consolas, monosp
     <div class="pie"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn pri" type="submit" id="confirmar-ok">Confirmar</button></div>
   </form>
 </dialog>
+<dialog id="dlg-prospecto" aria-labelledby="dlg-prospecto-t">
+  <form id="form-prospecto" method="dialog">
+    <h3 id="dlg-prospecto-t">Nuevo prospecto</h3>
+    <label>Nombre del negocio<input id="pr-nombre" required autocomplete="off"></label>
+    <div class="dos-col">
+      <label>Ciudad<input id="pr-ciudad" required value="Ibagué" autocomplete="off"></label>
+      <label>Teléfono<input id="pr-telefono" inputmode="numeric" autocomplete="off"></label>
+    </div>
+    <label>Dirección o barrio<input id="pr-direccion" autocomplete="off"></label>
+    <div class="dos-col">
+      <label>Producto<select id="pr-producto"><option>NexoBar</option><option>NexoPos</option><option>Nexo Retail</option></select></label>
+      <label>Prioridad<select id="pr-prioridad"><option>Alta</option><option selected>Media</option><option>Baja</option></select></label>
+    </div>
+    <label>Notas<input id="pr-notas" autocomplete="off" placeholder="Cómo lo conociste, a quién preguntar…"></label>
+    <div class="error" id="pr-error" role="alert"></div>
+    <div class="pie"><button class="btn" type="button" data-cerrar>Cancelar</button><button class="btn pri" type="submit">Guardar</button></div>
+  </form>
+</dialog>
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script>
@@ -249,7 +288,7 @@ const fFecha = new Intl.DateTimeFormat('es-CO', { timeZone: ZONA, day: 'numeric'
 const fFechaHora = new Intl.DateTimeFormat('es-CO', { timeZone: ZONA, day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
 const planNombre = p => ({ basico: 'Básico', pro: 'Pro', prueba: 'Prueba' }[String(p || '').toLowerCase().replace(/_anual$/, '')] || p || '—');
 
-let datos = { negocios: [], compras: [], estado: {} };
+let datos = { negocios: [], compras: [], estado: {}, prospectos: [] };
 const clientes = {};
 
 function cliente(s) {
@@ -295,7 +334,14 @@ async function cargar() {
     (neg.data || []).forEach(n => negocios.push({ ...n, sistema: s.id }));
     (com.data || []).forEach(c => compras.push({ ...c, sistema: s.id }));
   }));
-  datos = { negocios, compras, estado };
+  // CRM: la tabla prospectos vive en el proyecto de NexoBar (el proyecto «central»)
+  let prospectos = [];
+  if (estado.NexoBar?.startsWith('Conectado')) {
+    const { data, error } = await cliente(SISTEMAS[0]).from('prospectos').select('*').order('nombre').limit(2000);
+    if (!error) prospectos = data || [];
+  }
+  datos = { negocios, compras, estado, prospectos };
+  await enlazarClientes();
   pintar();
   $('#btn-actualizar').disabled = false;
 }
@@ -370,7 +416,14 @@ function pintar() {
     }),
   ].sort((a, b) => a.orden - b.orden);
   $('#lista-atencion').innerHTML = items.map(i => i.html).join('') || '<p class="vacio">Todo en orden: nadie vence esta semana y no hay pagos con problemas.</p>';
-  const cuenta = $('#cuenta-atencion'); cuenta.hidden = !items.length; cuenta.textContent = items.length;
+  const pendientesHoy = datos.prospectos.filter(prospectoParaHoy);
+  if (pendientesHoy.length) {
+    $('#lista-atencion').insertAdjacentHTML('afterbegin', `<div class="fila"><div><div class="n">Prospectos para contactar hoy</div><div class="s warn">${pendientesHoy.length} entre seguimientos y prioridad alta sin contactar</div></div><a class="btn" href="#ventas" style="text-decoration:none">Ver en Ventas</a></div>`);
+    $('#lista-atencion .vacio')?.remove();
+  }
+  const total = items.length + (pendientesHoy.length ? 1 : 0);
+  const cuenta = $('#cuenta-atencion'); cuenta.hidden = !total; cuenta.textContent = total;
+  pintarProspectos();
 
   pintarClientes();
 
@@ -527,6 +580,105 @@ $('#form-nuevo').addEventListener('submit', crearNegocio);
 $('#dlg-creado').addEventListener('close', () => { $('#creado-texto').value = ''; });
 $('#btn-copiar-creado').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText($('#creado-texto').value); toast('Copiado'); } catch { $('#creado-texto').select(); toast('Selecciona y copia el texto'); }
+});
+
+// ---------- CRM de prospectos ----------
+const ETAPAS = ['Prospecto', 'Contactado', 'Cita', 'Demo hecha', 'Cliente', 'Descartado'];
+let etapaFiltro = '';
+const hoyISO = () => new Intl.DateTimeFormat('en-CA', { timeZone: ZONA }).format(new Date());
+const soloDigitos = t => String(t || '').replace(/\D/g, '').replace(/^57(?=3\d{9}$)/, '');
+function prospectoParaHoy(p) {
+  if (['Cliente', 'Descartado'].includes(p.estado)) return false;
+  if (p.proxima) return p.proxima <= hoyISO();
+  return p.estado === 'Prospecto' && p.prioridad === 'Alta';
+}
+// Mensajes por defecto (si el prospecto no tiene uno propio guardado)
+function mensajes(p) {
+  const bar = p.producto !== 'NexoPos' && p.producto !== 'Nexo Retail', presencial = (p.ciudad || '').toLowerCase().startsWith('ibagu');
+  const que = p.producto === 'NexoPos' ? 'NexoPos, un sistema de caja para restaurantes y bares con comandas a cocina y barra'
+    : p.producto === 'Nexo Retail' ? 'Nexo Retail, un sistema de caja para tiendas con lector de código de barras, inventario y fiado'
+    : 'NexoBar, un sistema de caja hecho solo para bares: se cobra en 2 toques';
+  const cita = presencial ? '¿Le puedo mostrar en 15 minutos, en su local y el día que le quede bien, cómo funciona?' : '¿Le puedo mostrar en una videollamada de 15 minutos por Zoom o Meet cómo funciona?';
+  const demo = p.producto === 'NexoPos' ? 'nexopos.netxpremium.com/?demo=true' : p.producto === 'Nexo Retail' ? 'nexoretail.netxpremium.com/?demo=true' : 'nexobar.netxpremium.com/?demo=true';
+  return [
+    p.mensaje1 || `Hola, buen día. ¿Hablo con el administrador o dueño de ${p.nombre}? Mi nombre es Andrés, de Netxpremium.${presencial ? ' Soy de aquí de Ibagué.' : ''} Creamos ${que}, funciona aunque se caiga el internet y el dueño ve las ventas en el celular. ${cita}${bar ? ' Estamos dando precio fundador a los primeros 20 bares.' : ''}`,
+    p.mensaje2 || `Hola de nuevo, le escribe Andrés, de Netxpremium. Por si le sirve, puede probar el sistema sin registrarse aquí: ${demo} Si le gusta, cuadramos ${presencial ? 'una visita' : 'una videollamada'} de 15 minutos esta semana. ¿Qué día le queda mejor?`,
+    p.mensaje3 || (bar ? `Hola, último mensaje para no molestarle: el precio fundador (Básico $39.990 y Pro $69.990 al mes) es solo para los primeros 20 bares y se mantiene mientras sigan renovando. Si más adelante le interesa, aquí estoy. ¡Éxitos con ${p.nombre}!`
+      : `Hola, último mensaje para no molestarle: el sistema va desde $49.990 al mes, sin permanencia. Si más adelante le interesa, aquí estoy. ¡Éxitos con ${p.nombre}!`),
+  ];
+}
+// Un prospecto cuyo teléfono aparece en una compra pagada pasa a Cliente solo (y queda enlazado al negocio)
+async function enlazarClientes() {
+  const pagos = datos.compras.filter(c => pagada(c) && c.telefono);
+  for (const p of datos.prospectos) {
+    if (p.estado === 'Cliente' || !p.telefono) continue;
+    const c = pagos.find(x => soloDigitos(x.telefono) === soloDigitos(p.telefono)); if (!c) continue;
+    const cambios = { estado: 'Cliente', sistema: c.sistema, negocio_id: c.negocio_id || null, notas: (p.notas ? p.notas + ' · ' : '') + `Compró ${planNombre(c.plan_id)} (${c.referencia})` };
+    const { error } = await cliente(SISTEMAS[0]).from('prospectos').update(cambios).eq('id', p.id);
+    if (!error) Object.assign(p, cambios);
+  }
+}
+async function guardarProspecto(id, campo, valor) {
+  const p = datos.prospectos.find(x => x.id === id); if (!p || p[campo] === valor) return;
+  const antes = p[campo]; p[campo] = valor;
+  const { error } = await cliente(SISTEMAS[0]).from('prospectos').update({ [campo]: valor || (campo === 'proxima' ? null : '') }).eq('id', id);
+  if (error) { p[campo] = antes; toast('No se pudo guardar: ' + error.message); return; }
+  toast('Guardado');
+  if (campo === 'estado') { pintarProspectos(); pintar(); }
+}
+function pintarProspectos() {
+  const lista = datos.prospectos, cont = $('#lista-prospectos'); if (!cont) return;
+  if (!datos.estado.NexoBar?.startsWith('Conectado')) { cont.innerHTML = '<p class="vacio">Conecta NexoBar para ver los prospectos.</p>'; return; }
+  $('#embudo-prospectos').innerHTML = ETAPAS.map(e => `<button type="button" class="etapa click" data-etapa="${e}" aria-pressed="${etapaFiltro === e}"><b>${lista.filter(p => p.estado === e).length}</b><small>${e}</small></button>`).join('');
+  const sel = $('#p-ciudad'), actual = sel.value;
+  sel.innerHTML = '<option value="">Todas las ciudades</option>' + [...new Set(lista.map(p => p.ciudad).filter(Boolean))].sort().map(c => `<option${c === actual ? ' selected' : ''}>${esc(c)}</option>`).join('');
+  const q = $('#p-buscar').value.trim().toLowerCase(), vista = $('#p-vista').value, ciudad = $('#p-ciudad').value, prio = $('#p-prioridad').value;
+  const orden = { Alta: 0, Media: 1, Baja: 2 };
+  const filas = lista.filter(p => (etapaFiltro ? p.estado === etapaFiltro : (vista !== 'hoy' || prospectoParaHoy(p))) && (!ciudad || p.ciudad === ciudad) && (!prio || p.prioridad === prio)
+      && (!q || `${p.nombre} ${p.direccion} ${p.telefono} ${p.tipo}`.toLowerCase().includes(q)))
+    .sort((a, b) => (a.proxima || '9999').localeCompare(b.proxima || '9999') || orden[a.prioridad] - orden[b.prioridad] || (b.resenas || 0) - (a.resenas || 0));
+  cont.innerHTML = filas.map(p => {
+    const [m1] = mensajes(p), tel = soloDigitos(p.telefono);
+    const wa = /^3\d{9}$/.test(tel) ? `https://wa.me/57${tel}?text=${encodeURIComponent(m1)}` : '';
+    const atrasada = p.proxima && p.proxima < hoyISO() && !['Cliente', 'Descartado'].includes(p.estado);
+    const tonoP = p.prioridad === 'Alta' ? 'bad' : p.prioridad === 'Media' ? 'warn' : 'muted';
+    return `<div class="prospecto" data-pid="${esc(p.id)}">
+      <div class="top"><div style="min-width:0"><b>${esc(p.nombre)}</b> <span class="chip ${tonoP}">${esc(p.prioridad)}</span> <span class="chip muted">${esc(p.producto)}</span>
+        <div class="s muted" style="font-size:12px">${esc(p.tipo)} · ${esc(p.ciudad)}${p.direccion ? ' · ' + esc(p.direccion) : ''}${p.calificacion ? ` · ★ ${p.calificacion} (${p.resenas})` : ''}${atrasada ? ' · <span class="bad">acción atrasada</span>' : ''}</div></div>
+        <div class="acciones">${p.telefono ? `<span style="user-select:all; font-weight:600; align-self:center">${esc(p.telefono)}</span>` : '<span class="muted" style="align-self:center">Sin teléfono</span>'}
+          <button class="btn pri" type="button" data-msg="0">Copiar mensaje 1</button><button class="btn" type="button" data-msg="1">2</button><button class="btn" type="button" data-msg="2">3</button>
+          ${wa ? `<a class="btn" href="${wa}" target="_blank" rel="noopener" style="text-decoration:none">WhatsApp</a>` : ''}</div></div>
+      <div class="ctl">
+        <select data-campo="estado" aria-label="Etapa">${ETAPAS.map(e => `<option${e === p.estado ? ' selected' : ''}>${e}</option>`).join('')}</select>
+        <input type="date" data-campo="proxima" value="${esc(p.proxima || '')}" aria-label="Próxima acción">
+        <input class="notas" data-campo="notas" value="${esc(p.notas)}" placeholder="Notas: quién atendió, qué usan hoy…" aria-label="Notas">
+      </div></div>`;
+  }).join('') || `<p class="vacio">${vista === 'hoy' && !etapaFiltro ? 'No hay pendientes para hoy. Cambia a «Todos».' : 'Ningún prospecto coincide.'}</p>`;
+}
+document.addEventListener('click', async e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.etapa) { etapaFiltro = etapaFiltro === b.dataset.etapa ? '' : b.dataset.etapa; return pintarProspectos(); }
+  if (b.dataset.msg) {
+    const p = datos.prospectos.find(x => x.id === b.closest('[data-pid]').dataset.pid), txt = mensajes(p)[Number(b.dataset.msg)];
+    try { await navigator.clipboard.writeText(txt); toast('Mensaje copiado'); } catch { window.prompt('Copia el mensaje:', txt); }
+  }
+});
+document.addEventListener('change', e => {
+  const c = e.target.dataset?.campo, f = e.target.closest('[data-pid]'); if (!c || !f) return;
+  guardarProspecto(f.dataset.pid, c, e.target.value);
+});
+['#p-buscar', '#p-vista', '#p-ciudad', '#p-prioridad'].forEach(s => $(s).addEventListener('input', () => { etapaFiltro = ''; pintarProspectos(); }));
+$('#btn-nuevo-prospecto').addEventListener('click', () => { $('#form-prospecto').reset(); $('#pr-error').textContent = ''; $('#dlg-prospecto').showModal(); $('#pr-nombre').focus(); });
+$('#form-prospecto').addEventListener('submit', async e => {
+  e.preventDefault();
+  const nombre = $('#pr-nombre').value.trim(), ciudad = $('#pr-ciudad').value.trim();
+  const id = `${ciudad}-${nombre}`.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80);
+  const fila = { id, nombre, ciudad, direccion: $('#pr-direccion').value.trim(), telefono: soloDigitos($('#pr-telefono').value), producto: $('#pr-producto').value,
+    prioridad: $('#pr-prioridad').value, notas: $('#pr-notas').value.trim(), modalidad: ciudad.toLowerCase().startsWith('ibagu') ? 'Presencial' : 'Zoom / Meet', fuente: 'Manual · ' + hoyISO() };
+  if (id.length < 3) { $('#pr-error').textContent = 'Escribe el nombre y la ciudad.'; return; }
+  const { data, error } = await cliente(SISTEMAS[0]).from('prospectos').insert(fila).select().single();
+  if (error) { $('#pr-error').textContent = /duplicate|23505/.test(error.message + error.code) ? 'Ya existe un prospecto con ese nombre en esa ciudad.' : 'No se pudo guardar: ' + error.message; return; }
+  datos.prospectos.push(data); $('#dlg-prospecto').close(); toast('Prospecto agregado'); $('#p-vista').value = 'todos'; pintarProspectos();
 });
 
 // ---------- Pestañas ----------
