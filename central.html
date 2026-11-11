@@ -203,7 +203,7 @@ dialog textarea { min-height: 170px; font-family: ui-monospace, Consolas, monosp
       </section>
       <section class="bloque">
         <h2>Guion rápido</h2>
-        <p style="margin:0 0 6px"><b>Oferta: un mes gratis en su propia cuenta.</b> Cuando acepte: «+ Nuevo negocio» con <b>30 días</b> y plan Pro, y ese mismo día le ayudas a cargar sus productos (un bar que no carga la carta no lo usa).</p>
+        <p style="margin:0 0 6px"><b>Oferta: un mes gratis en su propia cuenta + su catálogo cargado.</b> Cuando acepte: pídele la foto de su carta o lista de precios, crea su cuenta con «+ Nuevo negocio» (<b>30 días</b>, plan Pro) y súbele el catálogo con el importador de Excel de la caja (Productos → Importar). Pásale la foto a Claude y te arma el Excel con el formato del importador. Un bar que ya tiene su carta cargada empieza a usarlo el mismo día.</p>
         <p style="margin:0 0 6px"><b>Durante el mes:</b> día 3 «¿cómo te fue el fin de semana?» · día 15 muéstrale su propio reporte de ventas · día 25 recuérdale que vence y que si renueva antes queda con precio fundador. Pon esas fechas en «Próxima acción».</p>
         <p style="margin:0 0 6px"><b>Para pagar:</b> en netxpremium.com/nexobar con el <b>mismo correo</b> de su cuenta: se renueva la misma, sin perder nada, y los días que le queden se suman.</p>
         <p class="muted" style="margin:0">No envíes más de 20 a 30 mensajes nuevos al día desde tu WhatsApp, para evitar bloqueos.</p>
@@ -607,13 +607,13 @@ function mensajes(p) {
     : p.producto === 'Nexo Retail' ? 'una caja para tiendas con lector de código de barras, inventario y fiado, que te deja ver las ventas desde el celular, aunque se vaya el internet'
     : 'una caja para cobrar rápido en la barra, que te cuadra al cierre y te deja ver las ventas desde el celular, aunque se vaya el internet';
   const oferta = presencial
-    ? `Me gustaría crearte tu cuenta y dejártela un mes gratis: paso por ${p.nombre}, te ayudo a cargar tus productos y la usas con tu gente. Si te gusta, solo renuevas y sigues en la misma cuenta. ¿Qué día te queda bien que pase?`
-    : `Me gustaría crearte tu cuenta y dejártela un mes gratis: en una videollamada de 10 minutos te ayudo a cargar tus productos y la usas con tu gente. Si te gusta, solo renuevas y sigues en la misma cuenta. ¿Te animas?`;
+    ? `Me gustaría crearte tu cuenta y dejártela un mes gratis, y de plus te dejo cargado todo tu catálogo para que empieces a vender sin perder tiempo: solo mándame una foto de tu carta o tu lista de precios. Si te gusta, solo renuevas y sigues en la misma cuenta. ¿Qué día te queda bien que pase por ${p.nombre} y te lo dejo funcionando?`
+    : `Me gustaría crearte tu cuenta y dejártela un mes gratis, y de plus te dejo cargado todo tu catálogo para que empieces a vender sin perder tiempo: solo mándame una foto de tu carta o tu lista de precios. Si te gusta, solo renuevas y sigues en la misma cuenta. ¿Te animas?`;
   return [
     p.mensaje1 || `Hola, ¿qué más? 👋 Te escribe Andrés, dueño de Elites Drinks${presencial ? ', aquí en Ibagué' : ', un bar en Ibagué'}. Te escribo para ofrecerte algo que hice pensando en los que tenemos ${bar ? 'bar' : 'negocio'}: ${sistema}, ${queHace}. ${oferta}`,
-    p.mensaje2 || `Hola de nuevo 👋 Por si quieres darle una mirada antes, aquí puedes jugar con un negocio de ejemplo, sin registrarte: ${demo} El mes gratis con tu propia cuenta sigue en pie, me dices y te la creo.`,
+    p.mensaje2 || `Hola de nuevo 👋 Por si quieres darle una mirada antes, aquí puedes jugar con un negocio de ejemplo, sin registrarte: ${demo} El mes gratis con tu propia cuenta y tu catálogo ya cargado sigue en pie: me mandas la foto de tu carta y te la dejo lista.`,
     p.mensaje3 || (bar ? `Hola, último mensaje para no molestarte 🙌 Este mes los primeros 20 bares que entren quedan con precio de fundador de por vida, desde $39.990 al mes (y si empiezas con el mes gratis y renuevas antes de que termine, lo conservas). Si más adelante te animas, aquí estoy. ¡Éxitos con ${p.nombre}!`
-      : `Hola, último mensaje para no molestarte 🙌 Si más adelante quieres probar ${sistema} un mes gratis con tu propia cuenta, aquí estoy. ¡Éxitos con ${p.nombre}!`),
+      : `Hola, último mensaje para no molestarte 🙌 Si más adelante quieres probar ${sistema} un mes gratis con tu propia cuenta y tu catálogo ya cargado, aquí estoy. ¡Éxitos con ${p.nombre}!`),
   ];
 }
 // Un prospecto cuyo teléfono aparece en una compra pagada pasa a Cliente solo (y queda enlazado al negocio)
