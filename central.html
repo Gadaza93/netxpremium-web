@@ -203,8 +203,9 @@ dialog textarea { min-height: 170px; font-family: ui-monospace, Consolas, monosp
       </section>
       <section class="bloque">
         <h2>Guion rápido</h2>
-        <p style="margin:0 0 6px"><b>Ibagué (visita, 15 min):</b> preguntar con qué cobran hoy, cuántas barras, cómo cuadran la caja y qué pasa si se va el internet → mostrar venta en 2 toques, cierre de caja, inventario por botella y el celular del dueño → cerrar con el precio fundador.</p>
-        <p style="margin:0 0 6px"><b>Fuera (Zoom o Meet):</b> mismo orden con la demo (nexobar.netxpremium.com/?demo=true) abierta en su celular; al final enviar netxpremium.com/nexobar por el chat de la llamada.</p>
+        <p style="margin:0 0 6px"><b>Oferta: un mes gratis en su propia cuenta.</b> Cuando acepte: «+ Nuevo negocio» con <b>30 días</b> y plan Pro, y ese mismo día le ayudas a cargar sus productos (un bar que no carga la carta no lo usa).</p>
+        <p style="margin:0 0 6px"><b>Durante el mes:</b> día 3 «¿cómo te fue el fin de semana?» · día 15 muéstrale su propio reporte de ventas · día 25 recuérdale que vence y que si renueva antes queda con precio fundador. Pon esas fechas en «Próxima acción».</p>
+        <p style="margin:0 0 6px"><b>Para pagar:</b> en netxpremium.com/nexobar con el <b>mismo correo</b> de su cuenta: se renueva la misma, sin perder nada, y los días que le queden se suman.</p>
         <p class="muted" style="margin:0">No envíes más de 20 a 30 mensajes nuevos al día desde tu WhatsApp, para evitar bloqueos.</p>
       </section>
     </div>
@@ -600,11 +601,19 @@ function mensajes(p) {
     : 'NexoBar, un sistema de caja hecho solo para bares: se cobra en 2 toques';
   const cita = presencial ? '¿Le puedo mostrar en 15 minutos, en su local y el día que le quede bien, cómo funciona?' : '¿Le puedo mostrar en una videollamada de 15 minutos por Zoom o Meet cómo funciona?';
   const demo = p.producto === 'NexoPos' ? 'nexopos.netxpremium.com/?demo=true' : p.producto === 'Nexo Retail' ? 'nexoretail.netxpremium.com/?demo=true' : 'nexobar.netxpremium.com/?demo=true';
+  // Tono: un colega dueño de bar (Elites Drinks) que ofrece un servicio, de tú, con un mes gratis en su propia cuenta
+  const sistema = p.producto === 'NexoPos' ? 'NexoPos' : p.producto === 'Nexo Retail' ? 'Nexo Retail' : 'NexoBar';
+  const queHace = p.producto === 'NexoPos' ? 'una caja para restaurantes y bares que manda las comandas a cocina y barra, te cuadra al cierre y te deja ver las ventas desde el celular, aunque se vaya el internet'
+    : p.producto === 'Nexo Retail' ? 'una caja para tiendas con lector de código de barras, inventario y fiado, que te deja ver las ventas desde el celular, aunque se vaya el internet'
+    : 'una caja para cobrar rápido en la barra, que te cuadra al cierre y te deja ver las ventas desde el celular, aunque se vaya el internet';
+  const oferta = presencial
+    ? `Me gustaría crearte tu cuenta y dejártela un mes gratis: paso por ${p.nombre}, te ayudo a cargar tus productos y la usas con tu gente. Si te gusta, solo renuevas y sigues en la misma cuenta. ¿Qué día te queda bien que pase?`
+    : `Me gustaría crearte tu cuenta y dejártela un mes gratis: en una videollamada de 10 minutos te ayudo a cargar tus productos y la usas con tu gente. Si te gusta, solo renuevas y sigues en la misma cuenta. ¿Te animas?`;
   return [
-    p.mensaje1 || `Hola, buen día. ¿Hablo con el administrador o dueño de ${p.nombre}? Mi nombre es Andrés, de Netxpremium.${presencial ? ' Soy de aquí de Ibagué.' : ''} Creamos ${que}, funciona aunque se caiga el internet y el dueño ve las ventas en el celular. ${cita}${bar ? ' Estamos dando precio fundador a los primeros 20 bares.' : ''}`,
-    p.mensaje2 || `Hola de nuevo, le escribe Andrés, de Netxpremium. Por si le sirve, puede probar el sistema sin registrarse aquí: ${demo} Si le gusta, cuadramos ${presencial ? 'una visita' : 'una videollamada'} de 15 minutos esta semana. ¿Qué día le queda mejor?`,
-    p.mensaje3 || (bar ? `Hola, último mensaje para no molestarle: el precio fundador (Básico $39.990 y Pro $69.990 al mes) es solo para los primeros 20 bares y se mantiene mientras sigan renovando. Si más adelante le interesa, aquí estoy. ¡Éxitos con ${p.nombre}!`
-      : `Hola, último mensaje para no molestarle: el sistema va desde $49.990 al mes, sin permanencia. Si más adelante le interesa, aquí estoy. ¡Éxitos con ${p.nombre}!`),
+    p.mensaje1 || `Hola, ¿qué más? 👋 Te escribe Andrés, dueño de Elites Drinks${presencial ? ', aquí en Ibagué' : ', un bar en Ibagué'}. Te escribo para ofrecerte algo que hice pensando en los que tenemos ${bar ? 'bar' : 'negocio'}: ${sistema}, ${queHace}. ${oferta}`,
+    p.mensaje2 || `Hola de nuevo 👋 Por si quieres darle una mirada antes, aquí puedes jugar con un negocio de ejemplo, sin registrarte: ${demo} El mes gratis con tu propia cuenta sigue en pie, me dices y te la creo.`,
+    p.mensaje3 || (bar ? `Hola, último mensaje para no molestarte 🙌 Este mes los primeros 20 bares que entren quedan con precio de fundador de por vida, desde $39.990 al mes (y si empiezas con el mes gratis y renuevas antes de que termine, lo conservas). Si más adelante te animas, aquí estoy. ¡Éxitos con ${p.nombre}!`
+      : `Hola, último mensaje para no molestarte 🙌 Si más adelante quieres probar ${sistema} un mes gratis con tu propia cuenta, aquí estoy. ¡Éxitos con ${p.nombre}!`),
   ];
 }
 // Un prospecto cuyo teléfono aparece en una compra pagada pasa a Cliente solo (y queda enlazado al negocio)
