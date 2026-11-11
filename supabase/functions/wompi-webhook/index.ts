@@ -3,7 +3,7 @@
 // Cuando el pago queda APROBADO:
 //   1. crea el comercio y su usuario en NexoBar, o renueva el existente si el correo ya tiene cuenta;
 //   2. envía al cliente sus credenciales (o la confirmación de la renovación);
-//   3. envía la alerta a NetxPremium.
+//   3. envía la alerta a Netxpremium.
 // Wompi reintenta el evento si la respuesta no es 200, así que cada paso es idempotente.
 import { createClient } from 'npm:@supabase/supabase-js@2.49.4';
 
@@ -25,12 +25,6 @@ function getSecretKey(): string {
 async function sha256Hex(text: string): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
   return Array.from(new Uint8Array(digest), (b) => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function hmacHex(secreto: string, text: string): Promise<string> {
-  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secreto), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-  const firma = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(firma), (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 // "transaction.amount_in_cents" → data.transaction.amount_in_cents
@@ -178,12 +172,14 @@ async function provisionar(compra: Compra): Promise<Provision> {
   }
   if (!negocioId) throw new Error('No se pudo generar un ID de comercio único');
 
-  // La contraseña real se asigna al enviar las credenciales (ver notificarCliente)
+  // La contraseña real se asigna al enviar las credenciales (ver notificarCliente). La marca de contraseña temporal
+  // va explícita: createUser escribe app_metadata después de insertar la cuenta y el trigger marcar_contrasena_temporal
+  // (BEFORE INSERT) no alcanza a verla.
   const { data: creado, error: userError } = await supabase.auth.admin.createUser({
     email: compra.email,
     password: contrasenaTemporal(24),
     email_confirm: true,
-    app_metadata: { business_id: negocioId },
+    app_metadata: { business_id: negocioId, must_change_password: true },
     user_metadata: { nombre: compra.comercio },
   });
 
@@ -233,7 +229,7 @@ async function vencimiento(negocioId: string | null): Promise<string | null> {
   return data?.fecha_vencimiento ?? null;
 }
 
-const pieCorreo = `<p>¿Dudas? Escríbenos a soporte@netxpremium.com o al WhatsApp +57 305 248 4278.</p><p>— Equipo NetxPremium</p>`;
+const pieCorreo = `<p>¿Dudas? Escríbenos a soporte@netxpremium.com o al WhatsApp +57 305 248 4278.</p><p>— Equipo Netxpremium</p>`;
 
 async function notificarCliente(compra: Compra): Promise<void> {
   const plan = escapeHtml(compra.planes?.nombre ?? compra.plan_id);
@@ -288,7 +284,7 @@ async function notificarCliente(compra: Compra): Promise<void> {
     return;
   }
 
-  // La provisión falló: NetxPremium recibe la alerta para crearlo manualmente
+  // La provisión falló: Netxpremium recibe la alerta para crearlo manualmente
   await enviarCorreo(
     compra.email,
     'Recibimos tu pago de NexoBar POS',
@@ -364,15 +360,29 @@ type WompiTransaction = {
 const ok = () => new Response('ok', { status: 200 });
 const ahora = () => new Date().toISOString();
 
-// Pagos de NexoPos: mismo comercio de Wompi, otra base de datos (otro proyecto de Supabase).
-// El evento ya verificado se reenvía intacto, firmado con REENVIO_NEXOPOS_SECRET, y aquí no se escribe nada.
-// Si NexoPos no responde 200, se responde error para que Wompi reintente.
-async function reenviarANexoPos(cuerpo: string): Promise<Response> {
+// ---------- Reenvío a NexoPos ----------
+// NexoPos cobra con la misma cuenta de Wompi, que admite una sola URL de eventos.
+// Sus referencias (NEXOPOS-…) se reenvían a su webhook con el cuerpo exacto que mandó Wompi,
+// firmado con HMAC para que NexoPos verifique que viene de aquí. No se escribe nada en la base de NexoBar.
+const PREFIJO_NEXOPOS = 'NEXOPOS-';
+const ESPERA_NEXOPOS_MS = 10_000;
+
+async function hmacSha256Hex(secreto: string, texto: string): Promise<string> {
+  const clave = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(secreto), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'],
+  );
+  const firma = await crypto.subtle.sign('HMAC', clave, new TextEncoder().encode(texto));
+  return Array.from(new Uint8Array(firma), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+// 200 a Wompi solo si NexoPos respondió 200; cualquier otro código, error de red o espera
+// de más de 10 s devuelve 500 para que Wompi reintente.
+async function reenviarANexoPos(cuerpo: string, referencia: string, estado: string): Promise<Response> {
   const url = Deno.env.get('NEXOPOS_WEBHOOK_URL');
   const secreto = Deno.env.get('REENVIO_NEXOPOS_SECRET');
   if (!url || !secreto) {
-    console.error('Reenvío a NexoPos sin configurar');
-    return new Response('Reenvío sin configurar', { status: 500 });
+    console.error('Reenvío NexoPos: faltan los secretos NEXOPOS_WEBHOOK_URL o REENVIO_NEXOPOS_SECRET', referencia);
+    return new Response('Reenvío no configurado', { status: 500 });
   }
 
   const ts = String(Math.floor(Date.now() / 1000));
@@ -382,16 +392,21 @@ async function reenviarANexoPos(cuerpo: string): Promise<Response> {
       headers: {
         'Content-Type': 'application/json',
         'x-nexopos-reenvio-ts': ts,
-        'x-nexopos-reenvio-firma': await hmacHex(secreto, `${ts}.${cuerpo}`),
+        'x-nexopos-reenvio-firma': await hmacSha256Hex(secreto, `${ts}.${cuerpo}`),
       },
       body: cuerpo,
+      signal: AbortSignal.timeout(ESPERA_NEXOPOS_MS),
     });
-    if (res.ok) return ok();
-    console.error('NexoPos respondió', res.status, await res.text());
+    await res.body?.cancel();
+    if (res.status === 200) {
+      console.log('Reenviado a NexoPos', referencia, estado);
+      return ok();
+    }
+    console.error('Reenvío NexoPos: respondió', res.status, referencia, estado);
   } catch (err) {
-    console.error('Reenvío a NexoPos', err);
+    console.error('Reenvío NexoPos: sin respuesta', referencia, estado, (err as Error)?.message ?? err);
   }
-  return new Response('Reenvío a NexoPos falló', { status: 502 });
+  return new Response('Reintentar', { status: 500 });
 }
 
 async function leerCompra(referencia: string): Promise<Compra | null> {
@@ -455,7 +470,7 @@ async function procesarCompra(referencia: string): Promise<boolean> {
     }
   }
 
-  // 3. Alerta a NetxPremium
+  // 3. Alerta a Netxpremium
   if (!compra.alerta_enviada_at) {
     try {
       await enviarAlertaAdmin(compra);
@@ -504,6 +519,7 @@ Deno.serve(async (req) => {
     return barrido();
   }
 
+  // Se lee como texto para poder reenviar a NexoPos exactamente lo que mandó Wompi
   const cuerpo = await req.text();
   let event: WompiEvent;
   try {
@@ -524,7 +540,11 @@ Deno.serve(async (req) => {
 
   const tx = event.data.transaction as WompiTransaction | undefined;
   if (!tx?.reference) return ok();
-  if (tx.reference.startsWith('NEXOPOS-')) return reenviarANexoPos(cuerpo);
+
+  // Pagos de NexoPos: se reenvían en cualquier estado y aquí no se escribe nada
+  if (String(tx.reference).startsWith(PREFIJO_NEXOPOS)) {
+    return reenviarANexoPos(cuerpo, String(tx.reference), String(tx.status ?? ''));
+  }
 
   const { data: compra, error } = await supabase
     .from('compras')
