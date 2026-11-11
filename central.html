@@ -117,7 +117,7 @@ dialog textarea { min-height: 170px; font-family: ui-monospace, Consolas, monosp
 .prospecto { border-top: 1px solid var(--line); padding: 12px 0; display: grid; gap: 8px }
 .prospecto:first-child { border-top: 0 }
 .prospecto .top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: flex-start }
-.prospecto .ctl { display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 8px }
+.prospecto .ctl { display: grid; grid-template-columns: 1fr 1fr 1fr 2fr; gap: 8px }
 .prospecto .ctl select, .prospecto .ctl input { font: inherit; font-size: 13px; color: var(--text); background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; width: 100%; min-width: 0 }
 .chip { font-size: 11px; font-weight: 600; border-radius: 999px; padding: 1px 8px; border: 1px solid currentColor; white-space: nowrap }
 .etapa.click { cursor: pointer; border: 1px solid transparent; font: inherit; color: var(--text) }
@@ -193,6 +193,7 @@ dialog textarea { min-height: 170px; font-family: ui-monospace, Consolas, monosp
       <section class="bloque">
         <div style="display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center"><h2>Prospectos</h2><button class="btn pri" type="button" id="btn-nuevo-prospecto">+ Prospecto</button></div>
         <div class="embudo" id="embudo-prospectos" style="grid-template-columns:repeat(6, minmax(0,1fr))"></div>
+        <p class="muted" id="competencia" style="margin:10px 0 0; font-size:13px"></p>
         <div class="filtros" style="margin-top:12px">
           <select id="p-vista" aria-label="Vista"><option value="hoy">Para hoy</option><option value="todos">Todos</option></select>
           <input type="search" id="p-buscar" placeholder="Buscar bar, barrio o teléfono" aria-label="Buscar prospecto">
@@ -606,15 +607,35 @@ function mensajes(p) {
   const queHace = p.producto === 'NexoPos' ? 'una caja para restaurantes y bares que manda las comandas a cocina y barra, te cuadra al cierre y te deja ver las ventas desde el celular, aunque se vaya el internet'
     : p.producto === 'Nexo Retail' ? 'una caja para tiendas con lector de código de barras, inventario y fiado, que te deja ver las ventas desde el celular, aunque se vaya el internet'
     : 'un sistema para bares donde abres cuentas personalizadas por cliente o por mesa, ves tu salón en un mapa de mesas y tus meseros toman los pedidos en la mesa desde el celular; además te cuadra la caja al cierre y ves las ventas desde tu celular, aunque se vaya el internet';
-  const oferta = presencial
-    ? `Me gustaría crearte tu cuenta y dejártela un mes gratis, y de plus te dejo cargado todo tu catálogo para que empieces a vender sin perder tiempo: solo mándame una foto de tu carta o tu lista de precios. Si te gusta, solo renuevas y sigues en la misma cuenta. ¿Qué día te queda bien que pase por ${p.nombre} y te lo dejo funcionando?`
-    : `Me gustaría crearte tu cuenta y dejártela un mes gratis, y de plus te dejo cargado todo tu catálogo para que empieces a vender sin perder tiempo: solo mándame una foto de tu carta o tu lista de precios. Si te gusta, solo renuevas y sigues en la misma cuenta. ¿Te animas?`;
+  // Cierra con la oferta y una pregunta que califica: con lo que responda se elige la respuesta (RESPUESTAS) y se sabe contra quién competimos
+  const oferta = `Me gustaría crearte tu cuenta y dejártela un mes gratis, y de plus te dejo cargado todo tu catálogo para que empieces a vender sin perder tiempo. Si te gusta, solo renuevas y sigues en la misma cuenta.\n\nCuéntame, para saber cómo te ayudo mejor: ¿hoy con qué manejas las cuentas en ${p.nombre}? ¿Algún programa, cuaderno o caja registradora?`;
   return [
     p.mensaje1 || `Hola, ¿qué más? 👋 Te escribe Andrés, dueño de Elites Drinks. Te escribo para ofrecerte algo que hice pensando en los que tenemos ${bar ? 'bar' : 'negocio'}: ${sistema}, ${queHace}. ${oferta}`,
     p.mensaje2 || `Hola de nuevo 👋 Por si quieres darle una mirada antes, aquí puedes jugar con un negocio de ejemplo, sin registrarte: ${demo} El mes gratis con tu propia cuenta y tu catálogo ya cargado sigue en pie: me mandas la foto de tu carta y te la dejo lista.`,
     p.mensaje3 || (bar ? `Hola, último mensaje para no molestarte 🙌 Este mes los primeros 20 bares que entren quedan con precio de fundador de por vida, desde $39.990 al mes (y si empiezas con el mes gratis y renuevas antes de que termine, lo conservas). Si más adelante te animas, aquí estoy. ¡Éxitos con ${p.nombre}!`
       : `Hola, último mensaje para no molestarte 🙌 Si más adelante quieres probar ${sistema} un mes gratis con tu propia cuenta y tu catálogo ya cargado, aquí estoy. ¡Éxitos con ${p.nombre}!`),
   ];
+}
+// Respuesta según lo que use hoy el prospecto (campo sistema_actual). Tono de colega; sin hablar mal de nadie:
+// preguntas sobre lo que suele faltarle a cada opción y la prueba de un mes en paralelo, sin desinstalar nada.
+const USA_HOY = ['', 'Nada / cuaderno', 'Excel', 'Caja registradora', 'Loggro', 'Siigo', 'Alegra', 'POS Colombia', 'SumaPOS', 'Gestro', 'Fudo', 'Otro programa'];
+function respuestaSugerida(p) {
+  const n = p.nombre, uso = p.sistema_actual || '';
+  const cierre = `Te propongo algo sin riesgo: te creo tu cuenta, te cargo tu carta y lo usas un mes gratis${/Nada|Excel|registradora/.test(uso) ? '' : ' en paralelo, sin desinstalar lo que tienes'}. Si no te convence, no pasa nada. ¿Te lo dejo listo esta semana?`;
+  if (!uso) return '';
+  if (uso === 'Nada / cuaderno' || uso === 'Excel') return `Te entiendo, así arranqué yo con Elites Drinks 🙌 El problema del ${uso === 'Excel' ? 'Excel' : 'cuaderno'} es que una noche llena se pierde el rastro: quién debe qué, qué se llevó cada mesa y por qué al cierre no cuadra. Con NexoBar cada cuenta queda a nombre del cliente o de la mesa, los meseros piden desde el celular y al cierre te dice cuánto debía haber y cuánto hay. ${cierre}`;
+  if (uso === 'Caja registradora') return `Bien, la registradora te da el total del día, pero no te dice qué se vendió, cuánto vendió cada mesero ni cuánto trago te queda 🍾 NexoBar te da eso, con cuentas por cliente o por mesa, mapa de mesas y las ventas en tu celular, aunque se vaya el internet. ${cierre}`;
+  const preguntas = `Una pregunta de colega: ¿te sigue vendiendo si se cae el internet? ¿Y lo puedes ver desde el celular cuando no estás en ${n}? Muchos programas están hechos para restaurante y en un bar se quedan cortos con las cuentas abiertas por cliente.`;
+  const extra = {
+    'Loggro': ' NexoBar está hecho solo para bares, funciona sin internet y con precio fundador queda desde $39.990 al mes.',
+    'Siigo': ' Siigo es muy bueno para la contabilidad; NexoBar se enfoca en la operación del bar: cuentas por cliente, mapa de mesas y meseros pidiendo desde el celular.',
+    'Alegra': ' Alegra es fuerte en contabilidad y facturación; NexoBar se enfoca en la operación del bar: cuentas por cliente, mapa de mesas y meseros pidiendo desde el celular.',
+    'POS Colombia': ' En NexoBar no hay costos aparte por usuario y con precio fundador queda desde $39.990 al mes.',
+    'SumaPOS': ' NexoBar también funciona sin internet, y con precio fundador el plan completo queda en $69.990 al mes.',
+    'Gestro': ' NexoBar funciona aunque se caiga el internet y con precio fundador queda desde $39.990 al mes.',
+    'Fudo': ' NexoBar funciona aunque se caiga el internet, es solo para bares y lo atendemos aquí en Colombia por WhatsApp.',
+  }[uso] || ' NexoBar está hecho solo para bares, funciona sin internet y lo atendemos directamente por WhatsApp.';
+  return `${preguntas}${extra} ${cierre}`;
 }
 // Un prospecto cuyo teléfono aparece en una compra pagada pasa a Cliente solo (y queda enlazado al negocio)
 async function enlazarClientes() {
@@ -634,11 +655,18 @@ async function guardarProspecto(id, campo, valor) {
   if (error) { p[campo] = antes; toast('No se pudo guardar: ' + error.message); return; }
   toast('Guardado');
   if (campo === 'estado') { pintarProspectos(); pintar(); }
+  else if (campo === 'sistema_actual') pintarProspectos();
 }
 function pintarProspectos() {
   const lista = datos.prospectos, cont = $('#lista-prospectos'); if (!cont) return;
   if (!datos.estado.NexoBar?.startsWith('Conectado')) { cont.innerHTML = '<p class="vacio">Conecta NexoBar para ver los prospectos.</p>'; return; }
   $('#embudo-prospectos').innerHTML = ETAPAS.map(e => `<button type="button" class="etapa click" data-etapa="${e}" aria-pressed="${etapaFiltro === e}"><b>${lista.filter(p => p.estado === e).length}</b><small>${e}</small></button>`).join('');
+  // Competencia: qué usan hoy los prospectos que ya respondieron
+  const usos = {}; lista.forEach(p => { if (p.sistema_actual) usos[p.sistema_actual] = (usos[p.sistema_actual] || 0) + 1; });
+  const resumen = Object.entries(usos).sort((a, b) => b[1] - a[1]);
+  $('#competencia').innerHTML = resumen.length
+    ? '<b>Lo que usan hoy:</b> ' + resumen.map(([u, n]) => `${esc(u)} <b>${n}</b>`).join(' · ')
+    : 'Cuando un prospecto te diga con qué maneja hoy las cuentas, márcalo en «Usa hoy» y aquí verás contra quién compites.';
   const sel = $('#p-ciudad'), actual = sel.value;
   sel.innerHTML = '<option value="">Todas las ciudades</option>' + [...new Set(lista.map(p => p.ciudad).filter(Boolean))].sort().map(c => `<option${c === actual ? ' selected' : ''}>${esc(c)}</option>`).join('');
   const q = $('#p-buscar').value.trim().toLowerCase(), vista = $('#p-vista').value, ciudad = $('#p-ciudad').value, prio = $('#p-prioridad').value;
@@ -657,7 +685,9 @@ function pintarProspectos() {
         <div class="acciones">${p.telefono ? `<span style="user-select:all; font-weight:600; align-self:center">${esc(p.telefono)}</span>` : '<span class="muted" style="align-self:center">Sin teléfono</span>'}
           <button class="btn pri" type="button" data-msg="0">Copiar mensaje 1</button><button class="btn" type="button" data-msg="1">2</button><button class="btn" type="button" data-msg="2">3</button>
           ${wa ? `<a class="btn" href="${wa}" target="_blank" rel="noopener" style="text-decoration:none">WhatsApp</a>` : ''}</div></div>
+      ${respuestaSugerida(p) ? `<div class="s" style="background:var(--surface-2); border-radius:10px; padding:8px 10px; font-size:13px"><b>Respuesta si usa ${esc(p.sistema_actual)}:</b> <button class="btn" type="button" data-respuesta style="margin-left:6px">Copiar respuesta</button></div>` : ''}
       <div class="ctl">
+        <select data-campo="sistema_actual" aria-label="Qué usa hoy">${USA_HOY.map(u => `<option value="${esc(u)}"${u === (p.sistema_actual || '') ? ' selected' : ''}>${u ? esc(u) : 'Usa hoy: ¿?'}</option>`).join('')}</select>
         <select data-campo="estado" aria-label="Etapa">${ETAPAS.map(e => `<option${e === p.estado ? ' selected' : ''}>${e}</option>`).join('')}</select>
         <input type="date" data-campo="proxima" value="${esc(p.proxima || '')}" aria-label="Próxima acción">
         <input class="notas" data-campo="notas" value="${esc(p.notas)}" placeholder="Notas: quién atendió, qué usan hoy…" aria-label="Notas">
@@ -667,8 +697,9 @@ function pintarProspectos() {
 document.addEventListener('click', async e => {
   const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.etapa) { etapaFiltro = etapaFiltro === b.dataset.etapa ? '' : b.dataset.etapa; return pintarProspectos(); }
-  if (b.dataset.msg) {
-    const p = datos.prospectos.find(x => x.id === b.closest('[data-pid]').dataset.pid), txt = mensajes(p)[Number(b.dataset.msg)];
+  if ('respuesta' in b.dataset || b.dataset.msg) {
+    const p = datos.prospectos.find(x => x.id === b.closest('[data-pid]').dataset.pid);
+    const txt = 'respuesta' in b.dataset ? respuestaSugerida(p) : mensajes(p)[Number(b.dataset.msg)];
     try { await navigator.clipboard.writeText(txt); toast('Mensaje copiado'); } catch { window.prompt('Copia el mensaje:', txt); }
   }
 });
